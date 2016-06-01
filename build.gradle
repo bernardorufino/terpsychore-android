@@ -21,3 +21,15 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+apply plugin: 'idea'
+
+idea {
+    project {
+        languageLevel = '1.7'
+    }
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
