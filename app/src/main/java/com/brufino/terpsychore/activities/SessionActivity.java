@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
+import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -27,22 +29,25 @@ public class SessionActivity extends AppCompatActivity
     public static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
 
     private Player mSpotifyPlayer;
+    private GraphTrackView vGraphTrackView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
+        vGraphTrackView = (GraphTrackView) findViewById(R.id.graph_track_view);
+        vGraphTrackView.addTrackCurve(TrackCurve.sample(), TrackCurve.Style.sample());
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
-
         String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
         String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
         String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
 
         setTitle(trackArtist + ": " + trackName);
 
+        /* TODO: Extract this logic into a helper / util class! */
         AuthenticationRequest request = new AuthenticationRequest.Builder(
                 SPOTIFY_CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN,
