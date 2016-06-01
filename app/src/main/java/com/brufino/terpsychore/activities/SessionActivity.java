@@ -1,9 +1,10 @@
-package com.brufino.terpsychore;
+package com.brufino.terpsychore.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import com.brufino.terpsychore.R;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -11,8 +12,14 @@ import com.spotify.sdk.android.player.*;
 
 import static com.google.common.base.Preconditions.*;
 
-public class MainActivity extends AppCompatActivity
+/* TODO: Implement server-side authentication with access token refresh */
+public class SessionActivity extends AppCompatActivity
         implements PlayerNotificationCallback, ConnectionStateCallback {
+
+    public static final String SESSION_ID_EXTRA_KEY = "sessionId";
+    public static final String TRACK_ID_EXTRA_KEY = "trackId";
+    public static final String TRACK_NAME_EXTRA_KEY = "trackName";
+    public static final String TRACK_ARTIST_EXTRA_KEY = "trackArtist";
 
     public static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
     public static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
@@ -24,7 +31,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_session);
+
+
+        String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
+        checkNotNull(sessionId, "Can't start SessionActivity without a session id");
+
+        String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
+        String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
+        String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
+
+        setTitle(trackArtist + ": " + trackName);
 
         AuthenticationRequest request = new AuthenticationRequest.Builder(
                 SPOTIFY_CLIENT_ID,
@@ -44,6 +61,9 @@ public class MainActivity extends AppCompatActivity
             case SPOTIFY_LOGIN_REQUEST_CODE:
                 AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
                 checkState(response.getType() == AuthenticationResponse.Type.TOKEN);
+                // int expiresIn = response.getExpiresIn();
+                // Log.d("VFY", "access token = " + response.getAccessToken());
+                // Log.d("VFY", "access token expires in " + expiresIn + " s");
                 Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
         }
@@ -53,8 +73,8 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onInitialized(Player player) {
             mSpotifyPlayer = player;
-            mSpotifyPlayer.addConnectionStateCallback(MainActivity.this);
-            mSpotifyPlayer.addPlayerNotificationCallback(MainActivity.this);
+            mSpotifyPlayer.addConnectionStateCallback(SessionActivity.this);
+            mSpotifyPlayer.addPlayerNotificationCallback(SessionActivity.this);
             //mSpotifyPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
         }
 
