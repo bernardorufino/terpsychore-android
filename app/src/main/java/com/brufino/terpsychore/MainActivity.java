@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
             mSpotifyPlayer = player;
             mSpotifyPlayer.addConnectionStateCallback(MainActivity.this);
             mSpotifyPlayer.addPlayerNotificationCallback(MainActivity.this);
-            mSpotifyPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
+            //mSpotifyPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
         }
 
         @Override
