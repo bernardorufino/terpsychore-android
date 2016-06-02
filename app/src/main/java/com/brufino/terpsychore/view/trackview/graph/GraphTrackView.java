@@ -12,7 +12,7 @@ import com.brufino.terpsychore.view.trackview.TrackView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GraphTrackView extends View implements TrackView {
+public class GraphTrackView extends View implements TrackView, TrackCurve.UpdateListener {
 
     private List<Pair<TrackCurve, TrackCurve.Style>> mStaticTrackCurves = new ArrayList<>();
     private Path mCurveAreaPath = new Path();
@@ -33,16 +33,17 @@ public class GraphTrackView extends View implements TrackView {
     }
 
     private void initializeView() {
-
     }
 
     public void addTrackCurve(TrackCurve trackCurve, TrackCurve.Style trackCurveStyle) {
         mStaticTrackCurves.add(Pair.create(trackCurve, trackCurveStyle));
+        trackCurve.addUpdateListener(this);
         invalidate();
     }
 
-    public void addLiveTrackCurve(LiveTrackCurve liveTrackCurve, TrackCurve.Style trackCurveStyle) {
-        /* TODO: Subscrive to callbacks and etc. */
+    @Override
+    public void onTrackCurveUpdated(TrackCurve trackCurve) {
+        postInvalidate();
     }
 
     @Override
@@ -64,12 +65,11 @@ public class GraphTrackView extends View implements TrackView {
                 TrackCurve.Point a = controlPoints.get(i);
                 TrackCurve.Point b = controlPoints.get(i + 1);
 
+                // (1 - y) bc y is backwards!
                 float leftX = (float) (a.x * width);
                 float leftY = (float) ((1 - a.y) * height);
                 float rightX = (float) (b.x * width);
                 float rightY = (float) ((1 - b.y) * height);
-                // (1 - y) bc y is backwards!
-                canvas.drawLine(leftX, leftY, rightX, rightY, strokePaint);
 
                 if (style.shouldDrawUnderCurve()) {
                     mCurveAreaPath.reset();
@@ -81,6 +81,7 @@ public class GraphTrackView extends View implements TrackView {
                     mCurveAreaPath.close();
                     canvas.drawPath(mCurveAreaPath, pathPaint);
                 }
+                canvas.drawLine(leftX, leftY, rightX, rightY, strokePaint);
 
             }
         }

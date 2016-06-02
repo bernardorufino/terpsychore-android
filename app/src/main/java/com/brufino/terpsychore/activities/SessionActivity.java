@@ -2,16 +2,19 @@ package com.brufino.terpsychore.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
-import com.google.common.base.Function;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.*;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -24,13 +27,18 @@ public class SessionActivity extends AppCompatActivity
     public static final String TRACK_NAME_EXTRA_KEY = "trackName";
     public static final String TRACK_ARTIST_EXTRA_KEY = "trackArtist";
 
-    public static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
-    public static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
-    public static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
-    public static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
+    private static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
+    private static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
+    private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
+    private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
+
+    public static final String LIVE_TRACK_CURVE_SAVED_STATE_KEY = "liveTrackCurve";
+    public static final String TRACK_CURVE_SAVED_STATE_KEY = "trackCurve";
 
     private Player mSpotifyPlayer;
     private GraphTrackView vGraphTrackView;
+    private TrackCurve mTrackCurve;
+    private TrackCurve mLiveTrackCurve;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +46,7 @@ public class SessionActivity extends AppCompatActivity
         setContentView(R.layout.activity_session);
 
         vGraphTrackView = (GraphTrackView) findViewById(R.id.graph_track_view);
-        vGraphTrackView.addTrackCurve(TrackCurve.sample(new Function<Double, Double>() {
-            @Override
-            public Double apply(Double x) {
-                return x * x;
-            }
-        }), TrackCurve.Style.create(0xFFFF0000, 8, 0x77FF0000));
-        vGraphTrackView.addTrackCurve(TrackCurve.sample(new Function<Double, Double>() {
-            @Override
-            public Double apply(Double x) {
-                return x;
-            }
-        }), TrackCurve.Style.create(0xFF0000FF, 8, 0x770000FF));
+
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
@@ -68,7 +65,49 @@ public class SessionActivity extends AppCompatActivity
                 .build();
 
         AuthenticationClient.openLoginActivity(this, SPOTIFY_LOGIN_REQUEST_CODE, request);
+
+        // Track Graph
+        TrackCurve.Style topTrackCurveStyle = TrackCurve.Style.create(
+                ContextCompat.getColor(this, R.color.graphStrokeTop), 6,
+                ContextCompat.getColor(this, R.color.graphForegroundTop));
+        TrackCurve.Style trackCurveStyle = TrackCurve.Style.create(
+                ContextCompat.getColor(this, R.color.graphStroke), 6,
+                ContextCompat.getColor(this, R.color.graphForeground));
+
+
+        if (savedInstanceState != null) {
+            mTrackCurve = savedInstanceState.getParcelable(TRACK_CURVE_SAVED_STATE_KEY);
+            vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
+            mLiveTrackCurve = savedInstanceState.getParcelable(LIVE_TRACK_CURVE_SAVED_STATE_KEY);
+            vGraphTrackView.addTrackCurve(mLiveTrackCurve, topTrackCurveStyle);
+        } else {
+            mTrackCurve = TrackCurve.random();
+            vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
+            mLiveTrackCurve = new TrackCurve();
+            vGraphTrackView.addTrackCurve(mLiveTrackCurve, topTrackCurveStyle);
+            new Handler().postDelayed(mUpdateLiveTrackCurve, 50);
+        }
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(LIVE_TRACK_CURVE_SAVED_STATE_KEY, mLiveTrackCurve);
+        outState.putParcelable(TRACK_CURVE_SAVED_STATE_KEY, mTrackCurve);
+    }
+
+    private int mI = 0;
+
+    private Runnable mUpdateLiveTrackCurve = new Runnable() {
+        @Override
+        public void run() {
+            List<TrackCurve.Point> controlPoints = mTrackCurve.getControlPoints();
+            mLiveTrackCurve.addControlPoint(controlPoints.get(mI++));
+            if (mI < controlPoints.size()) {
+                new Handler().postDelayed(mUpdateLiveTrackCurve, 75);
+            }
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
