@@ -1,6 +1,7 @@
 package com.brufino.terpsychore.view.trackview.graph;
 
 import android.graphics.Paint;
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
 import java.util.LinkedList;
@@ -11,11 +12,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class TrackCurve {
 
     /* TODO: Remove */
-    public static TrackCurve sample() {
+    public static TrackCurve sample(Function<Double, Double> f) {
         TrackCurve trackCurve = new TrackCurve();
-        for (int i = 0, n = 20; i <= n; i++) {
+        for (int i = 0, n = 5; i <= n; i++) {
             double x = (double) i / n;
-            double y = x * x;
+            double y = f.apply(x);
             Point p = new Point(x, y);
             trackCurve.addControlPoint(p);
         }
@@ -52,22 +53,42 @@ public class TrackCurve {
 
     public static class Style {
 
-        private Paint mStrokePaint;
-
-        /* TODO: Remove! */
-        public static Style sample() {
-            return new Style();
+        public static Style create(int strokeColor, float strokeWidth, int fillColor) {
+            Style style = new Style();
+            style.setStroke(strokeColor, strokeWidth);
+            style.setFillColor(fillColor);
+            return style;
         }
 
-        public void preCalculatePaints() {
+        private Paint mStrokePaint;
+        private Paint mPathPaint;
+
+        public Style() {
             mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            mStrokePaint.setColor(0xFF003333);
             mStrokePaint.setStyle(Paint.Style.STROKE);
             mStrokePaint.setStrokeWidth(8);
+            mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         }
 
-        public Paint getStrokePaint() {
+        public void setStroke(int color, float width) {
+            mStrokePaint.setColor(color);
+            mStrokePaint.setStrokeWidth(width);
+        }
+
+        public void setFillColor(int color) {
+            mPathPaint.setColor(color);
+        }
+
+        /* package private */ Paint getStrokePaint() {
             return mStrokePaint;
+        }
+
+        /* package private */ Paint getPathPaint() {
+            return mPathPaint;
+        }
+
+        /* package private */ boolean shouldDrawUnderCurve() {
+            return mPathPaint.getAlpha() > 0;
         }
     }
 }

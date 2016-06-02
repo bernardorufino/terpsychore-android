@@ -7,6 +7,7 @@ import android.util.Log;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
+import com.google.common.base.Function;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -37,7 +38,18 @@ public class SessionActivity extends AppCompatActivity
         setContentView(R.layout.activity_session);
 
         vGraphTrackView = (GraphTrackView) findViewById(R.id.graph_track_view);
-        vGraphTrackView.addTrackCurve(TrackCurve.sample(), TrackCurve.Style.sample());
+        vGraphTrackView.addTrackCurve(TrackCurve.sample(new Function<Double, Double>() {
+            @Override
+            public Double apply(Double x) {
+                return x * x;
+            }
+        }), TrackCurve.Style.create(0xFFFF0000, 8, 0x77FF0000));
+        vGraphTrackView.addTrackCurve(TrackCurve.sample(new Function<Double, Double>() {
+            @Override
+            public Double apply(Double x) {
+                return x;
+            }
+        }), TrackCurve.Style.create(0xFF0000FF, 8, 0x770000FF));
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
