@@ -6,12 +6,11 @@ import android.os.Parcelable;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.*;
 
 public class TrackCurve implements Parcelable {
 
@@ -32,7 +31,7 @@ public class TrackCurve implements Parcelable {
     /* TODO: Remove */
     public static TrackCurve sample(Function<Double, Double> f) {
         TrackCurve trackCurve = new TrackCurve();
-        for (int i = 0, n = 100; i <= n; i++) {
+        for (int i = 0, n = 10; i <= n; i++) {
             double x = (double) i / n;
             double y = f.apply(x);
             Point p = new Point(x, y);
@@ -60,14 +59,15 @@ public class TrackCurve implements Parcelable {
         });
     }
 
-    private List<UpdateListener> mUpdateListeners = new ArrayList<>();
     private List<Point> mControlPoints = new LinkedList<>();
+    private double mCurrentPosition = 0;
 
     public TrackCurve() {
     }
 
     protected TrackCurve(Parcel in) {
         mControlPoints = in.createTypedArrayList(Point.CREATOR);
+        mCurrentPosition = in.readDouble();
     }
 
     @Override
@@ -78,6 +78,7 @@ public class TrackCurve implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(mControlPoints);
+        dest.writeDouble(mCurrentPosition);
     }
 
     public List<Point> getControlPoints() {
@@ -87,20 +88,24 @@ public class TrackCurve implements Parcelable {
     public void addControlPoint(Point point) {
         validatePoint(point);
         mControlPoints.add(point);
-        for (UpdateListener updateListener : mUpdateListeners) {
-            updateListener.onTrackCurveUpdated(this);
-        }
     }
 
-    public void addUpdateListener(UpdateListener updateListener) {
-        mUpdateListeners.add(updateListener);
+    public void seekPosition(double xPosition) {
+        checkArgument(xPosition >= 0, "xPosition must be >= 0");
+        checkArgument(xPosition <= 1, "xPosition must be <= 1");
+
+        mCurrentPosition = xPosition;
+    }
+
+    public double getCurrentPosition() {
+        return mCurrentPosition;
     }
 
     private void validatePoint(Point point) {
-        checkArgument(point.x >= 0, "Point's x coordinate must >= 0");
-        checkArgument(point.x <= 1, "Point's x coordinate must <= 1");
-        checkArgument(point.y >= 0, "Point's y coordinate must >= 0");
-        checkArgument(point.y <= 1, "Point's y coordinate must <= 1");
+        checkArgument(point.x >= 0, "Point's x coordinate must be >= 0");
+        checkArgument(point.x <= 1, "Point's x coordinate must be <= 1");
+        checkArgument(point.y >= 0, "Point's y coordinate must be >= 0");
+        checkArgument(point.y <= 1, "Point's y coordinate must be <= 1");
     }
 
     public static interface UpdateListener {
@@ -148,38 +153,54 @@ public class TrackCurve implements Parcelable {
 
     public static class Style {
 
-        public static Style create(int strokeColor, float strokeWidth, int fillColor) {
-            Style style = new Style();
-            style.setStroke(strokeColor, strokeWidth);
-            style.setFillColor(fillColor);
-            return style;
-        }
-
-        private Paint mStrokePaint;
-        private Paint mPathPaint;
+        private Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private Paint mStrokeTopPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private Paint mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private Paint mPathTopPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         public Style() {
-            mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             mStrokePaint.setStyle(Paint.Style.STROKE);
             mStrokePaint.setStrokeWidth(8);
-            mPathPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mStrokeTopPaint.setStyle(Paint.Style.STROKE);
+            mStrokeTopPaint.setStrokeWidth(8);
         }
 
-        public void setStroke(int color, float width) {
+        public Style setStroke(int color, float width) {
             mStrokePaint.setColor(color);
             mStrokePaint.setStrokeWidth(width);
+            return this;
         }
 
-        public void setFillColor(int color) {
+        public Style setStrokeTop(int color, float width) {
+            mStrokeTopPaint.setColor(color);
+            mStrokeTopPaint.setStrokeWidth(width);
+            return this;
+        }
+
+        public Style setFillColor(int color) {
             mPathPaint.setColor(color);
+            return this;
+        }
+
+        public Style setFillColorTop(int color) {
+            mPathTopPaint.setColor(color);
+            return this;
         }
 
         /* package private */ Paint getStrokePaint() {
             return mStrokePaint;
         }
 
+        /* package private */ Paint getStrokeTopPaint() {
+            return mStrokeTopPaint;
+        }
+
         /* package private */ Paint getPathPaint() {
             return mPathPaint;
+        }
+
+        /* package private */ Paint getPathTopPaint() {
+            return mPathTopPaint;
         }
 
         /* package private */ boolean shouldDrawUnderCurve() {

@@ -14,8 +14,6 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.*;
 
-import java.util.List;
-
 import static com.google.common.base.Preconditions.*;
 
 /* TODO: Implement server-side authentication with access token refresh */
@@ -47,7 +45,6 @@ public class SessionActivity extends AppCompatActivity
 
         vGraphTrackView = (GraphTrackView) findViewById(R.id.graph_track_view);
 
-
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
         String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
@@ -67,24 +64,19 @@ public class SessionActivity extends AppCompatActivity
         AuthenticationClient.openLoginActivity(this, SPOTIFY_LOGIN_REQUEST_CODE, request);
 
         // Track Graph
-        TrackCurve.Style topTrackCurveStyle = TrackCurve.Style.create(
-                ContextCompat.getColor(this, R.color.graphStrokeTop), 6,
-                ContextCompat.getColor(this, R.color.graphForegroundTop));
-        TrackCurve.Style trackCurveStyle = TrackCurve.Style.create(
-                ContextCompat.getColor(this, R.color.graphStroke), 6,
-                ContextCompat.getColor(this, R.color.graphForeground));
-
+        TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
+                .setFillColor(ContextCompat.getColor(this, R.color.graphForeground))
+                .setStroke(ContextCompat.getColor(this, R.color.graphStroke), 6)
+                .setFillColorTop(ContextCompat.getColor(this, R.color.graphForegroundTop))
+                .setStrokeTop(ContextCompat.getColor(this, R.color.graphStrokeTop), 6);
 
         if (savedInstanceState != null) {
             mTrackCurve = savedInstanceState.getParcelable(TRACK_CURVE_SAVED_STATE_KEY);
             vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
-            mLiveTrackCurve = savedInstanceState.getParcelable(LIVE_TRACK_CURVE_SAVED_STATE_KEY);
-            vGraphTrackView.addTrackCurve(mLiveTrackCurve, topTrackCurveStyle);
+            Log.d("VFY", "graph track view = " + vGraphTrackView.hashCode());
         } else {
             mTrackCurve = TrackCurve.random();
             vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
-            mLiveTrackCurve = new TrackCurve();
-            vGraphTrackView.addTrackCurve(mLiveTrackCurve, topTrackCurveStyle);
             new Handler().postDelayed(mUpdateLiveTrackCurve, 50);
         }
     }
@@ -92,19 +84,21 @@ public class SessionActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(LIVE_TRACK_CURVE_SAVED_STATE_KEY, mLiveTrackCurve);
         outState.putParcelable(TRACK_CURVE_SAVED_STATE_KEY, mTrackCurve);
     }
 
-    private int mI = 0;
+    private double mX = -0.005;
 
+    /* TODO:     We have a leakage here, observe the hash codes... */
     private Runnable mUpdateLiveTrackCurve = new Runnable() {
         @Override
         public void run() {
-            List<TrackCurve.Point> controlPoints = mTrackCurve.getControlPoints();
-            mLiveTrackCurve.addControlPoint(controlPoints.get(mI++));
-            if (mI < controlPoints.size()) {
-                new Handler().postDelayed(mUpdateLiveTrackCurve, 75);
+            mX = Math.min(1, mX + 0.005);
+            mTrackCurve.seekPosition(mX);
+            vGraphTrackView.postInvalidate();
+            Log.d("VFY", "runnable: graph track view = " + vGraphTrackView.hashCode());
+            if (mX < 1) {
+                new Handler().postDelayed(mUpdateLiveTrackCurve, 80);
             }
         }
     };

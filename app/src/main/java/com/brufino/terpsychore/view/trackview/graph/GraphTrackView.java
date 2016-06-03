@@ -8,6 +8,7 @@ import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.view.View;
 import com.brufino.terpsychore.view.trackview.TrackView;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,6 @@ public class GraphTrackView extends View implements TrackView, TrackCurve.Update
 
     public void addTrackCurve(TrackCurve trackCurve, TrackCurve.Style trackCurveStyle) {
         mStaticTrackCurves.add(Pair.create(trackCurve, trackCurveStyle));
-        trackCurve.addUpdateListener(this);
         invalidate();
     }
 
@@ -57,13 +57,21 @@ public class GraphTrackView extends View implements TrackView, TrackCurve.Update
             TrackCurve curve = pair.first;
             TrackCurve.Style style = pair.second;
 
-            Paint strokePaint = style.getStrokePaint();
-            Paint pathPaint = style.getPathPaint();
-
             List<TrackCurve.Point> controlPoints = curve.getControlPoints();
+            /* TODO: Do it online inside this for, performance here is critical */
+            controlPoints = addInterpolatedPoint(controlPoints, curve.getCurrentPosition());
             for (int i = 0; i < controlPoints.size() - 1; i++) {
                 TrackCurve.Point a = controlPoints.get(i);
                 TrackCurve.Point b = controlPoints.get(i + 1);
+
+                Paint strokePaint, pathPaint;
+                if (curve.getCurrentPosition() <= a.x) {
+                    strokePaint = style.getStrokePaint();
+                    pathPaint = style.getPathPaint();
+                } else {
+                    strokePaint = style.getStrokeTopPaint();
+                    pathPaint = style.getPathTopPaint();
+                }
 
                 // (1 - y) bc y is backwards!
                 float leftX = (float) (a.x * width);
@@ -82,8 +90,23 @@ public class GraphTrackView extends View implements TrackView, TrackCurve.Update
                     canvas.drawPath(mCurveAreaPath, pathPaint);
                 }
                 canvas.drawLine(leftX, leftY, rightX, rightY, strokePaint);
-
             }
         }
+    }
+
+    private List<TrackCurve.Point> addInterpolatedPoint(List<TrackCurve.Point> points, double x) {
+        ImmutableList.Builder<TrackCurve.Point> builder = new ImmutableList.Builder<>();
+        for (int i = 0, n = points.size(); i < n - 1; i++) {
+            TrackCurve.Point a = points.get(i);
+            TrackCurve.Point b = points.get(i + 1);
+            builder.add(a);
+            if (a.x < x && x < b.x) {
+                double y = a.y + (x - a.x) / (b.x - a.x) * (b.y - a.y);
+                TrackCurve.Point p = new TrackCurve.Point(x, y);
+                builder.add(p);
+            }
+            builder.add(b);
+        }
+        return builder.build();
     }
 }
