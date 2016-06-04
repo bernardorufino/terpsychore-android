@@ -11,11 +11,12 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.MainActivity;
 import com.brufino.terpsychore.activities.SessionActivity;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 public class SpotifyBroadcastReceiver extends BroadcastReceiver {
 
@@ -80,9 +81,12 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
                    TODO: before, since this would solve all our problems, instead of having to keep track of the
                    TODO: player's state */
                 trackId = preferences.getString(CURRENT_TRACK_ID_KEY, null);
+                Log.d("VFY", "track id = " + trackId);
                 if (trackId != null) {
                     trackName = checkNotNull(preferences.getString(CURRENT_TRACK_NAME_KEY, null));
                     trackArtist = checkNotNull(preferences.getString(CURRENT_TRACK_ARTIST_KEY, null));
+                    Log.d("VFY", "track name = " + trackName);
+                    Log.d("VFY", "track artist = " + trackArtist);
                     generateNotification(context, trackId, trackName, trackArtist);
                 }
                 break;
