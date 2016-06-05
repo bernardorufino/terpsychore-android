@@ -10,14 +10,17 @@
     tools:showIn="@layout/activity_session">
 
     <ImageButton
+        android:id="@+id/playback_control_replay"
         android:src="@drawable/ic_replay_10_white_36dp"
         style="@style/PlaybackButton" />
 
     <ImageButton
+        android:id="@+id/playback_control_play"
         android:src="@drawable/ic_play_arrow_white_36dp"
         style="@style/PlaybackButton.LeftSpaced" />
 
     <ImageButton
+        android:id="@+id/playback_control_next"
         android:src="@drawable/ic_skip_next_white_36dp"
         style="@style/PlaybackButton.LeftSpaced" />
 

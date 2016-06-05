@@ -6,8 +6,11 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.GraphTrackFragment;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
@@ -40,6 +43,7 @@ public class SessionActivity extends AppCompatActivity {
     public static final String CURRENT_POSITION_SAVED_STATE_KEY = "currentPosition";
     private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
+    private static final int REPLAY_TIME_WINDOW_IN_MS = 10_000;
 
     private FrameLayout vTrackViewContainer;
     private TrackProgressBar vTrackProgressBar;
@@ -54,7 +58,9 @@ public class SessionActivity extends AppCompatActivity {
     private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
 
-
+    private ImageButton vReplayButton;
+    private ImageButton vPlayButton;
+    private ImageButton vNextButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,13 @@ public class SessionActivity extends AppCompatActivity {
         vDisplayCurrentTrackTime.setText(formatTrackTime(0));
         vDisplayTotalTrackTime = (TextView) findViewById(R.id.display_total_track_time);
         vDisplayTotalTrackTime.setText(formatTrackTime(0));
+        vReplayButton = (ImageButton) findViewById(R.id.playback_control_replay);
+        vReplayButton.setOnClickListener(mOnReplayButtonClickListener);
+        vPlayButton = (ImageButton) findViewById(R.id.playback_control_play);
+        vPlayButton.setOnClickListener(mOnPlayButtonClickListener);
+        vNextButton = (ImageButton) findViewById(R.id.playback_control_next);
+        vNextButton.setOnClickListener(mOnNextButtonClickListener);
+
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
@@ -108,9 +121,48 @@ public class SessionActivity extends AppCompatActivity {
         mActivityAlive = true;
     }
 
-    public static void main(String[] args) {
-        System.out.println(formatTrackTime(1000));
-    }
+    /* TODO: Refactor this mess of listeners attached to playback controls registering other listeners. Unify? */
+
+    private View.OnClickListener mOnReplayButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mPlayer.getPlayerState(mOnReplayButtonClickRetrievePlayerState);
+        }
+    };
+
+    private PlayerStateCallback mOnReplayButtonClickRetrievePlayerState = new PlayerStateCallback() {
+        @Override
+        public void onPlayerState(PlayerState playerState) {
+            int newPosition = Math.max(0, playerState.positionInMs - REPLAY_TIME_WINDOW_IN_MS);
+            mPlayer.seekToPosition(newPosition);
+        }
+    };
+
+    private View.OnClickListener mOnPlayButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mPlayer.getPlayerState(mOnPlayButtonClickRetrievePlayerState);
+        }
+    };
+
+    private PlayerStateCallback mOnPlayButtonClickRetrievePlayerState = new PlayerStateCallback() {
+        @Override
+        public void onPlayerState(PlayerState playerState) {
+            // Button image is controlled in TrackUpdater.onPlayerState()
+            if (playerState.playing) {
+                mPlayer.pause();
+            } else {
+                mPlayer.resume();
+            }
+        }
+    };
+
+    private View.OnClickListener mOnNextButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(SessionActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     private static String formatTrackTime(int timeInMs) {
         int secs = (int) (timeInMs / 1000.0 + 0.5);
@@ -243,6 +295,7 @@ public class SessionActivity extends AppCompatActivity {
     private static class TrackUpdater implements Runnable, PlayerStateCallback {
 
         private final WeakReference<SessionActivity> mActivityRef;
+        private boolean mPlaying;
 
         public TrackUpdater(SessionActivity activity) {
             mActivityRef = new WeakReference<>(activity);
@@ -261,6 +314,12 @@ public class SessionActivity extends AppCompatActivity {
         public void onPlayerState(PlayerState playerState) {
             SessionActivity activity = mActivityRef.get();
             if (activity != null && activity.mActivityAlive) {
+                if (mPlaying && !playerState.playing) {
+                    activity.vPlayButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
+                } else if (!mPlaying && playerState.playing) {
+                    activity.vPlayButton.setImageResource(R.drawable.ic_pause_white_36dp);
+                }
+                mPlaying = playerState.playing;
                 if (playerState.durationInMs > 0 && !activity.mSeekCurrentPosition) {
                     activity.mCurrentPosition.set((double) playerState.positionInMs / playerState.durationInMs);
                     activity.notifyTrackUpdateListeners(playerState.durationInMs);
