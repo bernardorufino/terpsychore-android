@@ -26,8 +26,10 @@ public class ChatFragment extends Fragment {
 
     private EditText vInput;
     private ImageButton vActionButton;
-    private ChatButtonAction mButtonAction;
     private RelativeLayout vReactionsContainer;
+    private TextView vChatWindow;
+
+    private ChatButtonAction mButtonAction;
 
     @Nullable
     @Override
@@ -45,6 +47,7 @@ public class ChatFragment extends Fragment {
         vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);
         vActionButton.setOnClickListener(mOnActionButtonClickListener);
         vReactionsContainer = (RelativeLayout) getView().findViewById(R.id.chat_reactions_container);
+        vChatWindow = (TextView) getView().findViewById(R.id.chat_window);
 
         mButtonAction = ChatButtonAction.OPEN_REACTIONS;
         ViewUtils.addOnFirstGlobalLayoutListener(
@@ -111,7 +114,9 @@ public class ChatFragment extends Fragment {
         public void onClick(View v) {
             switch (mButtonAction) {
                 case SEND_MESSAGE:
-                    Toast.makeText(getContext(), "Send message!", Toast.LENGTH_SHORT).show();
+                    String message = vInput.getText().toString();
+                    vChatWindow.append(System.lineSeparator() + "Me: " + message);
+                    vInput.setText("");
                     break;
                 case OPEN_REACTIONS:
                     if (vReactionsContainer.isShown()) {
