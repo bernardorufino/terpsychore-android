@@ -3,18 +3,20 @@ package com.brufino.terpsychore.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.FrameLayout;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
-import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
+import com.brufino.terpsychore.fragments.GraphTrackFragment;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.*;
 
 import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -31,27 +33,25 @@ public class SessionActivity extends AppCompatActivity {
     private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
     private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
 
-    public static final String TRACK_CURVE_SAVED_STATE_KEY = "trackCurve";
     public static final String CURRENT_POSITION_SAVED_STATE_KEY = "currentPosition";
+    private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
+    private static final long UPDATE_INTERVAL_IN_MS = 80;
 
-    // EPS for threshold of when to consider track finished
-    private static final double EPS = 0.0005;
-    private static final int GRAPH_UPDATE_INTERVAL_IN_MS = 80;
+    private Player mPlayer;
+    private AtomicDouble mCurrentPosition;
+    private FrameLayout vTrackViewContainer;
+    private GraphTrackFragment mGraphTrackFragment;
+    private volatile boolean mActivityAlive; /* TODO: Analyse concurrency issues */
+    private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
 
-    private Player mSpotifyPlayer;
-    private GraphTrackView vGraphTrackView;
-    private TrackCurve mTrackCurve;
-    private TrackCurve mLiveTrackCurve;
-    private boolean mActivityAlive;
-    private double mCurrentPosition;
-    private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues here */
+    private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
-        vGraphTrackView = (GraphTrackView) findViewById(R.id.graph_track_view);
+        vTrackViewContainer = (FrameLayout) findViewById(R.id.track_view_container);
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
@@ -71,30 +71,35 @@ public class SessionActivity extends AppCompatActivity {
 
         AuthenticationClient.openLoginActivity(this, SPOTIFY_LOGIN_REQUEST_CODE, request);
 
-        // Track Graph
-        TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
-                .setFillColor(ContextCompat.getColor(this, R.color.graphForeground))
-                .setStroke(ContextCompat.getColor(this, R.color.graphStroke), 6)
-                .setFillColorTop(ContextCompat.getColor(this, R.color.graphForegroundTop))
-                .setStrokeTop(ContextCompat.getColor(this, R.color.graphStrokeTop), 6);
+        if (savedInstanceState != null) {
+            mCurrentPosition = new AtomicDouble(savedInstanceState.getDouble(CURRENT_POSITION_SAVED_STATE_KEY));
+            // super.onCreate() will restore the fragment
+            mGraphTrackFragment =
+                    (GraphTrackFragment) getSupportFragmentManager().findFragmentByTag(GRAPH_TRACK_FRAGMENT_TAG);
+            Log.d("VFY", "mGraphTrackFragment = " + mGraphTrackFragment);
+        } else {
+            mCurrentPosition = new AtomicDouble(0);
+            mGraphTrackFragment = new GraphTrackFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.track_view_container, mGraphTrackFragment, GRAPH_TRACK_FRAGMENT_TAG)
+                    .commit();
+        }
+        mTrackUpdateListeners.add(mGraphTrackFragment);
 
         mActivityAlive = true;
-        if (savedInstanceState != null) {
-            mTrackCurve = savedInstanceState.getParcelable(TRACK_CURVE_SAVED_STATE_KEY);
-            vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
-            mCurrentPosition = savedInstanceState.getDouble(CURRENT_POSITION_SAVED_STATE_KEY);
-            Log.d("VFY", "restoring from current position = " + mCurrentPosition);
-        } else {            mTrackCurve = TrackCurve.random();
-            vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
-            mCurrentPosition = 0;
+    }
+
+    private void notifyTrackUpdateListeners(int durationInMs) {
+        for (TrackUpdateListener listener : mTrackUpdateListeners) {
+            listener.onTrackUpdate(mCurrentPosition.doubleValue(), durationInMs, mPlayer);
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(TRACK_CURVE_SAVED_STATE_KEY, mTrackCurve);
-        outState.putDouble(CURRENT_POSITION_SAVED_STATE_KEY, mCurrentPosition);
+        outState.putDouble(CURRENT_POSITION_SAVED_STATE_KEY, mCurrentPosition.doubleValue());
     }
 
     @Override
@@ -129,14 +134,15 @@ public class SessionActivity extends AppCompatActivity {
             // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
             // See https://github.com/spotify/android-sdk/issues/12
             if (mSeekCurrentPosition && eventType == EventType.AUDIO_FLUSH && playerState.durationInMs > 0) {
-                Log.d("VFY", "mCurrentPosition = " + mCurrentPosition);
-                int position = (int) (mCurrentPosition * playerState.durationInMs);
+                Log.d("VFY", "mCurrentPosition = " + mCurrentPosition.doubleValue());
+                int position = (int) (mCurrentPosition.doubleValue() * playerState.durationInMs);
                 Log.d("VFY", "seeking position " + position + " ms");
-                mSpotifyPlayer.seekToPosition(position);
+                mPlayer.seekToPosition(position);
                 mSeekCurrentPosition = false;
             }
             Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
         }
+
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
             Log.d("VFY", "onPlaybackError(): " + errorType.name());
@@ -148,18 +154,22 @@ public class SessionActivity extends AppCompatActivity {
         public void onLoggedIn() {
             Log.d("VFY", "onLoggedIn()");
         }
+
         @Override
         public void onLoggedOut() {
             Log.d("VFY", "onLoggedOut()");
         }
+
         @Override
         public void onLoginFailed(Throwable throwable) {
             Log.d("VFY", "onLoginFailed()");
         }
+
         @Override
         public void onTemporaryError() {
             Log.d("VFY", "onTemporaryError()");
         }
+
         @Override
         public void onConnectionMessage(String message) {
             Log.d("VFY", "onConnectionMessage(): message = " + message);
@@ -170,12 +180,12 @@ public class SessionActivity extends AppCompatActivity {
 
         @Override
         public void onInitialized(Player player) {
-            mSpotifyPlayer = player;
-            mSpotifyPlayer.addConnectionStateCallback(mConnectionStateCallback);
-            mSpotifyPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
-            mSpotifyPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
-            mSeekCurrentPosition = (mCurrentPosition > 0);
-            new Handler().post(new UpdateLiveTrackCurve(SessionActivity.this));
+            mPlayer = player;
+            mPlayer.addConnectionStateCallback(mConnectionStateCallback);
+            mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
+            mPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
+            mSeekCurrentPosition = (mCurrentPosition.doubleValue() > 0);
+            new Handler().post(new TrackUpdater(SessionActivity.this));
         }
 
         @Override
@@ -185,13 +195,11 @@ public class SessionActivity extends AppCompatActivity {
         }
     };
 
+    private static class TrackUpdater implements Runnable, PlayerStateCallback {
 
-    private static class UpdateLiveTrackCurve implements Runnable, PlayerStateCallback {
+        private final WeakReference<SessionActivity> mActivityRef;
 
-        // Prevent leakage if it were otherwise used with non-static inner class
-        private WeakReference<SessionActivity> mActivityRef;
-
-        public UpdateLiveTrackCurve(SessionActivity activity) {
+        public TrackUpdater(SessionActivity activity) {
             mActivityRef = new WeakReference<>(activity);
         }
 
@@ -200,8 +208,7 @@ public class SessionActivity extends AppCompatActivity {
             SessionActivity activity = mActivityRef.get();
             // Make sure cycle doesn't continue if activity was destroyed
             if (activity != null && activity.mActivityAlive) {
-                checkNotNull(activity.mSpotifyPlayer, "mSpotifyPlayer is null but shouldn't");
-                activity.mSpotifyPlayer.getPlayerState(this);
+                activity.mPlayer.getPlayerState(this);
             }
         }
 
@@ -209,14 +216,16 @@ public class SessionActivity extends AppCompatActivity {
         public void onPlayerState(PlayerState playerState) {
             SessionActivity activity = mActivityRef.get();
             if (activity != null && activity.mActivityAlive) {
-
                 if (playerState.durationInMs > 0 && !activity.mSeekCurrentPosition) {
-                    activity.mCurrentPosition = (double) playerState.positionInMs / playerState.durationInMs;
-                    activity.mTrackCurve.seekPosition(activity.mCurrentPosition);
-                    activity.vGraphTrackView.postInvalidate();
+                    activity.mCurrentPosition.set((double) playerState.positionInMs / playerState.durationInMs);
+                    activity.notifyTrackUpdateListeners(playerState.durationInMs);
                 }
-                new Handler().postDelayed(this, GRAPH_UPDATE_INTERVAL_IN_MS);
+                new Handler().postDelayed(this, UPDATE_INTERVAL_IN_MS);
             }
         }
+    }
+
+    public static interface TrackUpdateListener {
+        public void onTrackUpdate(double currentPosition, int durationInMs, Player player);
     }
 }

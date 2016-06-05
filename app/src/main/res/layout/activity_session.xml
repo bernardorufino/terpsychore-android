@@ -6,15 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".activities.SessionActivity">
 
-    <com.brufino.terpsychore.view.trackview.graph.GraphTrackView
-        android:id="@+id/graph_track_view"
+    <FrameLayout
+        android:id="@+id/track_view_container"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/graphBackground"
-        />
+        android:layout_height="100dp" />
 
     <TextView
-        android:layout_below="@id/graph_track_view"
+        android:layout_below="@id/track_view_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_horizontal_margin"
