@@ -28,6 +28,7 @@ import java.util.Locale;
 import static com.google.common.base.Preconditions.*;
 
 /* TODO: Implement server-side authentication with access token refresh */
+/* TODO: Refactor playback controls in separate fragment? */
 public class SessionActivity extends AppCompatActivity {
 
     public static final String SESSION_ID_EXTRA_KEY = "sessionId";
@@ -89,7 +90,8 @@ public class SessionActivity extends AppCompatActivity {
         String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
         String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
 
-        vToolbar.setTitle(trackArtist + ": " + trackName);
+        vToolbar.setTitle(trackName);
+        vToolbar.setSubtitle(trackArtist);
 
         /* TODO: Extract this logic into a helper / util class! */
         AuthenticationRequest request = new AuthenticationRequest.Builder(
