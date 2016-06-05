@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <drawable name="playbackButtonPressed">#2E7D32</drawable>
-    <drawable name="playbackButton">#4CAF50</drawable>
+    <drawable name="playback_button_pressed">#2E7D32</drawable>
+    <drawable name="playback_button">#4CAF50</drawable>
 
     <color name="graphBackground">#388E3C</color>
     <color name="graphStroke">#002E7D32</color>
