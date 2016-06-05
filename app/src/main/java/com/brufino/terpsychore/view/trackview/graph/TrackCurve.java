@@ -91,8 +91,8 @@ public class TrackCurve implements Parcelable {
     }
 
     public void seekPosition(double xPosition) {
-        checkArgument(xPosition >= 0, "xPosition must be >= 0");
-        checkArgument(xPosition <= 1, "xPosition must be <= 1");
+        checkArgument(xPosition >= 0, "xPosition must be >= 0, was " + xPosition);
+        checkArgument(xPosition <= 1, "xPosition must be <= 1, was " + xPosition);
 
         mCurrentPosition = xPosition;
     }
@@ -102,10 +102,10 @@ public class TrackCurve implements Parcelable {
     }
 
     private void validatePoint(Point point) {
-        checkArgument(point.x >= 0, "Point's x coordinate must be >= 0");
-        checkArgument(point.x <= 1, "Point's x coordinate must be <= 1");
-        checkArgument(point.y >= 0, "Point's y coordinate must be >= 0");
-        checkArgument(point.y <= 1, "Point's y coordinate must be <= 1");
+        checkArgument(point.x >= 0, "Point's x coordinate must be >= 0, was " + point.x);
+        checkArgument(point.x <= 1, "Point's x coordinate must be <= 1, was " + point.x);
+        checkArgument(point.y >= 0, "Point's y coordinate must be >= 0, was " + point.y);
+        checkArgument(point.y <= 1, "Point's y coordinate must be <= 1, was " + point.y);
     }
 
     public static interface UpdateListener {

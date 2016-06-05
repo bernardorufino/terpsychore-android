@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <View
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_height="match_parent">
 
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="85dp">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,6 +23,7 @@
 
             <!-- TODO: Change cursor color -->
             <EditText
+                android:id="@+id/chat_input"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -33,25 +33,40 @@
                 android:textColor="#CCFFFFFF"
                 android:background="@drawable/chat_input_bg" />
 
+            <!-- width = imageWidth - |imageMarginRight| -->
             <View
                 android:layout_width="85dp"
                 android:layout_height="match_parent" />
 
         </LinearLayout>
 
-        <ImageButton
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="-15dp"
-            android:layout_marginBottom="-15dp"
-            android:src="@drawable/ic_star_white_40dp"
-            android:background="@drawable/chat_action_button_bg"
-            android:elevation="10dp" />
+    </LinearLayout>
 
+    <!-- |thisMarginBottom| = |imageMarginBottom| + (thisHeight - imageHeight) / 2 -->
+    <!-- |thisMarginRight| = |imageMarginRight| + (thisWidth - imageWidth) / 2 -->
+    <RelativeLayout
+        android:id="@+id/chat_reactions_container"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="-105dp"
+        android:layout_marginBottom="-105dp"
+        android:clipChildren="false"
+        android:background="@drawable/chat_reactions_bg"
+        android:visibility="invisible">
 
     </RelativeLayout>
 
+    <ImageButton
+        android:id="@+id/chat_action_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="-15dp"
+        android:layout_marginBottom="-15dp"
+        android:background="@drawable/chat_action_button_bg"
+        android:elevation="10dp" />
 
-</LinearLayout>
+</RelativeLayout>

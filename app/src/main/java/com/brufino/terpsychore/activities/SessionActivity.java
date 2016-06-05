@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -42,6 +43,9 @@ public class SessionActivity extends AppCompatActivity {
 
     private FrameLayout vTrackViewContainer;
     private TrackProgressBar vTrackProgressBar;
+    private TextView vDisplayCurrentTrackTime;
+    private TextView vDisplayTotalTrackTime;
+    private Toolbar vToolbar;
 
     private Player mPlayer;
     private AtomicDouble mCurrentPosition;
@@ -49,8 +53,7 @@ public class SessionActivity extends AppCompatActivity {
     private volatile boolean mActivityAlive; /* TODO: Analyse concurrency issues */
     private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
-    private TextView vDisplayCurrentTrackTime;
-    private TextView vDisplayTotalTrackTime;
+
 
 
     @Override
@@ -58,6 +61,8 @@ public class SessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
+        vToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(vToolbar);
         vTrackViewContainer = (FrameLayout) findViewById(R.id.track_view_container);
         vTrackProgressBar = (TrackProgressBar) findViewById(R.id.track_progress_bar);
         vDisplayCurrentTrackTime = (TextView) findViewById(R.id.display_current_track_time);
@@ -71,7 +76,7 @@ public class SessionActivity extends AppCompatActivity {
         String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
         String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
 
-        setTitle(trackArtist + ": " + trackName);
+        vToolbar.setTitle(trackArtist + ": " + trackName);
 
         /* TODO: Extract this logic into a helper / util class! */
         AuthenticationRequest request = new AuthenticationRequest.Builder(

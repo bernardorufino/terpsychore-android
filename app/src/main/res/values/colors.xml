@@ -3,6 +3,8 @@
     <drawable name="playback_button_pressed">#2E7D32</drawable>
     <drawable name="playback_button">#4CAF50</drawable>
 
+    <color name="chatReactionsBackground">#BB8CDF90</color>
+
     <color name="graphBackground">#388E3C</color>
     <color name="graphStroke">#002E7D32</color>
     <color name="graphStrokeTop">#A5D6A7</color>
