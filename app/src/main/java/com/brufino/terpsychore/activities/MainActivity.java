@@ -11,6 +11,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = new Intent(this, SessionActivity.class);
+        intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, "12");
+        intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, "spotify:track:3Gaj5GBeZ8aynvtPkxrr9A");
+        intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
+        intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
+        startActivity(intent);
     }
 
     @Override

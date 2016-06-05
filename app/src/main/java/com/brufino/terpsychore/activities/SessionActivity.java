@@ -184,6 +184,7 @@ public class SessionActivity extends AppCompatActivity {
             mPlayer.addConnectionStateCallback(mConnectionStateCallback);
             mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
             mPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
+            mCurrentPosition.set(0.2); /* TODO: Remove this, only for debugging */
             mSeekCurrentPosition = (mCurrentPosition.doubleValue() > 0);
             new Handler().post(new TrackUpdater(SessionActivity.this));
         }
