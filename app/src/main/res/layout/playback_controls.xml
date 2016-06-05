@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/track_playback_controls"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_below="@id/track_progress_bar"
+    android:orientation="horizontal"
+    android:background="@color/graphBackground"
+    tools:showIn="@layout/activity_session">
+
+    <ImageButton
+        android:src="@drawable/ic_replay_10_white_36dp"
+        style="@style/PlaybackButton" />
+
+    <ImageButton
+        android:src="@drawable/ic_play_arrow_white_36dp"
+        style="@style/PlaybackButton.LeftSpaced" />
+
+    <ImageButton
+        android:src="@drawable/ic_skip_next_white_36dp"
+        style="@style/PlaybackButton.LeftSpaced" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:paddingLeft="10dp"
+        android:paddingTop="3.8dp"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#88FFFFFF"
+            android:textSize="11sp"
+            android:text="Next" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFFFF"
+            android:textSize="16sp"
+            android:text="We Control The Sunlight" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFFFF"
+            android:textSize="11sp"
+            android:text="Aly &amp; Fila" />
+
+    </LinearLayout>
+
+</LinearLayout>

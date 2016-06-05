@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- TODO: Extract bg colors into view attributes -->
+
+    <View
+        android:id="@+id/track_progress_bar_bg"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@color/colorPrimaryExtraDark" />
+
+    <View
+        android:id="@+id/track_progress_bar_fg"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/graphStrokeTop"/>
+
+</merge>

@@ -31,7 +31,7 @@ public class TrackCurve implements Parcelable {
     /* TODO: Remove */
     public static TrackCurve sample(Function<Double, Double> f) {
         TrackCurve trackCurve = new TrackCurve();
-        for (int i = 0, n = 10; i <= n; i++) {
+        for (int i = 0, n = 20; i <= n; i++) {
             double x = (double) i / n;
             double y = f.apply(x);
             Point p = new Point(x, y);

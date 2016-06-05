@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.GraphTrackFragment;
+import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -17,6 +19,7 @@ import com.spotify.sdk.android.player.*;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -37,14 +40,18 @@ public class SessionActivity extends AppCompatActivity {
     private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
 
+    private FrameLayout vTrackViewContainer;
+    private TrackProgressBar vTrackProgressBar;
+
     private Player mPlayer;
     private AtomicDouble mCurrentPosition;
-    private FrameLayout vTrackViewContainer;
     private GraphTrackFragment mGraphTrackFragment;
     private volatile boolean mActivityAlive; /* TODO: Analyse concurrency issues */
     private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
-
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
+    private TextView vDisplayCurrentTrackTime;
+    private TextView vDisplayTotalTrackTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,11 @@ public class SessionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_session);
 
         vTrackViewContainer = (FrameLayout) findViewById(R.id.track_view_container);
+        vTrackProgressBar = (TrackProgressBar) findViewById(R.id.track_progress_bar);
+        vDisplayCurrentTrackTime = (TextView) findViewById(R.id.display_current_track_time);
+        vDisplayCurrentTrackTime.setText(formatTrackTime(0));
+        vDisplayTotalTrackTime = (TextView) findViewById(R.id.display_total_track_time);
+        vDisplayTotalTrackTime.setText(formatTrackTime(0));
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
@@ -86,9 +98,36 @@ public class SessionActivity extends AppCompatActivity {
                     .commit();
         }
         mTrackUpdateListeners.add(mGraphTrackFragment);
+        mTrackUpdateListeners.add(mOnTrackUpdateListener);
 
         mActivityAlive = true;
     }
+
+    public static void main(String[] args) {
+        System.out.println(formatTrackTime(1000));
+    }
+
+    private static String formatTrackTime(int timeInMs) {
+        int secs = (int) (timeInMs / 1000.0 + 0.5);
+        int mins = secs / 60;
+        secs = secs % 60;
+        int hours = mins / 60;
+        mins = mins % 60;
+        if (hours > 0) {
+            return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, mins, secs);
+        } else {
+            return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
+        }
+    }
+
+    private TrackUpdateListener mOnTrackUpdateListener = new TrackUpdateListener() {
+        @Override
+        public void onTrackUpdate(double currentPosition, int durationInMs, Player player) {
+            vDisplayCurrentTrackTime.setText(formatTrackTime((int) (currentPosition * durationInMs)));
+            vDisplayTotalTrackTime.setText(formatTrackTime(durationInMs));
+            vTrackProgressBar.setProgress(currentPosition);
+        }
+    };
 
     private void notifyTrackUpdateListeners(int durationInMs) {
         for (TrackUpdateListener listener : mTrackUpdateListeners) {

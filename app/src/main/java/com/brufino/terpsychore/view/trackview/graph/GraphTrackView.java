@@ -15,6 +15,8 @@ import java.util.List;
 
 public class GraphTrackView extends View implements TrackView, TrackCurve.UpdateListener {
 
+    private static final double FIXED_HEIGHT_OFFSET = 0.25;
+
     private List<Pair<TrackCurve, TrackCurve.Style>> mStaticTrackCurves = new ArrayList<>();
     private Path mCurveAreaPath = new Path();
 
@@ -73,11 +75,15 @@ public class GraphTrackView extends View implements TrackView, TrackCurve.Update
                     pathPaint = style.getPathTopPaint();
                 }
 
+                // Minimun height
+                double aY = FIXED_HEIGHT_OFFSET + a.y * (1 - FIXED_HEIGHT_OFFSET);
+                double bY = FIXED_HEIGHT_OFFSET + b.y * (1 - FIXED_HEIGHT_OFFSET);
+
                 // (1 - y) bc y is backwards!
                 float leftX = (float) (a.x * width);
-                float leftY = (float) ((1 - a.y) * height);
+                float leftY = (float) ((1 - aY) * height);
                 float rightX = (float) (b.x * width);
-                float rightY = (float) ((1 - b.y) * height);
+                float rightY = (float) ((1 - bY) * height);
 
                 if (style.shouldDrawUnderCurve()) {
                     mCurveAreaPath.reset();

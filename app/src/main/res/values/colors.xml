@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <drawable name="playbackButtonPressed">#2E7D32</drawable>
+    <drawable name="playbackButton">#4CAF50</drawable>
+
     <color name="graphBackground">#388E3C</color>
     <color name="graphStroke">#002E7D32</color>
     <color name="graphStrokeTop">#A5D6A7</color>
@@ -8,5 +11,7 @@
 
     <color name="colorPrimary">#4CAF50</color>
     <color name="colorPrimaryDark">#2E7D32</color>
+    <!--Blend color below (without alpha) with the primary dark using alpha as the weight-->
+    <color name="colorPrimaryExtraDark">#2C722D</color>
     <color name="colorAccent">#D63737</color>
 </resources>

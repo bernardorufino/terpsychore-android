@@ -8,4 +8,27 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TrackDisplay">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">#BBFFFFFF</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="PlaybackButton">
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">67dp</item>
+        <item name="android:foregroundGravity">center</item>
+        <item name="android:background">@drawable/playback_button_bg</item>
+        <item name="android:layout_alignParentLeft">true</item>
+    </style>
+
+    <style name="PlaybackButton.LeftSpaced">
+        <item name="android:layout_marginLeft">0dp</item>
+    </style>
+
+    <style name="PlaybackButton.RightSpaced">
+        <item name="android:layout_marginRight">0dp</item>
+    </style>
+
 </resources>

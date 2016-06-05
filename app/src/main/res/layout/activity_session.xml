@@ -11,11 +11,38 @@
         android:layout_width="match_parent"
         android:layout_height="100dp" />
 
+    <com.brufino.terpsychore.view.trackview.TrackProgressBar
+        android:id="@+id/track_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:layout_below="@id/track_view_container" />
+
     <TextView
-        android:layout_below="@id/track_view_container"
+        android:id="@+id/display_current_track_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/track_progress_bar"
+        android:layout_alignParentLeft="true"
+        style="@style/TrackDisplay"
+        />
+
+    <TextView
+        android:id="@+id/display_total_track_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/track_progress_bar"
+        android:layout_alignParentRight="true"
+        style="@style/TrackDisplay" />
+
+    <include layout="@layout/playback_controls" />
+
+    <TextView
+        android:layout_below="@id/track_playback_controls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:text="Session" />
+
+
 
 </RelativeLayout>

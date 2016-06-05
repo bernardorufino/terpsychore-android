@@ -34,9 +34,9 @@ public class GraphTrackFragment extends Fragment implements SessionActivity.Trac
 
         TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
                 .setFillColor(ContextCompat.getColor(getContext(), R.color.graphForeground))
-                .setStroke(ContextCompat.getColor(getContext(), R.color.graphStroke), 6)
+                .setStroke(ContextCompat.getColor(getContext(), R.color.graphStroke), 8)
                 .setFillColorTop(ContextCompat.getColor(getContext(), R.color.graphForegroundTop))
-                .setStrokeTop(ContextCompat.getColor(getContext(), R.color.graphStrokeTop), 6);
+                .setStrokeTop(ContextCompat.getColor(getContext(), R.color.graphStrokeTop), 8);
 
         if (savedInstanceState != null) {
             mTrackCurve = savedInstanceState.getParcelable(TRACK_CURVE_SAVED_STATE_KEY);
