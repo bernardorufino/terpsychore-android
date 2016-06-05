@@ -23,7 +23,8 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
-            android:name=".activities.SessionActivity" />
+            android:name=".activities.SessionActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <receiver
             android:name=".components.SpotifyBroadcastReceiver"

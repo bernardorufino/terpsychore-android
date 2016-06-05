@@ -34,15 +34,19 @@
         android:layout_alignParentRight="true"
         style="@style/TrackDisplay" />
 
-    <include layout="@layout/playback_controls" />
+    <include layout="@layout/playback_controls"
+        android:id="@+id/track_playback_controls"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_below="@id/track_progress_bar" />
 
-    <TextView
-        android:layout_below="@id/track_playback_controls"
-        android:layout_width="wrap_content"
+    <fragment
+        android:id="@+id/session_chat_fragment"
+        android:name="com.brufino.terpsychore.fragments.ChatFragment"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_horizontal_margin"
-        android:text="Session" />
-
+        android:layout_below="@id/track_playback_controls"
+        android:layout_alignParentBottom="true" />
 
 
 </RelativeLayout>
