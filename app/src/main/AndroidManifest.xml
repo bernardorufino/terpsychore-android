@@ -26,6 +26,9 @@
             android:name=".activities.SessionActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".activities.LoginActivity" />
+
         <receiver
             android:name=".components.SpotifyBroadcastReceiver"
             android:enabled="true"

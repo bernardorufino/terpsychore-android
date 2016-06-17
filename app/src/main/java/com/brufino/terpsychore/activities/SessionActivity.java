@@ -16,7 +16,6 @@ import com.brufino.terpsychore.fragments.GraphTrackFragment;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.*;
 
@@ -94,14 +93,9 @@ public class SessionActivity extends AppCompatActivity {
         vToolbar.setSubtitle(trackArtist);
 
         /* TODO: Extract this logic into a helper / util class! */
-        AuthenticationRequest request = new AuthenticationRequest.Builder(
-                SPOTIFY_CLIENT_ID,
-                AuthenticationResponse.Type.TOKEN,
-                SPOTIFY_REDIRECT_URI)
-                .setScopes(new String[] { "user-read-private", "streaming" })
-                .build();
 
-        AuthenticationClient.openLoginActivity(this, SPOTIFY_LOGIN_REQUEST_CODE, request);
+
+
 
         if (savedInstanceState != null) {
             mCurrentPosition = new AtomicDouble(savedInstanceState.getDouble(CURRENT_POSITION_SAVED_STATE_KEY));
@@ -222,6 +216,9 @@ public class SessionActivity extends AppCompatActivity {
                     Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
                 } else {
                     Log.e("VFY", "Error! returned response type was " + response.getType());
+                    if (response.getType() == AuthenticationResponse.Type.ERROR) {
+                        Log.e("VFY", "Error: " + response.getError());
+                    }
                 }
         }
     }
