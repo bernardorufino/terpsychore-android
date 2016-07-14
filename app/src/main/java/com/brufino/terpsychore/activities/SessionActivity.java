@@ -93,10 +93,6 @@ public class SessionActivity extends AppCompatActivity {
         vToolbar.setSubtitle(trackArtist);
 
         /* TODO: Extract this logic into a helper / util class! */
-
-
-
-
         if (savedInstanceState != null) {
             mCurrentPosition = new AtomicDouble(savedInstanceState.getDouble(CURRENT_POSITION_SAVED_STATE_KEY));
             // super.onCreate() will restore the fragment

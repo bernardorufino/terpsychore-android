@@ -1,6 +1,8 @@
 package com.brufino.terpsychore.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.CircleTransformation;
+import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
 import com.google.gson.JsonArray;
@@ -130,18 +133,31 @@ public class LoginActivity extends AppCompatActivity {
                 fail(call, null, message);
                 return;
             }
+
+            String accessToken = response.body().get("access_token").getAsString();
             String displayName = response.body().get("display_name").getAsString();
+            String email = response.body().get("email").getAsString();
             String imageUrl = response.body().get("image_url").getAsString();
+            String expiresAt = response.body().get("expiresAt").getAsString(); // TODO: Transform into date
 
             Picasso.with(LoginActivity.this)
                     .load(imageUrl)
                     .transform(new CircleTransformation())
                     .placeholder(R.drawable.ic_account_circle_white_148dp)
                     .into(vProfileImage);
+
+            SharedPreferences preferences =
+                    getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE);
+            preferences.edit()
+                    .putString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, accessToken)
+                    .putString(SharedPreferencesDefs.Main.KEY_DISPLAY_NAME, displayName)
+                    .putString(SharedPreferencesDefs.Main.KEY_EMAIL, email)
+                    .putString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, imageUrl)
+                    .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, expiresAt)
+                    .apply();
+
             // TODO: Use string resource with placeholder
             vMessageText.setText("Welcome, " + displayName);
-
-            // TODO: Save stuff in the db
             vProgressBar.setProgress(100);
             new Handler(Looper.getMainLooper()).postDelayed(mDeliverResultRunnable, DELIVER_RESULT_DELAY_MS);
         }
