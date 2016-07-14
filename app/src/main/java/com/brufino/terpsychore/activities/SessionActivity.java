@@ -1,6 +1,7 @@
 package com.brufino.terpsychore.activities;
 
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.GraphTrackFragment;
+import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
-import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.*;
 
 import java.lang.ref.WeakReference;
@@ -111,6 +111,17 @@ public class SessionActivity extends AppCompatActivity {
         mTrackUpdateListeners.add(mOnTrackUpdateListener);
 
         mActivityAlive = true;
+        initializePlayer();
+    }
+
+    private void initializePlayer() {
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE);
+        String accessToken = sharedPreferences.getString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, null);
+        checkNotNull(accessToken, "Main shared preferences doesn't have access_token");
+        // TODO: Manage access token life cycle (check expiration, renew beforehand, etc)
+        Config playerConfig = new Config(this, accessToken, SPOTIFY_CLIENT_ID);
+        Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
     }
 
     @Override
@@ -195,28 +206,6 @@ public class SessionActivity extends AppCompatActivity {
         Spotify.destroyPlayer(this);
         super.onDestroy();
         mActivityAlive = false;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-
-        switch (requestCode) {
-            case SPOTIFY_LOGIN_REQUEST_CODE:
-                AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-                if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                    // int expiresIn = response.getExpiresIn();
-                    // Log.d("VFY", "access token = " + response.getAccessToken());
-                    // Log.d("VFY", "access token expires in " + expiresIn + " s");
-                    Config playerConfig = new Config(this, response.getAccessToken(), SPOTIFY_CLIENT_ID);
-                    Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
-                } else {
-                    Log.e("VFY", "Error! returned response type was " + response.getType());
-                    if (response.getType() == AuthenticationResponse.Type.ERROR) {
-                        Log.e("VFY", "Error: " + response.getError());
-                    }
-                }
-        }
     }
 
     private PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
