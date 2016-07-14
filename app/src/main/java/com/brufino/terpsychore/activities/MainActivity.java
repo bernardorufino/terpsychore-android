@@ -3,9 +3,12 @@ package com.brufino.terpsychore.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 import com.brufino.terpsychore.R;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int LOGIN_REQUEST_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (true) {
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, LOGIN_REQUEST_CODE);
         } else {
             Intent intent = new Intent(this, SessionActivity.class);
             intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, "12");
@@ -23,11 +26,14 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
             startActivity(intent);
         }
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        switch (requestCode) {
+            case LOGIN_REQUEST_CODE:
+                Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
+        }
     }
 }

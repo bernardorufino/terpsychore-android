@@ -14,27 +14,32 @@
         android:paddingBottom="30dp">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/login_profile_image"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:scaleType="fitXY"
+            android:elevation="5dp"
             android:src="@drawable/ic_account_circle_white_148dp" />
 
+        <!-- TODO: Background progress tint not working -->
         <ProgressBar
-            android:layout_width="match_parent"
+            android:id="@+id/login_progress_bar"
+            android:layout_width="60dp"
             android:layout_height="1dp"
             android:indeterminate="false"
-            android:progress="60"
             android:progressTint="#FFFFFF"
             android:backgroundTint="#000000"
-            android:max="100"
-            android:layout_marginTop="10dp"
+            android:secondaryProgressTint="#000000"
+            android:layout_marginTop="22dp"
             android:layout_marginBottom="15dp"
             style="?android:attr/progressBarStyleHorizontal"
             />
 
         <TextView
+            android:id="@+id/login_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Logging you in, wait a few seconds..."
+            android:text="@string/login_loading"
             android:textSize="16sp"
             android:textColor="#FFFFFF" />
 

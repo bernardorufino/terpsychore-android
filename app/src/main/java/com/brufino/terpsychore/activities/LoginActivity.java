@@ -2,19 +2,28 @@ package com.brufino.terpsychore.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.lib.CircleTransformation;
+import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 // Do the flow requesting code here on android,
 // receive code, send to our servers
@@ -22,56 +31,63 @@ import retrofit2.Retrofit;
 // use those to get a new token
 // send down to client, store token and provide a way to renew token in case it expires v
 // TODO: https://github.com/spotify/android-sdk/issues/10
+// TODO: Provide buttons for retry in case of failure
+// TODO: Check what happens if click outside spotify loading modal
 public class LoginActivity extends AppCompatActivity {
 
     private static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
     private static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
     private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
     private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
+    private static final int DELIVER_RESULT_DELAY_MS = 1500;
+    private static final int RESULT_SUCCESS_LOGIN = 1;
+
+    private TextView vMessageText;
+    private ImageView vProfileImage;
+    private ProgressBar vProgressBar;
+
+    private AuthenticationApi mAuthenticationApi;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //AuthenticationRequest request = new AuthenticationRequest.Builder(
-        //        SPOTIFY_CLIENT_ID,
-        //        AuthenticationResponse.Type.CODE,
-        //        SPOTIFY_REDIRECT_URI)
-        //        .setScopes(new String[] { "user-read-private", "streaming" })
-        //        .build();
-        //
-        //AuthenticationClient.openLoginActivity(this, SPOTIFY_LOGIN_REQUEST_CODE, request);
+        vProfileImage = (ImageView) findViewById(R.id.login_profile_image);
+        vMessageText = (TextView) findViewById(R.id.login_message);
+        vProgressBar = (ProgressBar) findViewById(R.id.login_progress_bar);
+        vProgressBar.setProgress(0);
+        vProgressBar.setMax(100);
 
-        //new Handler().postDelayed(new Runnable() {
-        //    @Override
-        //    public void run() {
-        //        Intent intent = new Intent(LoginActivity.this, SessionActivity.class);
-        //        intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, "12");
-        //        intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, "spotify:track:3Gaj5GBeZ8aynvtPkxrr9A");
-        //        intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
-        //        intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
-        //        startActivity(intent);
-        //    }
-        //}, 2000);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://vibefy.herokuapp.com")
-                .build();
-        AuthenticationApi authenticationApi = retrofit.create(AuthenticationApi.class);
-        Call<JsonObject> call = authenticationApi.getTest("foo");
-        call.enqueue(mCallback);
+        mAuthenticationApi = ApiUtils.createApi(AuthenticationApi.class);
+        Call<JsonObject> call = mAuthenticationApi.getScopes();
+        call.enqueue(mGetScopesCallback);
     }
 
-    private Callback<JsonObject> mCallback = new Callback<JsonObject>() {
+    /* TODO: Think about activity life cycle */
+    private Callback<JsonObject> mGetScopesCallback = new Callback<JsonObject>() {
         @Override
         public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-            String param = response.body().get("param").toString();
-            Toast.makeText(LoginActivity.this, "Auth response! param = " + param, Toast.LENGTH_SHORT).show();
+            JsonArray scopesJson = response.body().getAsJsonArray("scopes");
+            String[] scopes = new String[scopesJson.size()];
+            for (int i = 0; i < scopes.length; i++) {
+                scopes[i] = scopesJson.get(i).getAsString();
+            }
+            vProgressBar.setProgress(33);
+
+            AuthenticationRequest request = new AuthenticationRequest.Builder(
+                    SPOTIFY_CLIENT_ID,
+                    AuthenticationResponse.Type.CODE,
+                    SPOTIFY_REDIRECT_URI)
+                    .setScopes(scopes)
+                    .build();
+            AuthenticationClient.openLoginActivity(LoginActivity.this, SPOTIFY_LOGIN_REQUEST_CODE, request);
         }
         @Override
         public void onFailure(Call<JsonObject> call, Throwable t) {
-            Toast.makeText(LoginActivity.this, "Auth failure!", Toast.LENGTH_SHORT).show();
+            /* TODO: Handle error */
+            Toast.makeText(LoginActivity.this, "Auth failure while getting scopes!", Toast.LENGTH_SHORT).show();
+            Log.e("VFY", "Auth failure while getting scopes", t);
         }
     };
 
@@ -79,18 +95,77 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
+        // TODO: check resultCode for when the user dismisses the modal
         switch (requestCode) {
             case SPOTIFY_LOGIN_REQUEST_CODE:
                 AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
                 if (response.getType() == AuthenticationResponse.Type.CODE) {
                     String code = response.getCode();
+                    vProgressBar.setProgress(66);
+
+                    JsonObject body = new JsonObject();
+                    body.addProperty("code", code);
+                    Call<JsonObject> call = mAuthenticationApi.postCode(body);
+                    call.enqueue(mPostCodeCallback);
                 } else {
                     Log.e("VFY", "Error! returned response type was " + response.getType());
                     if (response.getType() == AuthenticationResponse.Type.ERROR) {
                         Log.e("VFY", "Error: " + response.getError());
                     }
                 }
-
         }
     }
+
+    private Callback<JsonObject> mPostCodeCallback = new Callback<JsonObject>() {
+
+        @Override
+        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            if (response.body() == null) {
+                fail(call, null, null);
+                return;
+            }
+            Log.d("VFY", response.body().toString());
+            if (response.body().get("error") != null) {
+                String message = response.body().get("message").getAsString();
+                fail(call, null, message);
+                return;
+            }
+            String displayName = response.body().get("display_name").getAsString();
+            String imageUrl = response.body().get("image_url").getAsString();
+
+            Picasso.with(LoginActivity.this)
+                    .load(imageUrl)
+                    .transform(new CircleTransformation())
+                    .placeholder(R.drawable.ic_account_circle_white_148dp)
+                    .into(vProfileImage);
+            // TODO: Use string resource with placeholder
+            vMessageText.setText("Welcome, " + displayName);
+
+            // TODO: Save stuff in the db
+            vProgressBar.setProgress(100);
+            new Handler(Looper.getMainLooper()).postDelayed(mDeliverResultRunnable, DELIVER_RESULT_DELAY_MS);
+        }
+
+        @Override
+        public void onFailure(Call<JsonObject> call, Throwable t) {
+            /* TODO: Handle error */
+            fail(call, t, null);
+        }
+
+        private void fail(Call<JsonObject> call, Throwable t, String message) {
+            Toast.makeText(LoginActivity.this, "Auth failure while posting code to server!", Toast.LENGTH_SHORT).show();
+            Log.e("VFY", "Auth failure while posting code to server", t);
+            if (message != null) {
+                Log.e("VFY", "  " + message);
+            }
+        }
+    };
+
+    private Runnable mDeliverResultRunnable = new Runnable() {
+        @Override
+        public void run() {
+            setResult(RESULT_SUCCESS_LOGIN);
+            finish();
+        }
+    };
 }

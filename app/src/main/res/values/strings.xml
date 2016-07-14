@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Vibefy</string>
+    <string name="login_loading">Logging you in, wait a few seconds...</string>
 </resources>
