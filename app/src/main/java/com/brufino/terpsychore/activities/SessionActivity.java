@@ -7,22 +7,15 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.fragments.GraphTrackFragment;
+import com.brufino.terpsychore.fragments.ChatFragment;
+import com.brufino.terpsychore.fragments.TrackPlaybackFragment;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
-import com.brufino.terpsychore.view.trackview.TrackProgressBar;
-import com.google.common.util.concurrent.AtomicDouble;
 import com.spotify.sdk.android.player.*;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -40,27 +33,19 @@ public class SessionActivity extends AppCompatActivity {
     private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
     private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
 
-    public static final String CURRENT_POSITION_SAVED_STATE_KEY = "currentPosition";
+    public static final String SAVED_STATE_KEY_CURRENT_POSITION = "currentPosition";
     private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
-    private static final int REPLAY_TIME_WINDOW_IN_MS = 10_000;
 
-    private FrameLayout vTrackViewContainer;
-    private TrackProgressBar vTrackProgressBar;
-    private TextView vDisplayCurrentTrackTime;
-    private TextView vDisplayTotalTrackTime;
     private Toolbar vToolbar;
 
     private Player mPlayer;
-    private AtomicDouble mCurrentPosition;
-    private GraphTrackFragment mGraphTrackFragment;
+    private volatile int mCurrentPosition; /* TODO: Analyse concurrency issues */
     private volatile boolean mActivityAlive; /* TODO: Analyse concurrency issues */
     private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
-
-    private ImageButton vReplayButton;
-    private ImageButton vPlayButton;
-    private ImageButton vNextButton;
+    private TrackPlaybackFragment mTrackPlaybackFragment;
+    private ChatFragment mChatFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,19 +54,10 @@ public class SessionActivity extends AppCompatActivity {
 
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
-        vTrackViewContainer = (FrameLayout) findViewById(R.id.track_view_container);
-        vTrackProgressBar = (TrackProgressBar) findViewById(R.id.track_progress_bar);
-        vDisplayCurrentTrackTime = (TextView) findViewById(R.id.display_current_track_time);
-        vDisplayCurrentTrackTime.setText(formatTrackTime(0));
-        vDisplayTotalTrackTime = (TextView) findViewById(R.id.display_total_track_time);
-        vDisplayTotalTrackTime.setText(formatTrackTime(0));
-        vReplayButton = (ImageButton) findViewById(R.id.playback_control_replay);
-        vReplayButton.setOnClickListener(mOnReplayButtonClickListener);
-        vPlayButton = (ImageButton) findViewById(R.id.playback_control_play);
-        vPlayButton.setOnClickListener(mOnPlayButtonClickListener);
-        vNextButton = (ImageButton) findViewById(R.id.playback_control_next);
-        vNextButton.setOnClickListener(mOnNextButtonClickListener);
 
+        mTrackPlaybackFragment =
+                (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
+        mChatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.session_chat_fragment);
 
         String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
         checkNotNull(sessionId, "Can't start SessionActivity without a session id");
@@ -94,20 +70,11 @@ public class SessionActivity extends AppCompatActivity {
 
         /* TODO: Extract this logic into a helper / util class! */
         if (savedInstanceState != null) {
-            mCurrentPosition = new AtomicDouble(savedInstanceState.getDouble(CURRENT_POSITION_SAVED_STATE_KEY));
-            // super.onCreate() will restore the fragment
-            mGraphTrackFragment =
-                    (GraphTrackFragment) getSupportFragmentManager().findFragmentByTag(GRAPH_TRACK_FRAGMENT_TAG);
-            Log.d("VFY", "mGraphTrackFragment = " + mGraphTrackFragment);
+            mCurrentPosition = savedInstanceState.getInt(SAVED_STATE_KEY_CURRENT_POSITION);
         } else {
-            mCurrentPosition = new AtomicDouble(0.2);
-            mGraphTrackFragment = new GraphTrackFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.track_view_container, mGraphTrackFragment, GRAPH_TRACK_FRAGMENT_TAG)
-                    .commit();
+            mCurrentPosition = 60 * 1000;
         }
-        mTrackUpdateListeners.add(mGraphTrackFragment);
+        mTrackUpdateListeners.add(mTrackPlaybackFragment);
         mTrackUpdateListeners.add(mOnTrackUpdateListener);
 
         mActivityAlive = true;
@@ -127,77 +94,19 @@ public class SessionActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putDouble(CURRENT_POSITION_SAVED_STATE_KEY, mCurrentPosition.doubleValue());
-    }
-
-    /* TODO: Refactor this mess of listeners attached to playback controls registering other listeners. Unify? */
-
-    private View.OnClickListener mOnReplayButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mPlayer.getPlayerState(mOnReplayButtonClickRetrievePlayerState);
-        }
-    };
-
-    private PlayerStateCallback mOnReplayButtonClickRetrievePlayerState = new PlayerStateCallback() {
-        @Override
-        public void onPlayerState(PlayerState playerState) {
-            int newPosition = Math.max(0, playerState.positionInMs - REPLAY_TIME_WINDOW_IN_MS);
-            mPlayer.seekToPosition(newPosition);
-        }
-    };
-
-    private View.OnClickListener mOnPlayButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mPlayer.getPlayerState(mOnPlayButtonClickRetrievePlayerState);
-        }
-    };
-
-    private PlayerStateCallback mOnPlayButtonClickRetrievePlayerState = new PlayerStateCallback() {
-        @Override
-        public void onPlayerState(PlayerState playerState) {
-            // Button image is controlled in TrackUpdater.onPlayerState()
-            if (playerState.playing) {
-                mPlayer.pause();
-            } else {
-                mPlayer.resume();
-            }
-        }
-    };
-
-    private View.OnClickListener mOnNextButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Toast.makeText(SessionActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    private static String formatTrackTime(int timeInMs) {
-        int secs = (int) (timeInMs / 1000.0 + 0.5);
-        int mins = secs / 60;
-        secs = secs % 60;
-        int hours = mins / 60;
-        mins = mins % 60;
-        if (hours > 0) {
-            return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, mins, secs);
-        } else {
-            return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
-        }
+        outState.putInt(SAVED_STATE_KEY_CURRENT_POSITION, mCurrentPosition);
     }
 
     private TrackUpdateListener mOnTrackUpdateListener = new TrackUpdateListener() {
         @Override
-        public void onTrackUpdate(double currentPosition, int durationInMs, Player player) {
-            vDisplayCurrentTrackTime.setText(formatTrackTime((int) (currentPosition * durationInMs)));
-            vDisplayTotalTrackTime.setText(formatTrackTime(durationInMs));
-            vTrackProgressBar.setProgress(currentPosition);
+        public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, Player player) {
+            mCurrentPosition = currentPositionInMs;
         }
     };
 
-    private void notifyTrackUpdateListeners(int durationInMs) {
+    private void notifyTrackUpdateListeners(boolean playing, int currentPositionInMs, int durationInMs) {
         for (TrackUpdateListener listener : mTrackUpdateListeners) {
-            listener.onTrackUpdate(mCurrentPosition.doubleValue(), durationInMs, mPlayer);
+            listener.onTrackUpdate(playing, currentPositionInMs, durationInMs, mPlayer);
         }
     }
 
@@ -214,10 +123,8 @@ public class SessionActivity extends AppCompatActivity {
             // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
             // See https://github.com/spotify/android-sdk/issues/12
             if (mSeekCurrentPosition && eventType == EventType.AUDIO_FLUSH && playerState.durationInMs > 0) {
-                Log.d("VFY", "mCurrentPosition = " + mCurrentPosition.doubleValue());
-                int position = (int) (mCurrentPosition.doubleValue() * playerState.durationInMs);
-                Log.d("VFY", "seeking position " + position + " ms");
-                mPlayer.seekToPosition(position);
+                Log.d("VFY", "mCurrentPosition = " + mCurrentPosition);
+                mPlayer.seekToPosition(mCurrentPosition);
                 mSeekCurrentPosition = false;
             }
             Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
@@ -260,11 +167,12 @@ public class SessionActivity extends AppCompatActivity {
 
         @Override
         public void onInitialized(Player player) {
+            mTrackPlaybackFragment.setPlayer(player);
             mPlayer = player;
             mPlayer.addConnectionStateCallback(mConnectionStateCallback);
             mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
             mPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
-            mSeekCurrentPosition = (mCurrentPosition.doubleValue() > 0);
+            mSeekCurrentPosition = (mCurrentPosition > 0);
             new Handler().post(new TrackUpdater(SessionActivity.this));
         }
 
@@ -278,7 +186,6 @@ public class SessionActivity extends AppCompatActivity {
     private static class TrackUpdater implements Runnable, PlayerStateCallback {
 
         private final WeakReference<SessionActivity> mActivityRef;
-        private boolean mPlaying;
 
         public TrackUpdater(SessionActivity activity) {
             mActivityRef = new WeakReference<>(activity);
@@ -297,15 +204,11 @@ public class SessionActivity extends AppCompatActivity {
         public void onPlayerState(PlayerState playerState) {
             SessionActivity activity = mActivityRef.get();
             if (activity != null && activity.mActivityAlive) {
-                if (mPlaying && !playerState.playing) {
-                    activity.vPlayButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
-                } else if (!mPlaying && playerState.playing) {
-                    activity.vPlayButton.setImageResource(R.drawable.ic_pause_white_36dp);
-                }
-                mPlaying = playerState.playing;
                 if (playerState.durationInMs > 0 && !activity.mSeekCurrentPosition) {
-                    activity.mCurrentPosition.set((double) playerState.positionInMs / playerState.durationInMs);
-                    activity.notifyTrackUpdateListeners(playerState.durationInMs);
+                    activity.notifyTrackUpdateListeners(
+                            playerState.playing,
+                            playerState.positionInMs,
+                            playerState.durationInMs);
                 }
                 new Handler().postDelayed(this, UPDATE_INTERVAL_IN_MS);
             }
@@ -313,6 +216,6 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     public static interface TrackUpdateListener {
-        public void onTrackUpdate(double currentPosition, int durationInMs, Player player);
+        public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, Player player);
     }
 }

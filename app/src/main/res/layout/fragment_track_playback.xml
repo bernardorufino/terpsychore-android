@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="?attr/actionBarSize">
+
+    <com.brufino.terpsychore.view.trackview.graph.GraphTrackView
+        android:id="@+id/graph_track_view"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/graphBackground" />
+
+    <com.brufino.terpsychore.view.trackview.TrackProgressBar
+        android:id="@+id/track_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:layout_below="@id/graph_track_view" />
+
+    <TextView
+        android:id="@+id/display_current_track_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/track_progress_bar"
+        android:layout_alignParentLeft="true"
+        style="@style/TrackDisplay"
+        />
+
+    <TextView
+        android:id="@+id/display_total_track_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/track_progress_bar"
+        android:layout_alignParentRight="true"
+        style="@style/TrackDisplay" />
+
+    <include layout="@layout/playback_controls"
+        android:id="@+id/track_playback_controls"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_below="@id/track_progress_bar" />
+
+    <fragment
+        android:id="@+id/session_chat_fragment"
+        android:name="com.brufino.terpsychore.fragments.ChatFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/track_playback_controls"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
