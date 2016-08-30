@@ -136,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
 
             String accessToken = response.body().get("access_token").getAsString();
             String displayName = response.body().get("display_name").getAsString();
+            String userId = response.body().get("id").getAsString();
             String email = response.body().get("email").getAsString();
             String imageUrl = response.body().get("image_url").getAsString();
             String expiresAt = response.body().get("expires_at").getAsString(); // TODO: Transform into date
@@ -151,6 +152,7 @@ public class LoginActivity extends AppCompatActivity {
             preferences.edit()
                     .putString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, accessToken)
                     .putString(SharedPreferencesDefs.Main.KEY_DISPLAY_NAME, displayName)
+                    .putString(SharedPreferencesDefs.Main.KEY_USER_ID, userId)
                     .putString(SharedPreferencesDefs.Main.KEY_EMAIL, email)
                     .putString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, imageUrl)
                     .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, expiresAt)

@@ -7,6 +7,7 @@ public class SharedPreferencesDefs {
 
         public static final String KEY_ACCESS_TOKEN = "access_token";
         public static final String KEY_DISPLAY_NAME = "display_name";
+        public static final String KEY_USER_ID = "user_id";
         public static final String KEY_IMAGE_URL = "image_url";
         public static final String KEY_EXPIRES_AT = "expires_at";
         public static final String KEY_EMAIL = "email";
