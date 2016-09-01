@@ -43,14 +43,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/sessionForegroundText"
             android:textSize="16sp"
             android:text="We Control The Sunlight" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#BBFFFFFF"
+            android:textColor="@color/sessionSecondaryText"
             android:textSize="11sp"
             android:text="Aly &amp; Fila" />
 

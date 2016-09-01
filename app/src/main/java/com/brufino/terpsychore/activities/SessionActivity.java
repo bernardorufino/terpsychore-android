@@ -7,11 +7,21 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.ChatFragment;
 import com.brufino.terpsychore.fragments.TrackPlaybackFragment;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
+import com.brufino.terpsychore.network.ApiUtils;
+import com.brufino.terpsychore.network.SessionApi;
+import com.brufino.terpsychore.util.ActivityUtils;
+import com.google.common.base.Throwables;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.*;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
@@ -19,8 +29,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 
-/* TODO: Implement server-side authentication with access token refresh */
-/* TODO: Refactor playback controls in separate fragment? */
+/* TODO: Renew token automatically */
+/* TODO: Handle rotation for e.g. */
 public class SessionActivity extends AppCompatActivity {
 
     public static final String SESSION_ID_EXTRA_KEY = "sessionId";
@@ -34,10 +44,13 @@ public class SessionActivity extends AppCompatActivity {
     private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
 
     public static final String SAVED_STATE_KEY_CURRENT_POSITION = "currentPosition";
+    public static final String SAVED_STATE_KEY_SESSION = "session";
     private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
 
     private Toolbar vToolbar;
+    private TextView vTrackTitleName;
+    private TextView vTrackTitleArtist;
 
     private Player mPlayer;
     private volatile int mCurrentPosition; /* TODO: Analyse concurrency issues */
@@ -46,6 +59,10 @@ public class SessionActivity extends AppCompatActivity {
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
     private TrackPlaybackFragment mTrackPlaybackFragment;
     private ChatFragment mChatFragment;
+    private SessionApi mSessionApi;
+    private int mSessionId;
+    private String mUserId;
+    private JsonObject mSession;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,33 +70,65 @@ public class SessionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_session);
 
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
+        vTrackTitleName = (TextView) findViewById(R.id.track_title_name);
+        vTrackTitleArtist = (TextView) findViewById(R.id.track_title_artist);
         setSupportActionBar(vToolbar);
 
         mTrackPlaybackFragment =
                 (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
         mChatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.session_chat_fragment);
 
-        String sessionId = getIntent().getStringExtra(SESSION_ID_EXTRA_KEY);
-        checkNotNull(sessionId, "Can't start SessionActivity without a session id");
-        String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
-        String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
-        String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
+        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mUserId = checkNotNull(ActivityUtils.getUserId(this), "User id can't be null");
+        mSessionId = getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1);
+        checkState(mSessionId != -1, "Can't start SessionActivity without a session id");
 
-        vToolbar.setTitle(trackName);
-        vToolbar.setSubtitle(trackArtist);
-
-        /* TODO: Extract this logic into a helper / util class! */
+        /* TODO: Don't fetch again if rotation etc. initializePlayer(); */
         if (savedInstanceState != null) {
+            String sessionJson = savedInstanceState.getString(SAVED_STATE_KEY_SESSION);
+            mSession = new JsonParser().parse(sessionJson).getAsJsonObject();
             mCurrentPosition = savedInstanceState.getInt(SAVED_STATE_KEY_CURRENT_POSITION);
+            loadSession(mSession);
         } else {
+            // mSession is assigned in mGetSessionCallback.onResponse()
+            // loadSession() is called in same method
+            mSessionApi.getSession(mUserId, mSessionId).enqueue(mGetSessionCallback);
             mCurrentPosition = 60 * 1000;
         }
         mTrackUpdateListeners.add(mTrackPlaybackFragment);
         mTrackUpdateListeners.add(mOnTrackUpdateListener);
 
         mActivityAlive = true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SAVED_STATE_KEY_SESSION, mSession.toString());
+        outState.putInt(SAVED_STATE_KEY_CURRENT_POSITION, mCurrentPosition);
+    }
+
+    private void loadSession(JsonObject session) {
+        String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
+        String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
+        String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
+        vTrackTitleName.setText(trackName);
+        vTrackTitleArtist.setText(trackArtist);
+        vToolbar.setTitle(session.get("name").getAsString());
         initializePlayer();
     }
+
+    private Callback<JsonObject> mGetSessionCallback = new Callback<JsonObject>() {
+        @Override
+        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            mSession = response.body().getAsJsonObject();
+            loadSession(mSession);
+        }
+        @Override
+        public void onFailure(Call<JsonObject> call, Throwable t) {
+            throw Throwables.propagate(t);
+        }
+    };
 
     private void initializePlayer() {
         SharedPreferences sharedPreferences =
@@ -89,12 +138,6 @@ public class SessionActivity extends AppCompatActivity {
         // TODO: Manage access token life cycle (check expiration, renew beforehand, etc)
         Config playerConfig = new Config(this, accessToken, SPOTIFY_CLIENT_ID);
         Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(SAVED_STATE_KEY_CURRENT_POSITION, mCurrentPosition);
     }
 
     private TrackUpdateListener mOnTrackUpdateListener = new TrackUpdateListener() {

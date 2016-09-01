@@ -8,8 +8,43 @@
     <com.brufino.terpsychore.view.trackview.graph.GraphTrackView
         android:id="@+id/graph_track_view"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/graphBackground" />
+        android:layout_height="64dp"
+        android:background="@color/graphBackground"
+        />
+
+    <RelativeLayout
+        android:id="@+id/track_title"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/track_title_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/sessionForegroundText"
+                />
+
+            <TextView
+                android:id="@+id/track_title_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/sessionSecondaryText"
+                />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
 
     <com.brufino.terpsychore.view.trackview.TrackProgressBar
         android:id="@+id/track_progress_bar"

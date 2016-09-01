@@ -29,8 +29,8 @@
         android:id="@+id/sessions_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:background="#DDDDDD"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="#E2E2E2"
         />
 
     <android.support.design.widget.FloatingActionButton

@@ -3,13 +3,17 @@
     <drawable name="playback_button_pressed">#388E3C</drawable>
     <drawable name="playback_button">#4CAF50</drawable>
 
+    <color name="sessionForegroundText">#FFFFFFFF</color>
+    <color name="sessionSecondaryText">#BBFFFFFF</color>
+
     <color name="chatReactionsBackground">#BB8CDF90</color>
 
+    <!-- XxxTop is before the current position -->
     <color name="graphBackground">#388E3C</color>
     <color name="graphStroke">#002E7D32</color>
     <color name="graphStrokeTop">#A5D6A7</color>
-    <color name="graphForeground">#4CAF50</color>
-    <color name="graphForegroundTop">#BB81C784</color>
+    <color name="graphForeground">#444CAF50</color>
+    <color name="graphForegroundTop">#4481C784</color>
 
     <color name="colorPrimary">#4CAF50</color>
     <color name="colorPrimaryDark">#2E7D32</color>

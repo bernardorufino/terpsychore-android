@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +18,10 @@ import com.brufino.terpsychore.fragments.EditSessionFragment;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,14 +30,15 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.*;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOGIN_REQUEST_CODE = 0;
     private RecyclerView vSessionsList;
     private SessionListAdapter mSessionsAdapter;
     private FloatingActionButton mAddSessionButton;
+    private SessionApi mSessionApi;
+    private String mUserId;
+    private LinearLayoutManager mLinearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
         vSessionsList = (RecyclerView) findViewById(R.id.sessions_list);
         mSessionsAdapter = new SessionListAdapter();
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        vSessionsList.setLayoutManager(mLinearLayoutManager);
         vSessionsList.setAdapter(mSessionsAdapter);
         mAddSessionButton = (FloatingActionButton) findViewById(R.id.add_session_button);
         mAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
 
-        String userId = ActivityUtils.getUserId(this);
-        if (userId != null) {
-            loadSessions();
+        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mUserId = ActivityUtils.getUserId(this);
+        if (mUserId != null) {
+            mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
@@ -60,6 +68,24 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onComplete(boolean success, String sessionName) {
             if (success && !sessionName.trim().isEmpty()) {
+                // Construct post body
+                JsonObject body = new JsonObject();
+                JsonObject session = new JsonObject();
+                session.addProperty("name", sessionName);
+                body.add("session", session);
+
+                // Post session
+                mSessionApi.postSession(mUserId, body).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        // Update sessions
+                        mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
+                    }
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        throw Throwables.propagate(t);
+                    }
+                });
 
                 Toast.makeText(MainActivity.this, "Session " + sessionName + " created!", Toast.LENGTH_SHORT).show();
             } else {
@@ -78,19 +104,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void loadSessions() {
-        String userId = checkNotNull(ActivityUtils.getUserId(this));
-        SessionApi sessionApi = ApiUtils.createApi(SessionApi.class);
-        sessionApi.getSessions(userId).enqueue(mGetSessionsCallback);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         switch (requestCode) {
             case LOGIN_REQUEST_CODE:
                 Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
-                loadSessions();
+                mUserId = ActivityUtils.getUserId(this);
+                mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
         }
     }
 
@@ -100,19 +121,12 @@ public class MainActivity extends AppCompatActivity {
         public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
             JsonArray sessions = response.body().getAsJsonArray();
             Log.v("VFY", "sessions size = " + sessions.size());
-            //new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            //    @Override
-            //    public void run() {
-            //        Intent intent = new Intent(MainActivity.this, SessionActivity.class);
-            //        intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, "12");
-            //        intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, "spotify:track:3Gaj5GBeZ8aynvtPkxrr9A");
-            //        intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
-            //        intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
-            //        startActivity(intent);
-            //    }
-            //}, 1000);
+            ImmutableList.Builder<JsonObject> builder = new ImmutableList.Builder<>();
+            for (JsonElement session : sessions) {
+                builder.add(session.getAsJsonObject());
+            }
+            mSessionsAdapter.setBackingList(builder.build());
         }
-
         @Override
         public void onFailure(Call<JsonArray> call, Throwable t) {
             Log.e("VFY", "Failure while retrieving sessions list", t);
@@ -136,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(SessionItemHolder holder, int position) {
-            JsonObject item = mBackingList.get(position);
-            holder.bind("Title", "Subtitle");
+            JsonObject session = mBackingList.get(position);
+            holder.bind(session);
         }
 
         @Override
@@ -148,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static class SessionItemHolder extends RecyclerView.ViewHolder {
 
+        private int mSessionId;
         private final Context mContext;
         private final TextView vNameText;
         private final TextView vDescriptionText;
@@ -163,11 +178,20 @@ public class MainActivity extends AppCompatActivity {
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(mContext, SessionActivity.class);
+                intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, mSessionId);
+                intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, "spotify:track:3Gaj5GBeZ8aynvtPkxrr9A");
+                intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
+                intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
+                mContext.startActivity(intent);
                 Toast.makeText(mContext, "Foo", Toast.LENGTH_SHORT).show();
             }
         };
 
-        public void bind(String name, String description) {
+        public void bind(JsonObject session) {
+            mSessionId = session.get("id").getAsInt();
+            String name = session.get("name").getAsString();
+            String description = session.get("nusers").getAsInt() + " Connected";
             vNameText.setText(name);
             vDescriptionText.setText(description);
         }
