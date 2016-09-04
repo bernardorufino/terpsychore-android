@@ -18,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="?attr/colorPrimaryDark"
             app:title="@string/app_name"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             />
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
-        android:background="#E2E2E2"
+        android:background="@color/subthemeFarBackground"
         />
 
     <android.support.design.widget.FloatingActionButton

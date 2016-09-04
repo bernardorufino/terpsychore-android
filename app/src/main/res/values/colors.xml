@@ -5,7 +5,6 @@
 
     <color name="sessionForegroundText">#FFFFFFFF</color>
     <color name="sessionSecondaryText">#BBFFFFFF</color>
-
     <color name="chatReactionsBackground">#BB8CDF90</color>
 
     <!-- XxxTop is before the current position -->
@@ -19,5 +18,14 @@
     <color name="colorPrimaryDark">#2E7D32</color>
     <!--Blend color below (without alpha) with the primary dark using alpha as the weight-->
     <color name="colorPrimaryExtraDark">#2C722D</color>
+    <color name="mainActivityStatusBarColor">#2C722D</color>
     <color name="colorAccent">#D63737</color>
+
+
+    <color name="subthemeForeground">#E2E2E2</color>
+    <color name="subthemeSecondaryForeground">#9E9E9E</color>
+    <color name="subthemeBackground">#18401D</color>
+    <!--#E2E2E2-->
+    <color name="subthemeFarBackground">#1A411C</color>
+
 </resources>

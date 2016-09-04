@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="17dp"
-    android:background="#FFFFFF"
+    android:background="@color/subthemeBackground"
     android:layout_marginBottom="0.5dp"
     >
 
@@ -16,6 +16,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="10dp"
+        android:tint="@color/subthemeForeground"
         android:src="@drawable/ic_wifi_tethering_black_36dp"
         />
 
@@ -26,6 +27,7 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/session_list_item_icon"
         android:textSize="15sp"
+        android:textColor="@color/subthemeForeground"
         android:text="Title"
         />
 
@@ -36,6 +38,7 @@
         android:layout_below="@id/session_list_item_name"
         android:layout_toRightOf="@id/session_list_item_icon"
         android:textSize="13sp"
+        android:textColor="@color/subthemeSecondaryForeground"
         android:text="15 Connected" />
 
     <RelativeLayout
@@ -52,6 +55,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
                 android:layout_marginRight="10dp"
+                android:tint="@color/subthemeForeground"
                 android:src="@drawable/ic_equalizer_black_24dp"
                 />
 
@@ -60,6 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
+                android:textColor="@color/subthemeForeground"
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@id/session_list_item_playing_icon"
                 android:text="Anjunabeats"
@@ -70,6 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="13sp"
+                android:textColor="@color/subthemeSecondaryForeground"
                 android:layout_below="@id/session_list_item_playing_now"
                 android:layout_toRightOf="@id/session_list_item_playing_icon"
                 android:text="Next: Seven Cities" />
