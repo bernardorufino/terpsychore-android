@@ -23,9 +23,10 @@
 
 
     <color name="subthemeForeground">#E2E2E2</color>
-    <color name="subthemeSecondaryForeground">#9E9E9E</color>
-    <color name="subthemeBackground">#18401D</color>
+    <!--<color name="subthemeSecondaryForeground">#9E9E9E</color>-->
+    <color name="subthemeSecondaryForeground">#D2D2D2</color>
+    <color name="subthemeBackground">#143B08</color>
     <!--#E2E2E2-->
-    <color name="subthemeFarBackground">#1A411C</color>
+    <color name="subthemeFarBackground">#0A310C</color>
 
 </resources>

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
@@ -172,12 +173,18 @@ public class MainActivity extends AppCompatActivity {
         private final Context mContext;
         private final TextView vNameText;
         private final TextView vDescriptionText;
+        private final TextView vNowPlayingText;
+        private final TextView vNextPlayingText;
+        private final ImageView vPlayingIcon;
 
         public SessionItemHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
             vNameText = (TextView) itemView.findViewById(R.id.session_list_item_name);
             vDescriptionText = (TextView) itemView.findViewById(R.id.session_list_item_description);
+            vNowPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_now);
+            vNextPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_next);
+            vPlayingIcon = (ImageView) itemView.findViewById(R.id.session_list_item_playing_icon);
             itemView.setOnClickListener(mOnClickListener);
         }
 
@@ -198,8 +205,31 @@ public class MainActivity extends AppCompatActivity {
             mSessionId = session.get("id").getAsInt();
             String name = session.get("name").getAsString();
             String description = session.get("nusers").getAsInt() + " Connected";
+            JsonObject queue = session.get("queue_digest").getAsJsonObject();
+            JsonElement currentTrack = queue.get("current_track");
+            JsonElement nextTrack = queue.get("next_track");
+
             vNameText.setText(name);
             vDescriptionText.setText(description);
+
+            vPlayingIcon.setVisibility(View.GONE);
+            if (currentTrack.isJsonNull()) {
+                vNowPlayingText.setVisibility(View.GONE);
+            } else {
+                vPlayingIcon.setVisibility(View.VISIBLE);
+                vNowPlayingText.setVisibility(View.VISIBLE);
+                vNowPlayingText.setText(currentTrack.getAsJsonObject().get("name").getAsString());
+            }
+            if (nextTrack.isJsonNull()) {
+                vNextPlayingText.setVisibility(View.GONE);
+            } else {
+                vPlayingIcon.setVisibility(View.VISIBLE);
+                vNextPlayingText.setVisibility(View.VISIBLE);
+                vNextPlayingText.setText("> " + nextTrack.getAsJsonObject().get("name").getAsString());
+            }
+
+
+
         }
 
     }

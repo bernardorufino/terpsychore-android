@@ -42,7 +42,7 @@
         android:text="15 Connected" />
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
@@ -59,26 +59,37 @@
                 android:src="@drawable/ic_equalizer_black_24dp"
                 />
 
-            <TextView
-                android:id="@+id/session_list_item_playing_now"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:textColor="@color/subthemeForeground"
-                android:layout_alignParentTop="true"
                 android:layout_toRightOf="@id/session_list_item_playing_icon"
-                android:text="Anjunabeats"
-                />
+                android:layout_centerVertical="true"
+                android:orientation="vertical"
+                >
 
-            <TextView
-                android:id="@+id/session_list_item_playing_next"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="13sp"
-                android:textColor="@color/subthemeSecondaryForeground"
-                android:layout_below="@id/session_list_item_playing_now"
-                android:layout_toRightOf="@id/session_list_item_playing_icon"
-                android:text="Next: Seven Cities" />
+                <TextView
+                    android:id="@+id/session_list_item_playing_now"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textColor="@color/subthemeForeground"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    />
+
+                <TextView
+                    android:id="@+id/session_list_item_playing_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="@color/subthemeSecondaryForeground"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    />
+
+            </LinearLayout>
+
+
 
     </RelativeLayout>
 

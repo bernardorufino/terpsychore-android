@@ -192,7 +192,7 @@ public class SessionActivity extends AppCompatActivity {
 
         @Override
         public void onLoginFailed(Throwable throwable) {
-            Log.d("VFY", "onLoginFailed()");
+            Log.e("VFY", "onLoginFailed()", throwable);
         }
 
         @Override
