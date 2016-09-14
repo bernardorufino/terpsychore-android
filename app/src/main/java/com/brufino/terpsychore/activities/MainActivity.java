@@ -197,7 +197,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
                 intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
                 mContext.startActivity(intent);
-                Toast.makeText(mContext, "Foo", Toast.LENGTH_SHORT).show();
             }
         };
 
