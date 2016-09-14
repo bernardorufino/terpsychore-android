@@ -193,9 +193,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, SessionActivity.class);
                 intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, mSessionId);
-                intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, "spotify:track:3Gaj5GBeZ8aynvtPkxrr9A");
-                intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, "Paradise");
-                intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, "Tiësto");
                 mContext.startActivity(intent);
             }
         };

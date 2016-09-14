@@ -1,5 +1,6 @@
 package com.brufino.terpsychore.fragments;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.SessionActivity;
+import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
@@ -41,12 +43,19 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private TextView vTrackTitleArtist;
     private TextView vNextTrackName;
     private TextView vNextTrackArtist;
+    private ViewGroup vQueueView;
 
     private Player mPlayer;
     private TrackCurve mTrackCurve;
     private boolean mPlaying = false;
     private int mCurrentPosition;
     private int mDuration;
+    private JsonObject mSession;
+    private boolean mCanPlay;
+    private boolean mCanReplay;
+    private boolean mCanNext;
+    private ColorStateList mActivatedColor;
+    private ColorStateList mDeactivatedColor;
 
     @Nullable
     @Override
@@ -60,9 +69,10 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
 
         vTrackTitleName = (TextView) getView().findViewById(R.id.track_title_name);
         vTrackTitleArtist = (TextView) getView().findViewById(R.id.track_title_artist);
+        vQueueView = (ViewGroup) getView().findViewById(R.id.playback_queue_next);
+        vQueueView.setOnClickListener(mOnQueueViewClickListener);
         vNextTrackName = (TextView) getView().findViewById(R.id.playback_control_next_track_name);
         vNextTrackArtist = (TextView) getView().findViewById(R.id.playback_control_next_track_artist);
-
         vGraphTrackView = (GraphTrackView) getView().findViewById(R.id.graph_track_view);
         vTrackProgressBar = (TrackProgressBar) getView().findViewById(R.id.track_progress_bar);
         vDisplayCurrentTrackTime = (TextView) getView().findViewById(R.id.display_current_track_time);
@@ -108,7 +118,15 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         outState.putInt(SAVED_STATE_KEY_DURATION, mDuration);
     }
 
+    private View.OnClickListener mOnQueueViewClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(getContext(), "Open queue", Toast.LENGTH_SHORT).show();
+        }
+    };
+
     public void bind(JsonObject session) {
+        mSession = session;
         JsonObject queue = session.get("queue_digest").getAsJsonObject();
 
         JsonElement currentTrack = queue.get("current_track");
@@ -122,6 +140,8 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         vTrackTitleArtist.setText(currentTrackArtist);
 
         JsonElement nextTrack = queue.get("next_track");
+
+
         vNextTrackName.setVisibility(View.GONE);
         vNextTrackArtist.setVisibility(View.GONE);
         if (!nextTrack.isJsonNull()) {
@@ -133,13 +153,30 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
             vNextTrackArtist.setText(nextTrackArtist);
         }
 
+        // see onTrackUpdate()
+        mCanPlay = false;
+        mCanReplay = false;
+        mCanNext = !nextTrack.isJsonNull();
+        mActivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlActivated);
+        mDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlDeactivated);
+        updatePlaybackControlStates();
+    }
+
+    private void updatePlaybackControlStates() {
+        vPlayButton.setImageTintList((mCanPlay) ? mActivatedColor : mDeactivatedColor);
+        vReplayButton.setImageTintList((mCanReplay) ? mActivatedColor : mDeactivatedColor);
+        vNextButton.setImageTintList((mCanNext) ? mActivatedColor : mDeactivatedColor);
     }
 
     @Override
-    public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, @Nullable Player _) {
+    public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, @Nullable Player player) {
         mCurrentPosition = currentPositionInMs;
         mDuration = durationInMs;
         double position = (durationInMs > 0) ? (double) currentPositionInMs / durationInMs : 0;
+
+        mCanPlay = mPlayer != null && mPlayer.isInitialized();
+        mCanReplay = mPlayer != null && mPlayer.isInitialized();
+        updatePlaybackControlStates();
 
         if (mPlaying && !playing) {
             vPlayButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
@@ -162,6 +199,9 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private View.OnClickListener mOnReplayButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (!mCanReplay) {
+                return;
+            }
             mPlayer.getPlayerState(mOnReplayButtonClickRetrievePlayerState);
         }
     };
@@ -177,6 +217,9 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private View.OnClickListener mOnPlayButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (!mCanPlay) {
+                return;
+            }
             mPlayer.getPlayerState(mOnPlayButtonClickRetrievePlayerState);
         }
     };
@@ -196,6 +239,9 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private View.OnClickListener mOnNextButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (!mCanNext) {
+                return;
+            }
             Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
         }
     };

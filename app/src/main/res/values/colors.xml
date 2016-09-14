@@ -3,6 +3,9 @@
     <drawable name="playback_button_pressed">#388E3C</drawable>
     <drawable name="playback_button">#4CAF50</drawable>
 
+    <color name="playbackControlActivated">#FFFFFF</color>
+    <color name="playbackControlDeactivated">#7CDF80</color>
+
     <color name="sessionForegroundText">#FFFFFFFF</color>
     <color name="sessionSecondaryText">#BBFFFFFF</color>
     <color name="chatReactionsBackground">#BB8CDF90</color>

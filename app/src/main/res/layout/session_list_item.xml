@@ -15,34 +15,39 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="9dp"
         android:tint="@color/subthemeForeground"
         android:src="@drawable/ic_wifi_tethering_black_36dp"
         />
 
-    <TextView
-        android:id="@+id/session_list_item_name"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:layout_centerVertical="true"
         android:layout_toRightOf="@id/session_list_item_icon"
-        android:textSize="15sp"
-        android:textColor="@color/subthemeForeground"
-        android:text="Title"
-        />
+        >
 
-    <TextView
-        android:id="@+id/session_list_item_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/session_list_item_name"
-        android:layout_toRightOf="@id/session_list_item_icon"
-        android:textSize="13sp"
-        android:textColor="@color/subthemeSecondaryForeground"
-        android:text="15 Connected" />
+        <TextView
+            android:id="@+id/session_list_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/subthemeForeground"
+            />
+
+        <TextView
+            android:id="@+id/session_list_item_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="@color/subthemeSecondaryForeground"
+            />
+
+    </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="120dp"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
@@ -54,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginRight="10dp"
+                android:layout_marginRight="6dp"
                 android:tint="@color/subthemeForeground"
                 android:src="@drawable/ic_equalizer_black_24dp"
                 />
@@ -71,7 +76,7 @@
                     android:id="@+id/session_list_item_playing_now"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="15sp"
+                    android:textSize="11sp"
                     android:textColor="@color/subthemeForeground"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -81,7 +86,7 @@
                     android:id="@+id/session_list_item_playing_next"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13sp"
+                    android:textSize="9sp"
                     android:textColor="@color/subthemeSecondaryForeground"
                     android:ellipsize="end"
                     android:maxLines="1"
