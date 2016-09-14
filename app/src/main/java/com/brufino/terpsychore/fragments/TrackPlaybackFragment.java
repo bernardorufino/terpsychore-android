@@ -15,6 +15,8 @@ import com.brufino.terpsychore.activities.SessionActivity;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
@@ -35,6 +37,10 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private ImageButton vReplayButton;
     private ImageButton vPlayButton;
     private ImageButton vNextButton;
+    private TextView vTrackTitleName;
+    private TextView vTrackTitleArtist;
+    private TextView vNextTrackName;
+    private TextView vNextTrackArtist;
 
     private Player mPlayer;
     private TrackCurve mTrackCurve;
@@ -51,6 +57,11 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        vTrackTitleName = (TextView) getView().findViewById(R.id.track_title_name);
+        vTrackTitleArtist = (TextView) getView().findViewById(R.id.track_title_artist);
+        vNextTrackName = (TextView) getView().findViewById(R.id.playback_control_next_track_name);
+        vNextTrackArtist = (TextView) getView().findViewById(R.id.playback_control_next_track_artist);
 
         vGraphTrackView = (GraphTrackView) getView().findViewById(R.id.graph_track_view);
         vTrackProgressBar = (TrackProgressBar) getView().findViewById(R.id.track_progress_bar);
@@ -95,6 +106,33 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         outState.putParcelable(SAVED_STATE_KEY_TRACK_CURVE, mTrackCurve);
         outState.putInt(SAVED_STATE_KEY_CURRENT_POSITION, mCurrentPosition);
         outState.putInt(SAVED_STATE_KEY_DURATION, mDuration);
+    }
+
+    public void bind(JsonObject session) {
+        JsonObject queue = session.get("queue_digest").getAsJsonObject();
+
+        JsonElement currentTrack = queue.get("current_track");
+        String currentTrackName = "";
+        String currentTrackArtist = "";
+        if (!currentTrack.isJsonNull()) {
+            currentTrackName = currentTrack.getAsJsonObject().get("name").getAsString();
+            currentTrackArtist = currentTrack.getAsJsonObject().get("artist").getAsString();
+        }
+        vTrackTitleName.setText(currentTrackName);
+        vTrackTitleArtist.setText(currentTrackArtist);
+
+        JsonElement nextTrack = queue.get("next_track");
+        vNextTrackName.setVisibility(View.GONE);
+        vNextTrackArtist.setVisibility(View.GONE);
+        if (!nextTrack.isJsonNull()) {
+            vNextTrackName.setVisibility(View.VISIBLE);
+            vNextTrackArtist.setVisibility(View.VISIBLE);
+            String nextTrackName = nextTrack.getAsJsonObject().get("name").getAsString();
+            vNextTrackName.setText(nextTrackName);
+            String nextTrackArtist = nextTrack.getAsJsonObject().get("artist").getAsString();
+            vNextTrackArtist.setText(nextTrackArtist);
+        }
+
     }
 
     @Override

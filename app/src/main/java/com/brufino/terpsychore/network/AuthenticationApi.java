@@ -2,10 +2,7 @@ package com.brufino.terpsychore.network;
 
 import com.google.gson.JsonObject;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 
 public interface AuthenticationApi {
 
@@ -17,5 +14,8 @@ public interface AuthenticationApi {
 
     @GET("scopes")
     public Call<JsonObject> getScopes();
+
+    @POST("auth/renew")
+    public Call<JsonObject> renewToken(@Query("user_id") String userId);
 
 }

@@ -2,6 +2,7 @@ package com.brufino.terpsychore.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.google.common.base.Throwables;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.*;
@@ -26,6 +28,7 @@ import retrofit2.Response;
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -70,8 +73,6 @@ public class SessionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_session);
 
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
-        vTrackTitleName = (TextView) findViewById(R.id.track_title_name);
-        vTrackTitleArtist = (TextView) findViewById(R.id.track_title_artist);
         setSupportActionBar(vToolbar);
 
         mTrackPlaybackFragment =
@@ -101,6 +102,15 @@ public class SessionActivity extends AppCompatActivity {
         mActivityAlive = true;
     }
 
+    private String getCurrentTrackSpotifyId() {
+        JsonObject queue = mSession.get("queue_digest").getAsJsonObject();
+        JsonElement currentTrack = queue.get("current_track");
+        if (currentTrack.isJsonNull()) {
+            return null;
+        }
+        return currentTrack.getAsJsonObject().get("spotify_id").getAsString();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -109,11 +119,7 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     private void loadSession(JsonObject session) {
-        String trackId = getIntent().getStringExtra(TRACK_ID_EXTRA_KEY);
-        String trackName = getIntent().getStringExtra(TRACK_NAME_EXTRA_KEY);
-        String trackArtist = getIntent().getStringExtra(TRACK_ARTIST_EXTRA_KEY);
-        vTrackTitleName.setText(trackName);
-        vTrackTitleArtist.setText(trackArtist);
+        mTrackPlaybackFragment.bind(session);
         vToolbar.setTitle(session.get("name").getAsString());
         initializePlayer();
     }
@@ -135,7 +141,8 @@ public class SessionActivity extends AppCompatActivity {
                 getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE);
         String accessToken = sharedPreferences.getString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, null);
         checkNotNull(accessToken, "Main shared preferences doesn't have access_token");
-        // TODO: Manage access token life cycle (check expiration, renew beforehand, etc)
+        // TODO: Check access token and renew before if needed, but also write code foi failure since
+        // TODO: the access token can expire between last check and actual use
         Config playerConfig = new Config(this, accessToken, SPOTIFY_CLIENT_ID);
         Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
     }
@@ -191,8 +198,45 @@ public class SessionActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onLoginFailed(Throwable throwable) {
-            Log.e("VFY", "onLoginFailed()", throwable);
+        public void onLoginFailed(final Throwable throwable) {
+            Log.d("VFY", "login failed, renewing access token and trying again");
+            ApiUtils.renewToken(SessionActivity.this, new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if (response.body().get("status").getAsString().equals("already_fresh")) {
+                        Log.e("VFY", "Logging error (tried renewing access token)", throwable);
+                        throw Throwables.propagate(throwable);
+                    } else {
+                        // It means it has renewed the token so let's try initializing the player again
+                        Log.d("VFY", "Trying destroy then initialize the player again");
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                Log.d("VFY", "Destroying player...");
+                                try {
+                                    Spotify.awaitDestroyPlayer(SessionActivity.this, 5, TimeUnit.SECONDS);
+                                } catch (InterruptedException e) {
+                                    Log.e("VFY", "Error while destroying player before recreating it", e);
+                                }
+                                Log.d("VFY", "Player destroyed");
+                                return null;
+                            }
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                Log.d("VFY", "Initializing player...");
+                                initializePlayer();
+                            }
+                        }.execute();
+                    }
+                }
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
+                    Log.e("VFY", "Error while trying to renew access token because of logging error");
+                    Log.e("VFY", "Renew error", t);
+                    Log.e("VFY", "Logging error", throwable);
+                    throw Throwables.propagate(t);
+                }
+            });
         }
 
         @Override
@@ -214,7 +258,10 @@ public class SessionActivity extends AppCompatActivity {
             mPlayer = player;
             mPlayer.addConnectionStateCallback(mConnectionStateCallback);
             mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
-            mPlayer.play("spotify:track:5CKAVRV6J8sWQBCmnYICZD");
+            String spotifyId = getCurrentTrackSpotifyId();
+            if (spotifyId != null) {
+                mPlayer.play("spotify:track:" + spotifyId);
+            }
             mSeekCurrentPosition = (mCurrentPosition > 0);
             new Handler().post(new TrackUpdater(SessionActivity.this));
         }
