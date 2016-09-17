@@ -2,18 +2,34 @@ package com.brufino.terpsychore.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Build;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+import android.view.*;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ViewUtils {
+
+    public static Rect getRelativeGlobalVisibleRect(View subject, View reference) {
+        Rect referenceRect = new Rect();
+        reference.getGlobalVisibleRect(referenceRect);
+        Rect subjectRect = new Rect();
+        subject.getGlobalVisibleRect(subjectRect);
+        subjectRect.offset(-referenceRect.left, -referenceRect.top);
+        return subjectRect;
+    }
+
+    public static boolean isStrictAncestor(View parent, View child) {
+        for (ViewParent p = child.getParent(); p != null; p = p.getParent()) {
+            if (p == parent) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Will dispose views given in {@param views} with their centers around a circle centered in {@param centerX},

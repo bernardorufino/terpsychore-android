@@ -8,14 +8,14 @@
     <com.brufino.terpsychore.view.trackview.graph.GraphTrackView
         android:id="@+id/graph_track_view"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/track_graph_height"
         android:background="@color/graphBackground"
         />
 
     <RelativeLayout
         android:id="@+id/track_title"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/track_graph_height"
         >
 
         <LinearLayout
@@ -72,7 +72,7 @@
     <include layout="@layout/playback_controls"
         android:id="@+id/track_playback_controls"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="@dimen/playback_controls_height"
         android:layout_below="@id/track_progress_bar" />
 
     <fragment

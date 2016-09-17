@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static class SessionListAdapter extends RecyclerView.Adapter<SessionItemHolder> {
 
+        // TODO: Analyse if it's better to create a lean adapter and rely on managing a list
         private List<JsonObject> mBackingList = new ArrayList<>();
 
         public void setBackingList(List<JsonObject> backingList) {
@@ -223,9 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 vNextPlayingText.setVisibility(View.VISIBLE);
                 vNextPlayingText.setText("> " + nextTrack.getAsJsonObject().get("name").getAsString());
             }
-
-
-
         }
 
     }

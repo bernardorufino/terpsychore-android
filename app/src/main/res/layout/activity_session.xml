@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/session_root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -45,6 +46,22 @@
             android:layout_weight="1" />
 
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/session_overlay_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/sessionOverlayBackground"
+        android:clickable="true">
+
+        <FrameLayout
+            android:id="@+id/session_overlay_fragment_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </FrameLayout>
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>
 

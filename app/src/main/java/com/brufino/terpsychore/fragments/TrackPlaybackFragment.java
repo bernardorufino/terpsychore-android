@@ -56,6 +56,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private boolean mCanNext;
     private ColorStateList mActivatedColor;
     private ColorStateList mDeactivatedColor;
+    private QueueManager mQueueManager;
 
     @Nullable
     @Override
@@ -110,6 +111,11 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         mPlayer = player;
     }
 
+    public void setQueueManager(QueueManager queueManager) {
+        mQueueManager = queueManager;
+    }
+
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -121,7 +127,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private View.OnClickListener mOnQueueViewClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast.makeText(getContext(), "Open queue", Toast.LENGTH_SHORT).show();
+            mQueueManager.onOpenQueue(v);
         }
     };
 
@@ -140,7 +146,6 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         vTrackTitleArtist.setText(currentTrackArtist);
 
         JsonElement nextTrack = queue.get("next_track");
-
 
         vNextTrackName.setVisibility(View.GONE);
         vNextTrackArtist.setVisibility(View.GONE);
@@ -172,7 +177,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, @Nullable Player player) {
         mCurrentPosition = currentPositionInMs;
         mDuration = durationInMs;
-        double position = (durationInMs > 0) ? (double) currentPositionInMs / durationInMs : 0;
+        double position = (durationInMs > 0) ? Math.min(1, (double) currentPositionInMs / durationInMs) : 0;
 
         mCanPlay = mPlayer != null && mPlayer.isInitialized();
         mCanReplay = mPlayer != null && mPlayer.isInitialized();
@@ -257,5 +262,9 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         } else {
             return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
         }
+    }
+
+    public static interface QueueManager {
+        public void onOpenQueue(View viewHint);
     }
 }

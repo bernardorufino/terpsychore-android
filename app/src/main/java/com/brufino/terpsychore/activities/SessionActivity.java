@@ -2,20 +2,26 @@ package com.brufino.terpsychore.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.ChatFragment;
+import com.brufino.terpsychore.fragments.QueueFragment;
 import com.brufino.terpsychore.fragments.TrackPlaybackFragment;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.base.Throwables;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,17 +72,31 @@ public class SessionActivity extends AppCompatActivity {
     private int mSessionId;
     private String mUserId;
     private JsonObject mSession;
+    private RelativeLayout vOverlayLayer;
+    private FrameLayout vOverlayFragmentContainer;
+    private QueueFragment mQueueFragment;
+    private View vRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
+        vRootView = findViewById(R.id.session_root_view);
+        vOverlayLayer = (RelativeLayout) findViewById(R.id.session_overlay_layer);
+        vOverlayLayer.setVisibility(View.GONE);
+        vOverlayLayer.setOnClickListener(mOnOverlayLayerClickListener);
+        vOverlayFragmentContainer = (FrameLayout) findViewById(R.id.session_overlay_fragment_container);
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
 
+        mQueueFragment = new QueueFragment();
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.session_overlay_fragment_container, mQueueFragment, QueueFragment.class.getSimpleName())
+                .commit();
         mTrackPlaybackFragment =
                 (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
+        mTrackPlaybackFragment.setQueueManager(mQueueManager);
         mChatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.session_chat_fragment);
 
         mSessionApi = ApiUtils.createApi(SessionApi.class);
@@ -102,6 +122,22 @@ public class SessionActivity extends AppCompatActivity {
         mActivityAlive = true;
     }
 
+    @Override
+    public void onBackPressed() {
+        if (vOverlayLayer.isShown()) {
+            vOverlayLayer.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private View.OnClickListener mOnOverlayLayerClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            vOverlayLayer.setVisibility(View.GONE);
+        }
+    };
+
     private String getCurrentTrackSpotifyId() {
         JsonObject queue = mSession.get("queue_digest").getAsJsonObject();
         JsonElement currentTrack = queue.get("current_track");
@@ -119,7 +155,9 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     private void loadSession(JsonObject session) {
+        JsonObject queue = session.get("queue_digest").getAsJsonObject();
         mTrackPlaybackFragment.bind(session);
+        mQueueFragment.bind(queue);
         vToolbar.setTitle(session.get("name").getAsString());
         initializePlayer();
     }
@@ -172,7 +210,10 @@ public class SessionActivity extends AppCompatActivity {
         public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
             // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
             // See https://github.com/spotify/android-sdk/issues/12
-            if (mSeekCurrentPosition && eventType == EventType.AUDIO_FLUSH && playerState.durationInMs > 0) {
+            if (mSeekCurrentPosition &&
+                    eventType == EventType.AUDIO_FLUSH &&
+                    playerState.durationInMs > 0 &&
+                    !mPlayer.isShutdown()) {
                 Log.d("VFY", "mCurrentPosition = " + mCurrentPosition);
                 mPlayer.seekToPosition(mCurrentPosition);
                 mSeekCurrentPosition = false;
@@ -273,6 +314,23 @@ public class SessionActivity extends AppCompatActivity {
         }
     };
 
+    private TrackPlaybackFragment.QueueManager mQueueManager = new TrackPlaybackFragment.QueueManager() {
+        @Override
+        public void onOpenQueue(View viewHint) {
+            Rect position = ViewUtils.getRelativeGlobalVisibleRect(viewHint, vOverlayLayer);
+            int left = position.left;
+            int top = position.bottom - mQueueFragment.getTopBarPlusTrackItemHeight();
+
+            vOverlayLayer.setVisibility(View.VISIBLE);
+            RelativeLayout.LayoutParams layoutParams
+                    = (RelativeLayout.LayoutParams) vOverlayFragmentContainer.getLayoutParams();
+            layoutParams.setMargins(left, top, 0, 0);
+            layoutParams.width = position.width();
+            layoutParams.height = 900;
+            vOverlayFragmentContainer.requestLayout();
+        }
+    };
+
     private static class TrackUpdater implements Runnable, PlayerStateCallback {
 
         private final WeakReference<SessionActivity> mActivityRef;
@@ -285,7 +343,7 @@ public class SessionActivity extends AppCompatActivity {
         public void run() {
             SessionActivity activity = mActivityRef.get();
             // Make sure cycle doesn't continue if activity was destroyed
-            if (activity != null && activity.mActivityAlive) {
+            if (activity != null && activity.mActivityAlive && !activity.mPlayer.isShutdown()) {
                 activity.mPlayer.getPlayerState(this);
             }
         }
