@@ -13,11 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.SessionActivity;
+import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerState;
@@ -133,35 +133,32 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
 
     public void bind(JsonObject session) {
         mSession = session;
-        JsonObject queue = session.get("queue_digest").getAsJsonObject();
+        JsonObject queue = session.get("queue").getAsJsonObject();
 
-        JsonElement currentTrack = queue.get("current_track");
-        String currentTrackName = "";
-        String currentTrackArtist = "";
-        if (!currentTrack.isJsonNull()) {
-            currentTrackName = currentTrack.getAsJsonObject().get("name").getAsString();
-            currentTrackArtist = currentTrack.getAsJsonObject().get("artist").getAsString();
+        JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
+        if (currentTrack != null) {
+            String trackName = currentTrack.get("name").getAsString();
+            String trackArtist = currentTrack.get("artist").getAsString();
+            vTrackTitleName.setText(trackName);
+            vTrackTitleArtist.setText(trackArtist);
         }
-        vTrackTitleName.setText(currentTrackName);
-        vTrackTitleArtist.setText(currentTrackArtist);
 
-        JsonElement nextTrack = queue.get("next_track");
-
+        JsonObject nextTrack = ApiUtils.getNextTrack(queue);
         vNextTrackName.setVisibility(View.GONE);
         vNextTrackArtist.setVisibility(View.GONE);
-        if (!nextTrack.isJsonNull()) {
+        if (nextTrack != null) {
             vNextTrackName.setVisibility(View.VISIBLE);
             vNextTrackArtist.setVisibility(View.VISIBLE);
-            String nextTrackName = nextTrack.getAsJsonObject().get("name").getAsString();
+            String nextTrackName = nextTrack.get("name").getAsString();
+            String nextTrackArtist = nextTrack.get("artist").getAsString();
             vNextTrackName.setText(nextTrackName);
-            String nextTrackArtist = nextTrack.getAsJsonObject().get("artist").getAsString();
             vNextTrackArtist.setText(nextTrackArtist);
         }
 
         // see onTrackUpdate()
         mCanPlay = false;
         mCanReplay = false;
-        mCanNext = !nextTrack.isJsonNull();
+        mCanNext = (nextTrack != null);
         mActivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlActivated);
         mDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlDeactivated);
         updatePlaybackControlStates();

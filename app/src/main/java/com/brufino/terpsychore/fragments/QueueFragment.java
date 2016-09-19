@@ -4,14 +4,17 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.brufino.terpsychore.R;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
@@ -43,11 +46,10 @@ public class QueueFragment extends Fragment {
 
     public void bind(JsonObject queue) {
         mTrackList.clear();
-        mTrackList.add(new JsonObject());
-        mTrackList.add(new JsonObject());
-        mTrackList.add(new JsonObject());
-        mTrackList.add(new JsonObject());
-        mTrackList.add(new JsonObject());
+        JsonArray tracks = queue.get("tracks").getAsJsonArray();
+        for (int i = 1; i < tracks.size(); i++) {
+            mTrackList.add(tracks.get(i).getAsJsonObject());
+        }
     }
 
     public int getTopBarPlusTrackItemHeight() {
@@ -85,19 +87,34 @@ public class QueueFragment extends Fragment {
     private static class TrackItemViewHolder extends RecyclerView.ViewHolder {
 
         private final Context mContext;
+        private final RelativeLayout vTrackItem;
         private final TextView vTrackName;
         private final TextView vTrackArtist;
 
         public TrackItemViewHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
+            vTrackItem = (RelativeLayout) itemView.findViewById(R.id.queue_track_item);
             vTrackName = (TextView) itemView.findViewById(R.id.queue_track_name);
             vTrackArtist = (TextView) itemView.findViewById(R.id.queue_track_artist);
         }
 
-        public void bind(JsonElement item) {
-            vTrackName.setText("So Get Up");
-            vTrackArtist.setText("Cosmic Gate");
+        public void bind(JsonObject item) {
+            vTrackName.setText(item.get("name").getAsString());
+            vTrackArtist.setText(item.get("artist").getAsString());
+            boolean current = item.get("current_track").getAsBoolean();
+            boolean next = item.get("next_track").getAsBoolean();
+            if (current || next) {
+                vTrackName.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+                vTrackArtist.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11f);
+                if (current) {
+                    int currentColor = ContextCompat.getColor(mContext, R.color.queueTrackCurrentItemBackground);
+                    vTrackItem.setBackgroundColor(currentColor);
+                } else if (next) {
+                    int nextColor = ContextCompat.getColor(mContext, R.color.queueTrackNextItemBackground);
+                    vTrackItem.setBackgroundColor(nextColor);
+                }
+            }
         }
     }
 }

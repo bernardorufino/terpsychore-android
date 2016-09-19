@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/queue_track_item"
     android:layout_width="match_parent"
     android:layout_height="@dimen/queue_track_item_height"
     android:background="@color/queueTrackItemBackground"
@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/queue_track_images"
         android:orientation="vertical"
         >
 
@@ -22,7 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/queueTrackItemForegroundText"
-            android:textSize="16sp"
+            android:textSize="13sp"
+            android:maxLines="1"
             />
 
         <TextView
@@ -30,12 +32,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/queueTrackItemSecondaryText"
-            android:textSize="11sp"
+            android:textSize="9sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@id/queue_track_images"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -43,13 +48,13 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:tint="#33FFFFFF"
-            android:src="@drawable/ic_play_arrow_white_24dp"
-            />
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="5dp"-->
+            <!--android:tint="#33FFFFFF"-->
+            <!--android:src="@drawable/ic_play_arrow_white_24dp"-->
+            <!--/>-->
 
         <ImageView
             android:layout_width="wrap_content"

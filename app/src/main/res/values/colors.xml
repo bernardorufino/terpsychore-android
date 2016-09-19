@@ -32,10 +32,13 @@
     <!--#E2E2E2-->
     <color name="subthemeFarBackground">#0A310C</color>
 
-    <color name="queueBackground">#19181C</color>
+    <color name="queueBackground">#1A2A1D</color>
     <color name="queueTrackItemBackground">#1D2D20</color>
     <color name="queueTrackItemForegroundText">#EEEEEE</color>
     <color name="queueTrackItemSecondaryText">#CCEEEEEE</color>
+
+    <color name="queueTrackCurrentItemBackground">#2D3D30</color>
+    <color name="queueTrackNextItemBackground">#2D3D30</color>
 
     <color name="sessionOverlayBackground">#00FFFFFF</color>
 

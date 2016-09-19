@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -16,7 +18,7 @@ import static com.google.common.base.Preconditions.*;
 public class ApiUtils {
 
     //public static final String BASE_URL = "http:// vibefy.herokuapp.com";
-    public static final String BASE_URL = "http://192.168.3.137:5000";
+    public static final String BASE_URL = "http://192.168.0.103:5000";
 
     private static Retrofit sRetrofit;
 
@@ -28,6 +30,25 @@ public class ApiUtils {
                     .build();
         }
         return sRetrofit.create(type);
+    }
+
+    public static JsonObject getCurrentTrack(JsonObject queue) {
+        return getTrackAfterCurrent(queue, 0);
+    }
+
+    public static JsonObject getNextTrack(JsonObject queue) {
+        return getTrackAfterCurrent(queue, 1);
+    }
+
+    private static JsonObject getTrackAfterCurrent(JsonObject queue, int offset) {
+        JsonElement currentTrackIndex = queue.get("current_track");
+        int i = currentTrackIndex.isJsonNull() ? -1 : currentTrackIndex.getAsInt();
+        i += offset;
+        JsonArray tracks = queue.get("tracks").getAsJsonArray();
+        if (0 <= i && i < tracks.size()) {
+            return tracks.get(i).getAsJsonObject();
+        }
+        return null;
     }
 
     public static Call<JsonObject> renewToken(Context context, final Callback<JsonObject> callback) {

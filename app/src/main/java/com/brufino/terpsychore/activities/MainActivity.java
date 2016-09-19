@@ -202,27 +202,27 @@ public class MainActivity extends AppCompatActivity {
             mSessionId = session.get("id").getAsInt();
             String name = session.get("name").getAsString();
             String description = session.get("nusers").getAsInt() + " Connected";
-            JsonObject queue = session.get("queue_digest").getAsJsonObject();
-            JsonElement currentTrack = queue.get("current_track");
-            JsonElement nextTrack = queue.get("next_track");
+            JsonObject queue = session.get("queue").getAsJsonObject();
+            JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
+            JsonObject nextTrack = ApiUtils.getNextTrack(queue);
 
             vNameText.setText(name);
             vDescriptionText.setText(description);
 
             vPlayingIcon.setVisibility(View.GONE);
-            if (currentTrack.isJsonNull()) {
+            if (currentTrack == null) {
                 vNowPlayingText.setVisibility(View.GONE);
             } else {
                 vPlayingIcon.setVisibility(View.VISIBLE);
                 vNowPlayingText.setVisibility(View.VISIBLE);
-                vNowPlayingText.setText(currentTrack.getAsJsonObject().get("name").getAsString());
+                vNowPlayingText.setText(currentTrack.get("name").getAsString());
             }
-            if (nextTrack.isJsonNull()) {
+            if (nextTrack == null) {
                 vNextPlayingText.setVisibility(View.GONE);
             } else {
                 vPlayingIcon.setVisibility(View.VISIBLE);
                 vNextPlayingText.setVisibility(View.VISIBLE);
-                vNextPlayingText.setText("> " + nextTrack.getAsJsonObject().get("name").getAsString());
+                vNextPlayingText.setText("> " + nextTrack.get("name").getAsString());
             }
         }
 

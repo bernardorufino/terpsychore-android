@@ -155,7 +155,7 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     private void loadSession(JsonObject session) {
-        JsonObject queue = session.get("queue_digest").getAsJsonObject();
+        JsonObject queue = session.get("queue").getAsJsonObject();
         mTrackPlaybackFragment.bind(session);
         mQueueFragment.bind(queue);
         vToolbar.setTitle(session.get("name").getAsString());
