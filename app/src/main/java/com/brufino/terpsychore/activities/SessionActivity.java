@@ -23,7 +23,6 @@ import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.base.Throwables;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.*;
@@ -38,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.*;
 
-/* TODO: Renew token automatically */
 /* TODO: Handle rotation for e.g. */
 public class SessionActivity extends AppCompatActivity {
 
@@ -134,17 +132,18 @@ public class SessionActivity extends AppCompatActivity {
     private View.OnClickListener mOnOverlayLayerClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            // Overlay contains the queue fragment
             vOverlayLayer.setVisibility(View.GONE);
         }
     };
 
     private String getCurrentTrackSpotifyId() {
-        JsonObject queue = mSession.get("queue_digest").getAsJsonObject();
-        JsonElement currentTrack = queue.get("current_track");
-        if (currentTrack.isJsonNull()) {
+        JsonObject queue = mSession.get("queue").getAsJsonObject();
+        JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
+        if (currentTrack == null) {
             return null;
         }
-        return currentTrack.getAsJsonObject().get("spotify_id").getAsString();
+        return currentTrack.get("spotify_id").getAsString();
     }
 
     @Override
@@ -157,7 +156,7 @@ public class SessionActivity extends AppCompatActivity {
     private void loadSession(JsonObject session) {
         JsonObject queue = session.get("queue").getAsJsonObject();
         mTrackPlaybackFragment.bind(session);
-        mQueueFragment.bind(queue);
+        mQueueFragment.bind(mSessionId, queue);
         vToolbar.setTitle(session.get("name").getAsString());
         initializePlayer();
     }

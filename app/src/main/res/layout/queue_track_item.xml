@@ -9,11 +9,29 @@
     android:layout_marginBottom="0.5dp"
     >
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/queue_track_item_status_icon_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
+        >
+
+        <ImageView
+            android:id="@+id/queue_track_item_status_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-4dp"
+            android:paddingRight="8dp"
+            />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@id/queue_track_item_status_icon_wrapper"
         android:layout_toLeftOf="@+id/queue_track_images"
         android:orientation="vertical"
         >
@@ -48,18 +66,11 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true">
 
-        <!--<ImageView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:padding="5dp"-->
-            <!--android:tint="#33FFFFFF"-->
-            <!--android:src="@drawable/ic_play_arrow_white_24dp"-->
-            <!--/>-->
 
         <ImageView
+            android:id="@+id/queue_track_item_remove"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="5dp"
             android:src="@drawable/ic_remove_circle_white_24dp"
             />
 

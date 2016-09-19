@@ -37,9 +37,16 @@
     <color name="queueTrackItemForegroundText">#EEEEEE</color>
     <color name="queueTrackItemSecondaryText">#CCEEEEEE</color>
 
-    <color name="queueTrackCurrentItemBackground">#2D3D30</color>
-    <color name="queueTrackNextItemBackground">#2D3D30</color>
+    <color name="queueTrackPlayedIconTint">#747B76</color>
+    <color name="queueTrackPlayedForegroundText">#88EEEEEE</color>
+    <color name="queueTrackPlayedSecondaryText">#66EEEEEE</color>
+
+    <color name="queueTrackCurrentItemBackground">#213123</color>
+    <color name="queueTrackNextItemBackground">#1D2D20</color>
 
     <color name="sessionOverlayBackground">#00FFFFFF</color>
+
+    <drawable name="queue_control_normal_bg">#1A2A1D</drawable>
+    <drawable name="queue_control_pressed_bg">#0A1A0D</drawable>
 
 </resources>
