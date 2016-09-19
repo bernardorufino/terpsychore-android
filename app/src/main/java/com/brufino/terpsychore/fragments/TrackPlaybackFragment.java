@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,25 +13,22 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.activities.SessionActivity;
+import com.brufino.terpsychore.activities.PlayerManager;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerState;
-import com.spotify.sdk.android.player.PlayerStateCallback;
 
-import java.util.Locale;
-
-public class TrackPlaybackFragment extends Fragment implements SessionActivity.TrackUpdateListener {
+public class TrackPlaybackFragment extends Fragment implements PlayerManager.TrackUpdateListener {
 
     private static final String SAVED_STATE_KEY_TRACK_CURVE = "trackCurve";
     private static final String SAVED_STATE_KEY_CURRENT_POSITION = "currentTrackTimeText";
     private static final String SAVED_STATE_KEY_DURATION = "totalTrackTimeText";
-    private static final int REPLAY_TIME_WINDOW_IN_MS = 10_000;
+    private static final int REPLAY_REWIND_TIME_IN_MS = 10_000;
 
     private GraphTrackView vGraphTrackView;
     private TrackProgressBar vTrackProgressBar;
@@ -45,7 +43,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     private TextView vNextTrackArtist;
     private ViewGroup vQueueView;
 
-    private Player mPlayer;
+    private PlayerManager mPlayerManager;
     private TrackCurve mTrackCurve;
     private boolean mPlaying = false;
     private int mCurrentPosition;
@@ -66,6 +64,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        Log.d("VFY", "TrackPlaybackFragment.onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
 
         vTrackTitleName = (TextView) getView().findViewById(R.id.track_title_name);
@@ -77,9 +76,9 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         vGraphTrackView = (GraphTrackView) getView().findViewById(R.id.graph_track_view);
         vTrackProgressBar = (TrackProgressBar) getView().findViewById(R.id.track_progress_bar);
         vDisplayCurrentTrackTime = (TextView) getView().findViewById(R.id.display_current_track_time);
-        vDisplayCurrentTrackTime.setText(formatTrackTime(0));
+        vDisplayCurrentTrackTime.setText(ViewUtils.formatTrackTime(0));
         vDisplayTotalTrackTime = (TextView) getView().findViewById(R.id.display_total_track_time);
-        vDisplayTotalTrackTime.setText(formatTrackTime(0));
+        vDisplayTotalTrackTime.setText(ViewUtils.formatTrackTime(0));
         vReplayButton = (ImageButton) getView().findViewById(R.id.playback_control_replay);
         vReplayButton.setOnClickListener(mOnReplayButtonClickListener);
         vPlayButton = (ImageButton) getView().findViewById(R.id.playback_control_play);
@@ -104,17 +103,8 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         }
         vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
         /* TODO: Study why progress bar is resetting immediately after rotations */
-        onTrackUpdate(false, mCurrentPosition, mDuration, null);
+        // onTrackUpdate(false, mCurrentPosition, mDuration, null);
     }
-
-    public void setPlayer(Player player) {
-        mPlayer = player;
-    }
-
-    public void setQueueManager(QueueManager queueManager) {
-        mQueueManager = queueManager;
-    }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -122,6 +112,14 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
         outState.putParcelable(SAVED_STATE_KEY_TRACK_CURVE, mTrackCurve);
         outState.putInt(SAVED_STATE_KEY_CURRENT_POSITION, mCurrentPosition);
         outState.putInt(SAVED_STATE_KEY_DURATION, mDuration);
+    }
+
+    public void setPlayerManager(PlayerManager playerManager) {
+        mPlayerManager = playerManager;
+    }
+
+    public void setQueueManager(QueueManager queueManager) {
+        mQueueManager = queueManager;
     }
 
     private View.OnClickListener mOnQueueViewClickListener = new View.OnClickListener() {
@@ -171,32 +169,33 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
     }
 
     @Override
-    public void onTrackUpdate(boolean playing, int currentPositionInMs, int durationInMs, @Nullable Player player) {
+    public void onTrackUpdate(
+            boolean playing,
+            int currentPositionInMs,
+            int durationInMs,
+            PlayerManager playerManager,
+            @Nullable Player _) {
+
         mCurrentPosition = currentPositionInMs;
         mDuration = durationInMs;
         double position = (durationInMs > 0) ? Math.min(1, (double) currentPositionInMs / durationInMs) : 0;
 
-        mCanPlay = mPlayer != null && mPlayer.isInitialized();
-        mCanReplay = mPlayer != null && mPlayer.isInitialized();
+        mCanPlay = playerManager.canControl();
+        mCanReplay = playerManager.canControl();
         updatePlaybackControlStates();
 
-        if (mPlaying && !playing) {
-            vPlayButton.setImageResource(R.drawable.ic_play_arrow_white_36dp);
-        } else if (!mPlaying && playing) {
-            vPlayButton.setImageResource(R.drawable.ic_pause_white_36dp);
+        if (mPlaying != playing) {
+            vPlayButton.setImageResource((playing) ? R.drawable.ic_pause_white_36dp : R.drawable.ic_play_arrow_white_36dp);
+            mPlaying = playing;
         }
-        mPlaying = playing;
 
         mTrackCurve.seekPosition(position);
         vGraphTrackView.postInvalidate();
 
-        vDisplayCurrentTrackTime.setText(formatTrackTime(currentPositionInMs));
-        vDisplayTotalTrackTime.setText(formatTrackTime(durationInMs));
+        vDisplayCurrentTrackTime.setText(ViewUtils.formatTrackTime(currentPositionInMs));
+        vDisplayTotalTrackTime.setText(ViewUtils.formatTrackTime(durationInMs));
         vTrackProgressBar.setProgress(position);
     }
-
-    /* TODO: Refactor this mess of listeners attached to playback controls registering other listeners. Unify? */
-    /* TODO: Check if mPlayer is available */
 
     private View.OnClickListener mOnReplayButtonClickListener = new View.OnClickListener() {
         @Override
@@ -204,15 +203,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
             if (!mCanReplay) {
                 return;
             }
-            mPlayer.getPlayerState(mOnReplayButtonClickRetrievePlayerState);
-        }
-    };
-
-    private PlayerStateCallback mOnReplayButtonClickRetrievePlayerState = new PlayerStateCallback() {
-        @Override
-        public void onPlayerState(PlayerState playerState) {
-            int newPosition = Math.max(0, playerState.positionInMs - REPLAY_TIME_WINDOW_IN_MS);
-            mPlayer.seekToPosition(newPosition);
+            mPlayerManager.replay(REPLAY_REWIND_TIME_IN_MS);
         }
     };
 
@@ -222,19 +213,7 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
             if (!mCanPlay) {
                 return;
             }
-            mPlayer.getPlayerState(mOnPlayButtonClickRetrievePlayerState);
-        }
-    };
-
-    private PlayerStateCallback mOnPlayButtonClickRetrievePlayerState = new PlayerStateCallback() {
-        @Override
-        public void onPlayerState(PlayerState playerState) {
-            // Button image is controlled in TrackUpdater.onPlayerState()
-            if (playerState.playing) {
-                mPlayer.pause();
-            } else {
-                mPlayer.resume();
-            }
+            mPlayerManager.togglePlay();
         }
     };
 
@@ -247,19 +226,6 @@ public class TrackPlaybackFragment extends Fragment implements SessionActivity.T
             Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
         }
     };
-
-    private static String formatTrackTime(int timeInMs) {
-        int secs = (int) (timeInMs / 1000.0 + 0.5);
-        int mins = secs / 60;
-        secs = secs % 60;
-        int hours = mins / 60;
-        mins = mins % 60;
-        if (hours > 0) {
-            return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, mins, secs);
-        } else {
-            return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
-        }
-    }
 
     public static interface QueueManager {
         public void onOpenQueue(View viewHint);

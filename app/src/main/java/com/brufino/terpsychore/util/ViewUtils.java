@@ -10,8 +10,22 @@ import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ViewUtils {
+
+    public static String formatTrackTime(int timeInMs) {
+        int secs = (int) (timeInMs / 1000.0 + 0.5);
+        int mins = secs / 60;
+        secs = secs % 60;
+        int hours = mins / 60;
+        mins = mins % 60;
+        if (hours > 0) {
+            return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, mins, secs);
+        } else {
+            return String.format(Locale.getDefault(), "%02d:%02d", mins, secs);
+        }
+    }
 
     public static Rect getRelativeGlobalVisibleRect(View subject, View reference) {
         Rect referenceRect = new Rect();
