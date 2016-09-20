@@ -111,7 +111,7 @@ public class PlayerManager {
 
         @Override
         public void onLoginFailed(final Throwable throwable) {
-            Log.d("VFY", "login failed, renewing access token and trying again");
+            Log.d("VFY", "Login failed, renewing access token and trying again");
             ApiUtils.renewToken(mContext, new Callback<JsonObject>() {
                 @Override
                 public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -126,7 +126,7 @@ public class PlayerManager {
                             protected Void doInBackground(Void... params) {
                                 Log.d("VFY", "Destroying player...");
                                 try {
-                                    Spotify.awaitDestroyPlayer(mContext, 5, TimeUnit.SECONDS);
+                                    Spotify.awaitDestroyPlayer(PlayerManager.this, 5, TimeUnit.SECONDS);
                                 } catch (InterruptedException e) {
                                     Log.e("VFY", "Error while destroying player before recreating it", e);
                                 }
