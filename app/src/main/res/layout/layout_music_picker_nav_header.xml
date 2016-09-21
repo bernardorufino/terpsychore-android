@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@drawable/music_picker_nav_header_bg"
+    android:paddingLeft="@dimen/music_picker_horizontal_margin"
+    android:paddingRight="@dimen/music_picker_horizontal_margin"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    >
+
+    <ImageView
+        android:id="@+id/music_picker_nav_header_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_account_circle_white_48dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="@dimen/music_picker_horizontal_margin"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/music_picker_nav_header_image"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/musicPickerHeaderTextColor"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="My Library"
+            />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/musicPickerHeaderTextColor"
+            android:textSize="11sp"
+            android:text="Bernardo Rufino"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>

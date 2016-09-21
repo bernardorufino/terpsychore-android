@@ -11,7 +11,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".activities.MainActivity">
+        <activity
+            android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,17 +30,20 @@
         <activity
             android:name=".activities.LoginActivity" />
 
+        <activity
+            android:name=".activities.MusicPickerActivity"
+            android:label="@string/title_activity_spotify_music_picker"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <receiver
             android:name=".components.SpotifyBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
-                <action android:name="com.spotify.music.playbackstatechanged"/>
-                <action android:name="com.spotify.music.metadatachanged"/>
-                <action android:name="com.spotify.music.queuechanged"/>
+                <action android:name="com.spotify.music.playbackstatechanged" />
+                <action android:name="com.spotify.music.metadatachanged" />
+                <action android:name="com.spotify.music.queuechanged" />
             </intent-filter>
-
         </receiver>
 
     </application>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/music_picker_item_search"
+            android:icon="@drawable/ic_search_white_24dp"
+            android:title="Search" />
+        <item
+            android:id="@+id/music_picker_item_playlists"
+            android:icon="@drawable/ic_queue_music_white_24dp"
+            android:title="Playlists" />
+        <item
+            android:id="@+id/music_picker_item_songs"
+            android:icon="@drawable/ic_play_circle_filled_white_24dp"
+            android:title="Songs" />
+        <item
+            android:id="@+id/music_picker_item_albums"
+            android:icon="@drawable/ic_album_white_24dp"
+            android:title="Albums" />
+    </group>
+
+</menu>

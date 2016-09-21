@@ -49,4 +49,11 @@
     <drawable name="queue_control_normal_bg">#1A2A1D</drawable>
     <drawable name="queue_control_pressed_bg">#0A1A0D</drawable>
 
+    <color name="musicPickerNavBackground">#121314</color>
+    <color name="musicPickerTextColor">#FEFEFE</color>
+    <color name="musicPickerHighlightTextColor">#00BF5A</color>
+    <color name="musicPickerBackground">#121314</color>
+    <color name="musicPickerIconTint">#88898C</color>
+    <color name="musicPickerHeaderTextColor">#FFFFFF</color>
+
 </resources>
