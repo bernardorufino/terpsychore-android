@@ -9,7 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.fragments.musicpicker.*;
 
 public class MusicPickerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -17,22 +20,25 @@ public class MusicPickerActivity extends AppCompatActivity
     private DrawerLayout vDrawer;
     private NavigationView vNavigationView;
     private Toolbar vToolbar;
+    private TextView vHeaderUserName;
+    private FrameLayout vMusicContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_picker);
+
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
-
         vDrawer = (DrawerLayout) findViewById(R.id.music_picker_drawer);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, vDrawer, vToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         vDrawer.addDrawerListener(toggle);
         toggle.syncState();
-
         vNavigationView = (NavigationView) findViewById(R.id.nav_view);
         vNavigationView.setNavigationItemSelectedListener(this);
+        vHeaderUserName = (TextView) findViewById(R.id.music_picker_nav_header_user_name);
+        vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
     }
 
     @Override
@@ -69,18 +75,32 @@ public class MusicPickerActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+
+        MusicPickerFragment fragment;
         int id = item.getItemId();
-
-        if (id == R.id.music_picker_item_search) {
-            // Handle the camera action
-        } else if (id == R.id.music_picker_item_playlists) {
-
-        } else if (id == R.id.music_picker_item_songs) {
-
-        } else if (id == R.id.music_picker_item_albums) {
-
+        switch (id) {
+            case R.id.music_picker_item_search:
+                fragment = new SearchFragment();
+                break;
+            case R.id.music_picker_item_playlists:
+                fragment = new PlaylistsFragment();
+                break;
+            case R.id.music_picker_item_songs:
+                fragment = new SongsFragment();
+                break;
+            case R.id.music_picker_item_albums:
+                fragment = new AlbumsFragment();
+                break;
+            default:
+                throw new AssertionError("Unknown id");
         }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.music_picker_content, fragment)
+                .commit();
+
+        vToolbar.setTitle(item.getTitle());
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;

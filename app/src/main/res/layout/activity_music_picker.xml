@@ -1,51 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/music_picker_drawer"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
-    tools:openDrawer="start"
-    android:background="@color/musicPickerBackground">
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    >
 
-    <android.support.design.widget.CoordinatorLayout
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/music_picker_drawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fitsSystemWindows="false"
-        tools:context=".activities.MusicPickerActivity">
+        tools:openDrawer="start"
+        android:background="@color/musicPickerBackground">
 
-        <android.support.design.widget.AppBarLayout
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.NoActionBar.AppBarOverlay">
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false"
+            tools:context=".activities.MusicPickerActivity">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+            <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.NoActionBar.PopupOverlay" />
+                android:layout_height="wrap_content"
+                android:theme="@style/AppTheme.NoActionBar.AppBarOverlay">
 
-        </android.support.design.widget.AppBarLayout>
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    app:popupTheme="@style/AppTheme.NoActionBar.PopupOverlay" />
 
-        <include layout="@layout/layout_music_picker" />
+            </android.support.design.widget.AppBarLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
+            <FrameLayout
+                android:id="@+id/music_picker_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:itemIconTint="@color/musicPickerIconTint"
-        app:itemTextColor="@drawable/music_picker_nav_text_bg"
+        </android.support.design.widget.CoordinatorLayout>
 
-        app:headerLayout="@layout/layout_music_picker_nav_header"
-        app:menu="@menu/music_picker_drawer"
-        android:background="@color/musicPickerNavBackground"
-        />
+        <android.support.design.widget.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:itemIconTint="@color/musicPickerIconTint"
+            app:itemTextColor="@drawable/music_picker_nav_text_bg"
+            app:headerLayout="@layout/layout_music_picker_nav_header"
+            app:menu="@menu/music_picker_drawer"
+            android:background="@color/musicPickerNavBackground"
+            >
 
-</android.support.v4.widget.DrawerLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="30dp"
+                android:alpha="0.25"
+                >
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="3dp"
+                    android:tint="#FFFFFF"
+                    android:src="@drawable/ic_spotify_72dp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Spotify"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    />
+
+            </LinearLayout>
+
+            </android.support.design.widget.NavigationView>
+
+    </android.support.v4.widget.DrawerLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:paddingLeft="20dp"
+        android:background="@color/musicPickerFooterBackground"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:textSize="16sp"
+            android:textColor="@color/musicPickerFooterTextColor"
+            android:text="4 songs selected"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="@color/musicPickerFooterTextColor"
+            android:text="Ok"
+            android:background="@color/musicPickerFooterActionButtonBg"
+            />
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -55,5 +55,8 @@
     <color name="musicPickerBackground">#121314</color>
     <color name="musicPickerIconTint">#88898C</color>
     <color name="musicPickerHeaderTextColor">#FFFFFF</color>
+    <color name="musicPickerFooterBackground">#222326</color>
+    <color name="musicPickerFooterTextColor">#DDDDDD</color>
+    <color name="musicPickerFooterActionButtonBg">#28292C</color>
 
 </resources>
