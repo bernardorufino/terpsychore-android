@@ -22,7 +22,7 @@ import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.Player;
 
-public class TrackPlaybackFragment extends Fragment implements PlayerManager.TrackUpdateListener {
+public class TrackPlaybackFragment extends Fragment implements PlayerManager.TrackProgressListener {
 
     private static final String SAVED_STATE_KEY_TRACK_CURVE = "trackCurve";
     private static final String SAVED_STATE_KEY_CURRENT_POSITION = "currentTrackTimeText";
@@ -163,7 +163,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     };
 
     @Override
-    public void onTrackUpdate(
+    public void onTrackProgressUpdate(
             boolean playing,
             int currentPositionInMs,
             int durationInMs,
@@ -179,6 +179,9 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
             vPlayButton.setImageResource((playing) ? R.drawable.ic_pause_white_36dp : R.drawable.ic_play_arrow_white_36dp);
             mPlaying = playing;
         }
+
+        String playerStatus = (playing) ? "playing" : "paused";
+        // Log.d("VFY", "[" + playerStatus + "] " + position + " = " + currentPositionInMs + " / " + durationInMs);
 
         mTrackCurve.seekPosition(position);
         vGraphTrackView.postInvalidate();

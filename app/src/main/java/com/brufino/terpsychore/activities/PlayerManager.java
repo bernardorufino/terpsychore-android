@@ -26,8 +26,7 @@ public class PlayerManager {
     private static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
 
-    private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
-    private int mSeekPosition = -1; /* TODO: Analyse concurrency issues */
+    private List<TrackProgressListener> mTrackProgressListeners = new LinkedList<>();
     private Player mPlayer;
     private Context mContext;
     private PlayerListener mPlayerListener;
@@ -46,13 +45,13 @@ public class PlayerManager {
         mPlayerListener = playerListener;
     }
 
-    public void addTrackUpdateListener(TrackUpdateListener trackUpdateListener) {
-        mTrackUpdateListeners.add(trackUpdateListener);
+    public void addTrackUpdateListener(TrackProgressListener trackProgressListener) {
+        mTrackProgressListeners.add(trackProgressListener);
     }
 
     private void notifyTrackUpdateListeners(boolean playing, int currentPositionInMs, int durationInMs) {
-        for (TrackUpdateListener listener : mTrackUpdateListeners) {
-            listener.onTrackUpdate(playing, currentPositionInMs, durationInMs, this, mPlayer);
+        for (TrackProgressListener listener : mTrackProgressListeners) {
+            listener.onTrackProgressUpdate(playing, currentPositionInMs, durationInMs, this, mPlayer);
         }
     }
 
@@ -89,7 +88,7 @@ public class PlayerManager {
             if (mPlayerListener != null) {
                 mPlayerListener.onPlayerInitialized(PlayerManager.this, mPlayer);
             }
-            new Handler().post(new TrackUpdater(PlayerManager.this));
+            new Handler().post(new TrackProgressUpdater(PlayerManager.this));
         }
 
         @Override
@@ -162,14 +161,10 @@ public class PlayerManager {
             if (eventType == EventType.AUDIO_FLUSH &&
                     // playerState.durationInMs > 0 &&
                     !mPlayer.isShutdown()) {
-                if (mSeekPosition > 0) {
-                    mPlayer.seekToPosition(mSeekPosition);
-                    mSeekPosition = -1;
-                }
                 // mPlayer.seekToPosition(mCurrentPosition);
                 // mSeekPosition = false;
             }
-            Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
+            // Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
         }
 
         @Override
@@ -200,8 +195,8 @@ public class PlayerManager {
         /* TODO: onError! */
     }
 
-    public static interface TrackUpdateListener {
-        public void onTrackUpdate(
+    public static interface TrackProgressListener {
+        public void onTrackProgressUpdate(
                 boolean playing,
                 int currentPositionInMs,
                 int durationInMs,
@@ -209,11 +204,11 @@ public class PlayerManager {
                 Player player);
     }
 
-    private static class TrackUpdater implements Runnable, PlayerStateCallback {
+    private static class TrackProgressUpdater implements Runnable, PlayerStateCallback {
 
         private final WeakReference<PlayerManager> mPlayerManagerRef;
 
-        public TrackUpdater(PlayerManager playerManager) {
+        public TrackProgressUpdater(PlayerManager playerManager) {
             mPlayerManagerRef = new WeakReference<>(playerManager);
         }
 
@@ -230,7 +225,7 @@ public class PlayerManager {
         public void onPlayerState(PlayerState playerState) {
             PlayerManager playerManager = mPlayerManagerRef.get();
             if (playerManager != null && playerManager.mAlive) {
-                if (playerState.durationInMs > 0 && playerManager.mSeekPosition < 0) {
+                if (playerState.durationInMs > 0) {
                     playerManager.notifyTrackUpdateListeners(
                             playerState.playing,
                             playerState.positionInMs,
