@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,28 +16,24 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.network.ApiUtils;
-import com.brufino.terpsychore.network.SessionApi;
+import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class QueueFragment extends Fragment {
 
-    private List<JsonObject> mTrackList = new ArrayList<>();
     private RecyclerView vTrackList;
     private ViewGroup vTopBar;
     private ImageView vControlAdd;
     private ImageView vControlRefresh;
     private ImageView vControlFullscreen;
-    private SessionApi mSessionApi;
-    private int mSessionId;
+
+    private List<JsonObject> mTrackList = new ArrayList<>();
+    private QueueManager mQueueManager;
     private TrackListAdapter mTrackListAdapter;
 
     @Nullable
@@ -50,8 +45,6 @@ public class QueueFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        mSessionApi = ApiUtils.createApi(SessionApi.class);
 
         vTopBar = (ViewGroup) getView().findViewById(R.id.queue_top_bar);
         vTrackList = (RecyclerView) getView().findViewById(R.id.queue_track_list);
@@ -67,47 +60,47 @@ public class QueueFragment extends Fragment {
         vControlFullscreen.setOnClickListener(mOnControlFullscreenClickListener);
     }
 
+    public void setQueueManager(QueueManager queueManager) {
+        mQueueManager = queueManager;
+        mQueueManager.addQueueListener(mQueueListener);
+    }
+
     private View.OnClickListener mOnControlAddClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
         }
     };
 
     private View.OnClickListener mOnControlRefreshClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String userId = ActivityUtils.getUserId(getContext());
-            mSessionApi.getQueue(userId, mSessionId).enqueue(new Callback<JsonObject>() {
-                @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                    mTrackListAdapter.notifyDataSetChanged();
-                    bind(mSessionId, response.body());
-                }
-                @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
-                    Log.e("VFY", "Error while refreshing queue", t);
-                    Toast.makeText(getContext(), "Error, try again later", Toast.LENGTH_SHORT).show();
-                }
-            });
+            mQueueManager.refreshQueue();
         }
     };
 
     private View.OnClickListener mOnControlFullscreenClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
         }
     };
 
-    public void bind(int sessionId, JsonObject queue) {
-        mSessionId = sessionId;
-        mTrackList.clear();
-        JsonArray tracks = queue.get("tracks").getAsJsonArray();
-        for (int i = 0; i < tracks.size(); i++) {
-            mTrackList.add(tracks.get(i).getAsJsonObject());
+    private QueueManager.QueueListener mQueueListener = new QueueManager.QueueListener() {
+        @Override
+        public void onQueueChange(QueueManager queueManager, JsonObject queue) {
+            mTrackList.clear();
+            JsonArray tracks = queue.get("tracks").getAsJsonArray();
+            for (int i = 0; i < tracks.size(); i++) {
+                mTrackList.add(tracks.get(i).getAsJsonObject());
+            }
+            mTrackListAdapter.notifyDataSetChanged();
         }
-    }
+        @Override
+        public void onQueueRefreshError(QueueManager queueManager, Throwable t) {
+            Toast.makeText(getContext(), "Error refreshing queue, try again later", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     public int getTopBarPlusTrackItemHeight() {
         int trackItemHeight = getResources().getDimensionPixelSize(R.dimen.queue_track_item_height);

@@ -18,20 +18,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkState;
+
+/* TODO: Absorb some Player methods and delegate them */
 public class PlayerManager {
 
     private static final String SPOTIFY_CLIENT_ID = "69c5ec8781314e52ba8225e8a2d6a84f";
     private static final long UPDATE_INTERVAL_IN_MS = 80;
 
     private List<TrackUpdateListener> mTrackUpdateListeners = new LinkedList<>();
+    private int mSeekPosition = -1; /* TODO: Analyse concurrency issues */
     private Player mPlayer;
-    private volatile boolean mSeekCurrentPosition = false; /* TODO: Analyse concurrency issues */
     private Context mContext;
     private PlayerListener mPlayerListener;
     private volatile boolean mAlive = true; /* TODO: Analyse concurrency issues */
+    private boolean mInitializing;
 
     public PlayerManager(Context context) {
         mContext = context;
+    }
+
+    public Player getPlayer() {
+        return mPlayer;
     }
 
     public void setPlayerListener(PlayerListener playerListener) {
@@ -54,59 +62,40 @@ public class PlayerManager {
         // TODO: the access token can expire between last check and actual use
         Config playerConfig = new Config(mContext, accessToken, SPOTIFY_CLIENT_ID);
         Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
+        mInitializing = true;
     }
 
     private Player.InitializationObserver mSpotifyPlayerInitializationObserver = new Player.InitializationObserver() {
-
         @Override
         public void onInitialized(Player player) {
             mPlayer = player;
             mPlayer.addConnectionStateCallback(mConnectionStateCallback);
             mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
-            if (mPlayerListener != null) {
-                mPlayerListener.onPlayerInitialized(PlayerManager.this, player);
-            }
-            new Handler().post(new TrackUpdater(PlayerManager.this));
+            // Go to mConnectionStateCallback.onLoggedIn() or onLoginFailed()
         }
-
         @Override
         public void onError(Throwable throwable) {
             Log.e("VFY", "Error in player initialization: " + throwable.getClass().getSimpleName());
             Log.e("VFY", "Error in player initialization: " + throwable.getMessage());
-        }
-    };
-
-    private PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
-        @Override
-        public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-            // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
-            // See https://github.com/spotify/android-sdk/issues/12
-            if (mSeekCurrentPosition &&
-                    eventType == EventType.AUDIO_FLUSH &&
-                    playerState.durationInMs > 0 &&
-                    !mPlayer.isShutdown()) {
-                // Log.d("VFY", "mCurrentPosition = " + mCurrentPosition);
-                // mPlayer.seekToPosition(mCurrentPosition);
-                // mSeekCurrentPosition = false;
-            }
-            Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
-        }
-
-        @Override
-        public void onPlaybackError(ErrorType errorType, String s) {
-            Log.d("VFY", "onPlaybackError(): " + errorType.name());
+            mInitializing = false;
         }
     };
 
     private ConnectionStateCallback mConnectionStateCallback = new ConnectionStateCallback() {
         @Override
         public void onLoggedIn() {
-            Log.d("VFY", "onLoggedIn()");
+            Log.d("VFY", "Logged in");
+            mInitializing = false;
+            if (mPlayerListener != null) {
+                mPlayerListener.onPlayerInitialized(PlayerManager.this, mPlayer);
+            }
+            new Handler().post(new TrackUpdater(PlayerManager.this));
         }
 
         @Override
         public void onLoggedOut() {
             Log.d("VFY", "onLoggedOut()");
+            mInitializing = false;
         }
 
         @Override
@@ -117,6 +106,7 @@ public class PlayerManager {
                 public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                     if (response.body().get("status").getAsString().equals("already_fresh")) {
                         Log.e("VFY", "Logging error (tried renewing access token)", throwable);
+                        mInitializing = false;
                         throw Throwables.propagate(throwable);
                     } else {
                         // It means it has renewed the token so let's try initializing the player again
@@ -146,6 +136,7 @@ public class PlayerManager {
                     Log.e("VFY", "Error while trying to renew access token because of logging error");
                     Log.e("VFY", "Renew error", t);
                     Log.e("VFY", "Logging error", throwable);
+                    mInitializing = false;
                     throw Throwables.propagate(t);
                 }
             });
@@ -154,6 +145,7 @@ public class PlayerManager {
         @Override
         public void onTemporaryError() {
             Log.d("VFY", "onTemporaryError()");
+            mInitializing = false;
         }
 
         @Override
@@ -162,46 +154,50 @@ public class PlayerManager {
         }
     };
 
+    private PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
+        @Override
+        public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
+            // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
+            // See https://github.com/spotify/android-sdk/issues/12
+            if (eventType == EventType.AUDIO_FLUSH &&
+                    // playerState.durationInMs > 0 &&
+                    !mPlayer.isShutdown()) {
+                if (mSeekPosition > 0) {
+                    mPlayer.seekToPosition(mSeekPosition);
+                    mSeekPosition = -1;
+                }
+                // mPlayer.seekToPosition(mCurrentPosition);
+                // mSeekPosition = false;
+            }
+            Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
+        }
+
+        @Override
+        public void onPlaybackError(ErrorType errorType, String s) {
+            Log.d("VFY", "onPlaybackError(): " + errorType.name());
+        }
+    };
+
     public void onDestroy() {
         Spotify.destroyPlayer(this);
         mAlive = false;
     }
 
+    public boolean isInitializing() {
+        return mInitializing;
+    }
+
     public boolean canControl() {
-        return mPlayer != null && mPlayer.isInitialized();
-    }
-
-    public void replay(final int rewindTimeInMs) {
-        if (!canControl()) {
-            return;
+        boolean canControl = mPlayer != null && mPlayer.isInitialized();
+        if (canControl) {
+            checkState(!mInitializing, "mInitializing should not be true if we can control the player");
         }
-        mPlayer.getPlayerState(new PlayerStateCallback() {
-            @Override
-            public void onPlayerState(PlayerState playerState) {
-                int newPosition = Math.max(0, playerState.positionInMs + rewindTimeInMs);
-                mPlayer.seekToPosition(newPosition);
-            }
-        });
-    }
-
-    public void togglePlay() {
-        if (!canControl()) {
-            return;
-        }
-        mPlayer.getPlayerState(new PlayerStateCallback() {
-            @Override
-            public void onPlayerState(PlayerState playerState) {
-                if (playerState.playing) {
-                    mPlayer.pause();
-                } else {
-                    mPlayer.resume();
-                }
-            }
-        });
+        return canControl;
     }
 
     public static interface PlayerListener {
         public void onPlayerInitialized(PlayerManager playerManager, Player player);
+        /* TODO: onError! */
     }
 
     public static interface TrackUpdateListener {
@@ -234,7 +230,7 @@ public class PlayerManager {
         public void onPlayerState(PlayerState playerState) {
             PlayerManager playerManager = mPlayerManagerRef.get();
             if (playerManager != null && playerManager.mAlive) {
-                if (playerState.durationInMs > 0 && !playerManager.mSeekCurrentPosition) {
+                if (playerState.durationInMs > 0 && playerManager.mSeekPosition < 0) {
                     playerManager.notifyTrackUpdateListeners(
                             playerState.playing,
                             playerState.positionInMs,

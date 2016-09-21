@@ -93,7 +93,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.spotify.sdk/spotify-auth/1.0.0-beta12/jars" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.spotify.sdk/spotify-player/1.0.0-beta12/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.spotify.sdk/spotify-player/1.0.0-beta13/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-classes" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-runtime-classes" />
@@ -116,9 +116,9 @@
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="okio-1.8.0" level="project" />
-    <orderEntry type="library" exported="" name="guava-19.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.4.0" level="project" />
-    <orderEntry type="library" exported="" name="spotify-player-1.0.0-beta12" level="project" />
+    <orderEntry type="library" exported="" name="guava-19.0" level="project" />
+    <orderEntry type="library" exported="" name="spotify-player-1.0.0-beta13" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="spotify-auth-1.0.0-beta12" level="project" />
     <orderEntry type="library" exported="" name="gson-2.7" level="project" />

@@ -34,7 +34,6 @@ public class SessionActivity extends AppCompatActivity {
     public static final String TRACK_ID_EXTRA_KEY = "trackId";
     public static final String TRACK_NAME_EXTRA_KEY = "trackName";
     public static final String TRACK_ARTIST_EXTRA_KEY = "trackArtist";
-    public static final String SAVED_STATE_KEY_PLAYER_MANAGER = "playerManager";
     public static final String SAVED_STATE_KEY_SESSION = "session";
     private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
     private static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
@@ -49,15 +48,17 @@ public class SessionActivity extends AppCompatActivity {
     private QueueFragment mQueueFragment;
     private View vRootView;
 
-    private Player mPlayer;
-    private PlayerManager mPlayerManager;
-
     private TrackPlaybackFragment mTrackPlaybackFragment;
     private ChatFragment mChatFragment;
+    private Player mPlayer;
+    private PlayerManager mPlayerManager;
+    private QueueManager mQueueManager;
     private SessionApi mSessionApi;
     private int mSessionId;
     private String mUserId;
     private JsonObject mSession;
+    private JsonObject mQueue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +80,7 @@ public class SessionActivity extends AppCompatActivity {
                 .commit();
         mTrackPlaybackFragment =
                 (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
-        mTrackPlaybackFragment.setQueueManager(mQueueManager);
+        mTrackPlaybackFragment.setQueueViewManager(mQueueViewManager);
         mChatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.session_chat_fragment);
 
         mSessionApi = ApiUtils.createApi(SessionApi.class);
@@ -87,9 +88,10 @@ public class SessionActivity extends AppCompatActivity {
         mSessionId = getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1);
         checkState(mSessionId != -1, "Can't start SessionActivity without a session id");
         mPlayerManager = new PlayerManager(this);
-        mPlayerManager.setPlayerListener(mPlayerManagerListener);
         mPlayerManager.addTrackUpdateListener(mTrackPlaybackFragment);
-        mTrackPlaybackFragment.setPlayerManager(mPlayerManager);
+        mQueueManager = new QueueManager(this, mPlayerManager);
+        mTrackPlaybackFragment.setQueueManager(mQueueManager);
+        mQueueFragment.setQueueManager(mQueueManager);
 
         /* TODO: Don't fetch again if rotation etc. initializePlayer(); */
         if (savedInstanceState == null) {
@@ -110,22 +112,10 @@ public class SessionActivity extends AppCompatActivity {
         loadSession(mSession);
     }
 
-    private PlayerManager.PlayerListener mPlayerManagerListener = new PlayerManager.PlayerListener() {
-        @Override
-        public void onPlayerInitialized(PlayerManager playerManager, Player player) {
-            String spotifyId = getCurrentTrackSpotifyId();
-            if (spotifyId != null) {
-                player.play("spotify:track:" + spotifyId);
-            }
-        }
-    };
-
     private void loadSession(JsonObject session) {
-        JsonObject queue = session.get("queue").getAsJsonObject();
-        mTrackPlaybackFragment.bind(session);
-        mQueueFragment.bind(mSessionId, queue);
+        mQueue = session.get("queue").getAsJsonObject();
+        mQueueManager.setQueue(mQueue);
         vToolbar.setTitle(session.get("name").getAsString());
-        mPlayerManager.initialize();
     }
 
     @Override
@@ -144,15 +134,6 @@ public class SessionActivity extends AppCompatActivity {
             vOverlayLayer.setVisibility(View.GONE);
         }
     };
-
-    private String getCurrentTrackSpotifyId() {
-        JsonObject queue = mSession.get("queue").getAsJsonObject();
-        JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
-        if (currentTrack == null) {
-            return null;
-        }
-        return currentTrack.get("spotify_id").getAsString();
-    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -178,9 +159,9 @@ public class SessionActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private TrackPlaybackFragment.QueueManager mQueueManager = new TrackPlaybackFragment.QueueManager() {
+    private TrackPlaybackFragment.QueueViewManager mQueueViewManager = new TrackPlaybackFragment.QueueViewManager() {
         @Override
-        public void onOpenQueue(View viewHint) {
+        public void onOpenQueueView(View viewHint) {
             Rect position = ViewUtils.getRelativeGlobalVisibleRect(viewHint, vOverlayLayer);
             int left = position.left;
             int top = position.bottom - mQueueFragment.getTopBarPlusTrackItemHeight();

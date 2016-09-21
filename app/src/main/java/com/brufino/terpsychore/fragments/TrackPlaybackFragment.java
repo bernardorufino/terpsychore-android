@@ -11,10 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.PlayerManager;
-import com.brufino.terpsychore.network.ApiUtils;
+import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
@@ -43,18 +42,14 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     private TextView vNextTrackArtist;
     private ViewGroup vQueueView;
 
-    private PlayerManager mPlayerManager;
+    private QueueManager mQueueManager;
     private TrackCurve mTrackCurve;
     private boolean mPlaying = false;
     private int mCurrentPosition;
     private int mDuration;
-    private JsonObject mSession;
-    private boolean mCanPlay;
-    private boolean mCanReplay;
-    private boolean mCanNext;
-    private ColorStateList mActivatedColor;
-    private ColorStateList mDeactivatedColor;
-    private QueueManager mQueueManager;
+    private ColorStateList mControlActivatedColor;
+    private ColorStateList mControlDeactivatedColor;
+    private QueueViewManager mQueueViewManager;
 
     @Nullable
     @Override
@@ -86,6 +81,9 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         vNextButton = (ImageButton) getView().findViewById(R.id.playback_control_next);
         vNextButton.setOnClickListener(mOnNextButtonClickListener);
 
+        mControlActivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlActivated);
+        mControlDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlDeactivated);
+
         TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
                 .setFillColor(ContextCompat.getColor(getContext(), R.color.graphForeground))
                 .setStroke(ContextCompat.getColor(getContext(), R.color.graphStroke), 8)
@@ -102,8 +100,6 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
             mDuration = 0;
         }
         vGraphTrackView.addTrackCurve(mTrackCurve, trackCurveStyle);
-        /* TODO: Study why progress bar is resetting immediately after rotations */
-        // onTrackUpdate(false, mCurrentPosition, mDuration, null);
     }
 
     @Override
@@ -114,59 +110,57 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         outState.putInt(SAVED_STATE_KEY_DURATION, mDuration);
     }
 
-    public void setPlayerManager(PlayerManager playerManager) {
-        mPlayerManager = playerManager;
+    private QueueManager.QueueListener mQueueListener = new QueueManager.QueueListener() {
+        @Override
+        public void onQueueChange(QueueManager queueManager, JsonObject queue) {
+            JsonObject currentTrack = queueManager.getCurrentTrack();
+            if (currentTrack != null) {
+                String trackName = currentTrack.get("name").getAsString();
+                String trackArtist = currentTrack.get("artist").getAsString();
+                vTrackTitleName.setText(trackName);
+                vTrackTitleArtist.setText(trackArtist);
+            }
+
+            JsonObject nextTrack = queueManager.getNextTrack();
+            vNextTrackName.setVisibility(View.GONE);
+            vNextTrackArtist.setVisibility(View.GONE);
+            if (nextTrack != null) {
+                vNextTrackName.setVisibility(View.VISIBLE);
+                vNextTrackArtist.setVisibility(View.VISIBLE);
+                String nextTrackName = nextTrack.get("name").getAsString();
+                String nextTrackArtist = nextTrack.get("artist").getAsString();
+                vNextTrackName.setText(nextTrackName);
+                vNextTrackArtist.setText(nextTrackArtist);
+            }
+
+            updatePlaybackControlStates();
+        }
+        @Override
+        public void onQueueRefreshError(QueueManager queueManager, Throwable t) {
+        }
+    };
+
+    private void updatePlaybackControlStates() {
+        vPlayButton.setImageTintList(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vReplayButton.setImageTintList(mQueueManager.canReplay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vNextButton.setImageTintList(mQueueManager.canNext() ? mControlActivatedColor : mControlDeactivatedColor);
     }
 
     public void setQueueManager(QueueManager queueManager) {
         mQueueManager = queueManager;
+        mQueueManager.addQueueListener(mQueueListener);
+    }
+
+    public void setQueueViewManager(QueueViewManager queueViewManager) {
+        mQueueViewManager = queueViewManager;
     }
 
     private View.OnClickListener mOnQueueViewClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mQueueManager.onOpenQueue(v);
+            mQueueViewManager.onOpenQueueView(v);
         }
     };
-
-    public void bind(JsonObject session) {
-        mSession = session;
-        JsonObject queue = session.get("queue").getAsJsonObject();
-
-        JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
-        if (currentTrack != null) {
-            String trackName = currentTrack.get("name").getAsString();
-            String trackArtist = currentTrack.get("artist").getAsString();
-            vTrackTitleName.setText(trackName);
-            vTrackTitleArtist.setText(trackArtist);
-        }
-
-        JsonObject nextTrack = ApiUtils.getNextTrack(queue);
-        vNextTrackName.setVisibility(View.GONE);
-        vNextTrackArtist.setVisibility(View.GONE);
-        if (nextTrack != null) {
-            vNextTrackName.setVisibility(View.VISIBLE);
-            vNextTrackArtist.setVisibility(View.VISIBLE);
-            String nextTrackName = nextTrack.get("name").getAsString();
-            String nextTrackArtist = nextTrack.get("artist").getAsString();
-            vNextTrackName.setText(nextTrackName);
-            vNextTrackArtist.setText(nextTrackArtist);
-        }
-
-        // see onTrackUpdate()
-        mCanPlay = false;
-        mCanReplay = false;
-        mCanNext = (nextTrack != null);
-        mActivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlActivated);
-        mDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlDeactivated);
-        updatePlaybackControlStates();
-    }
-
-    private void updatePlaybackControlStates() {
-        vPlayButton.setImageTintList((mCanPlay) ? mActivatedColor : mDeactivatedColor);
-        vReplayButton.setImageTintList((mCanReplay) ? mActivatedColor : mDeactivatedColor);
-        vNextButton.setImageTintList((mCanNext) ? mActivatedColor : mDeactivatedColor);
-    }
 
     @Override
     public void onTrackUpdate(
@@ -180,10 +174,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         mDuration = durationInMs;
         double position = (durationInMs > 0) ? Math.min(1, (double) currentPositionInMs / durationInMs) : 0;
 
-        mCanPlay = playerManager.canControl();
-        mCanReplay = playerManager.canControl();
         updatePlaybackControlStates();
-
         if (mPlaying != playing) {
             vPlayButton.setImageResource((playing) ? R.drawable.ic_pause_white_36dp : R.drawable.ic_play_arrow_white_36dp);
             mPlaying = playing;
@@ -200,34 +191,25 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     private View.OnClickListener mOnReplayButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!mCanReplay) {
-                return;
-            }
-            mPlayerManager.replay(REPLAY_REWIND_TIME_IN_MS);
+            mQueueManager.replay(REPLAY_REWIND_TIME_IN_MS);
         }
     };
 
     private View.OnClickListener mOnPlayButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!mCanPlay) {
-                return;
-            }
-            mPlayerManager.togglePlay();
+            mQueueManager.togglePlay();
         }
     };
 
     private View.OnClickListener mOnNextButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (!mCanNext) {
-                return;
-            }
-            Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
+            mQueueManager.next();
         }
     };
 
-    public static interface QueueManager {
-        public void onOpenQueue(View viewHint);
+    public static interface QueueViewManager {
+        public void onOpenQueueView(View viewHint);
     }
 }
