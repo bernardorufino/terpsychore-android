@@ -30,6 +30,7 @@ public class QueueManager {
     private final PlayerManager mPlayerManager;
     private JsonObject mQueue;
     private int mSessionId;
+    private boolean mHost;
 
     public QueueManager(Context context, PlayerManager playerManager) {
         mContext = context;
@@ -40,6 +41,10 @@ public class QueueManager {
 
     public void addQueueListener(QueueListener queueListener) {
         mQueueListeners.add(queueListener);
+    }
+
+    public void setHost(boolean host) {
+        mHost = host;
     }
 
     public void setQueue(JsonObject queue) {
@@ -93,7 +98,7 @@ public class QueueManager {
 
                     int delay = duration - serverPosition;
                     if (delay > 10000) {
-                        Log.d("VFY", "  [WARN] Unusually long time to wait (" + delay + " ms)");
+                        Log.w("VFY", "  [WARN] Unusually long time to wait (" + delay + " ms)");
                     }
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -148,7 +153,7 @@ public class QueueManager {
         getPlayer().getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
-                String playerStatus = (playerState.playing) ? "playing" : "paused";
+                String playerStatus = getTrackStatus(playerState);
 
                 // Log.d("VFY", "  onPlayerState():");
                 // Log.d("VFY", "    trackUri = " + playerState.trackUri);
@@ -228,16 +233,20 @@ public class QueueManager {
         return ApiUtils.getNextTrack(mQueue);
     }
 
+    public boolean isHost() {
+        return mHost;
+    }
+
     public boolean canPlay() {
-        return mPlayerManager.canControl();
+        return mPlayerManager.canControl() && isHost();
     }
 
     public boolean canReplay() {
-        return mPlayerManager.canControl();
+        return mPlayerManager.canControl() && isHost();
     }
 
     public boolean canNext() {
-        return getNextTrack() != null;
+        return getNextTrack() != null && isHost();
     }
 
     public void togglePlay() {
@@ -249,9 +258,30 @@ public class QueueManager {
             public void onPlayerState(PlayerState playerState) {
                 if (playerState.playing) {
                     getPlayer().pause();
+                    postQueueStatus("paused", playerState.positionInMs);
                 } else {
                     getPlayer().resume();
+                    postQueueStatus("playing", playerState.positionInMs);
                 }
+            }
+        });
+    }
+
+    private void postQueueStatus(String status, int positionInMs) {
+        int currentTrack = mQueue.get("current_track").getAsInt();
+
+        JsonObject body = new JsonObject();
+        body.addProperty("track_status", status);
+        body.addProperty("current_track", currentTrack);
+        body.addProperty("track_position", positionInMs);
+        mSessionApi.postQueueStatus(mSessionId, body).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            }
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.e("VFY", "Error trying to post queue status", t);
+                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -263,8 +293,9 @@ public class QueueManager {
         getPlayer().getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
-                int newPosition = Math.max(0, playerState.positionInMs + rewindTimeInMs);
+                int newPosition = Math.max(0,  playerState.positionInMs + rewindTimeInMs);
                 getPlayer().seekToPosition(newPosition);
+                postQueueStatus(getTrackStatus(playerState), newPosition);
             }
         });
     }
@@ -278,6 +309,10 @@ public class QueueManager {
 
     private Player getPlayer() {
         return mPlayerManager.getPlayer();
+    }
+
+    private static String getTrackStatus(PlayerState playerState) {
+        return (playerState.playing) ? "playing" : "paused";
     }
 
     public static interface QueueListener {

@@ -22,4 +22,6 @@ public interface SessionApi {
     @GET("user/{userId}/session/{sessionId}/queue")
     public Call<JsonObject> getQueue(@Path("userId") String userId, @Path("sessionId") int sessionId);
 
+    @POST("session/{sessionId}/queue/status")
+    public Call<JsonObject> postQueueStatus(@Path("sessionId") int sessionId, @Body JsonObject body);
 }

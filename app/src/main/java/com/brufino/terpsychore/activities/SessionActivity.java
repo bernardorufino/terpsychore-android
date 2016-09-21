@@ -114,6 +114,8 @@ public class SessionActivity extends AppCompatActivity {
 
     private void loadSession(JsonObject session) {
         mQueue = session.get("queue").getAsJsonObject();
+        boolean host = session.get("host").getAsBoolean();
+        mQueueManager.setHost(host);
         mQueueManager.setQueue(mQueue);
         vToolbar.setTitle(session.get("name").getAsString());
     }
