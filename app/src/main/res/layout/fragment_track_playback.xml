@@ -69,7 +69,7 @@
         android:layout_alignParentRight="true"
         style="@style/TrackDisplay" />
 
-    <include layout="@layout/playback_controls"
+    <include layout="@layout/layout_playback_controls"
         android:id="@+id/track_playback_controls"
         android:layout_width="match_parent"
         android:layout_height="@dimen/playback_controls_height"

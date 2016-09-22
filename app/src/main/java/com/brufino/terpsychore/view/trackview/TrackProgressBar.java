@@ -32,7 +32,7 @@ public class TrackProgressBar extends RelativeLayout {
     }
 
     private void initializeView() {
-        LayoutInflater.from(getContext()).inflate(R.layout.track_progress_bar, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.view_track_progress_bar, this);
         mBarFg = findViewById(R.id.track_progress_bar_fg);
         mBarBg = findViewById(R.id.track_progress_bar_bg);
     }

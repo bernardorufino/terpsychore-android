@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public SessionItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_list_item, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_session_list, parent, false);
             return new SessionItemHolder(itemView);
         }
 

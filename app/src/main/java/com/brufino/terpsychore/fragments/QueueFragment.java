@@ -118,7 +118,7 @@ public class QueueFragment extends Fragment {
 
         @Override
         public TrackItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.queue_track_item, parent, false);
+            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_queue_track, parent, false);
             return new TrackItemViewHolder(itemView);
         }
 
