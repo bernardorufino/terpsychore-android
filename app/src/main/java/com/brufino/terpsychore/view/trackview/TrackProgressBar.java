@@ -13,8 +13,8 @@ import static com.google.common.base.Preconditions.*;
 /* TODO: Extract bar bg colors into view attributes */
 public class TrackProgressBar extends RelativeLayout {
 
-    private View mBarFg;
-    private View mBarBg;
+    private View vBarFg;
+    private View vBarBg;
 
     public TrackProgressBar(Context context) {
         super(context);
@@ -33,15 +33,15 @@ public class TrackProgressBar extends RelativeLayout {
 
     private void initializeView() {
         LayoutInflater.from(getContext()).inflate(R.layout.view_track_progress_bar, this);
-        mBarFg = findViewById(R.id.track_progress_bar_fg);
-        mBarBg = findViewById(R.id.track_progress_bar_bg);
+        vBarFg = findViewById(R.id.track_progress_bar_fg);
+        vBarBg = findViewById(R.id.track_progress_bar_bg);
     }
 
     public void setProgress(double progress) {
         checkArgument(0 <= progress && progress <= 1, "progress must be btw 0 and 1");
 
-        ViewGroup.LayoutParams params = mBarFg.getLayoutParams();
-        params.width = (int) (progress * mBarBg.getWidth());
-        mBarFg.requestLayout();
+        ViewGroup.LayoutParams params = vBarFg.getLayoutParams();
+        params.width = (int) (progress * vBarBg.getWidth());
+        vBarFg.requestLayout();
     }
 }

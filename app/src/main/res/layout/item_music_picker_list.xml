@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:paddingTop="@dimen/item_music_picker_half_padding"
+    android:paddingRight="@dimen/item_music_picker_padding"
+    android:paddingBottom="@dimen/item_music_picker_half_padding"
+    android:paddingLeft="@dimen/item_music_picker_padding"
+    >
+
+    <ImageView
+        android:id="@+id/item_music_picker_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginRight="@dimen/item_music_picker_padding"
+        android:background="#666666"
+        />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginRight="@dimen/item_music_picker_padding"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/item_music_picker_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/musicPickerTextColor"
+            android:paddingBottom="2dp"
+            android:text="Discover Weekly"
+            />
+
+        <TextView
+            android:id="@+id/item_music_picker_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/musicPickerTextSecondaryColor"
+            android:text="by Spotify"
+            />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/item_music_picker_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/item_music_picker_padding"
+        android:tint="@color/musicPickerTextSecondaryColor"
+        android:src="@drawable/ic_remove_circle_white_24dp"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tint="@color/musicPickerTextSecondaryColor"
+        android:src="@drawable/ic_play_arrow_white_24dp"
+        />
+
+</LinearLayout>
