@@ -25,7 +25,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginRight="@dimen/item_music_picker_padding"
-            android:background="#666666"
+            android:background="@color/musicPickerImageBg"
             />
 
         <LinearLayout
@@ -45,7 +45,6 @@
                 android:textColor="@color/musicPickerTextColor"
                 android:paddingBottom="2dp"
                 android:maxLines="1"
-                android:text="Discover Weekly"
                 />
 
             <TextView
@@ -55,7 +54,6 @@
                 android:textSize="12sp"
                 android:textColor="@color/musicPickerTextSecondaryColor"
                 android:maxLines="1"
-                android:text="by Spotify"
                 />
 
         </LinearLayout>

@@ -4,20 +4,23 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="17dp"
-    android:background="@color/subthemeBackground"
+    android:paddingTop="9dp"
+    android:paddingRight="17dp"
+    android:paddingBottom="9dp"
+    android:paddingLeft="17dp"
+    android:background="@drawable/item_music_picker_bg"
     android:layout_marginBottom="0.5dp"
     >
 
     <ImageView
         android:id="@+id/session_list_item_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="9dp"
-        android:tint="@color/subthemeForeground"
+        android:layout_marginRight="17dp"
         android:src="@drawable/ic_wifi_tethering_black_36dp"
+        android:background="@color/musicPickerImageBg"
         />
 
     <LinearLayout
@@ -32,8 +35,11 @@
             android:id="@+id/session_list_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/subthemeForeground"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@color/musicPickerTextColor"
+            android:paddingBottom="2dp"
+            android:maxLines="1"
             />
 
         <TextView
@@ -41,13 +47,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="@color/subthemeSecondaryForeground"
+            android:textColor="@color/musicPickerTextSecondaryColor"
+            android:maxLines="1"
             />
 
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="145dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
@@ -59,9 +66,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginRight="6dp"
-                android:tint="@color/subthemeForeground"
-                android:src="@drawable/ic_equalizer_black_24dp"
+                android:tint="@color/musicPickerTextSecondaryColor"
+                android:src="@drawable/ic_play_arrow_white_24dp"
                 />
 
             <LinearLayout
@@ -70,6 +76,7 @@
                 android:layout_toRightOf="@id/session_list_item_playing_icon"
                 android:layout_centerVertical="true"
                 android:orientation="vertical"
+                android:visibility="gone"
                 >
 
                 <TextView

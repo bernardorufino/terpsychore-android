@@ -33,6 +33,10 @@ public class ApiUtils {
         return sRetrofit.create(type);
     }
 
+    public static String getServerUrl(String endpoint) {
+        return BASE_URL + "/" + endpoint.replaceFirst("^/", "");
+    }
+
     public static JsonObject getCurrentTrack(JsonObject queue) {
         return getTrackAfterCurrent(queue, 0);
     }

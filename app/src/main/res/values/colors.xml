@@ -60,5 +60,6 @@
     <color name="musicPickerFooterBackground">#222326</color>
     <color name="musicPickerFooterTextColor">#DDDDDD</color>
     <color name="musicPickerFooterActionButtonBg">#28292C</color>
+    <color name="musicPickerImageBg">#666666</color>
 
 </resources>

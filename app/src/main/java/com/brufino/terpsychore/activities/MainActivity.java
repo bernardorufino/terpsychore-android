@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.mainActivityStatusBarColor));
+            //getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.mainActivityStatusBarColor));
         }
 
         vSessionsList = (RecyclerView) findViewById(R.id.sessions_list);
@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
         private final TextView vNowPlayingText;
         private final TextView vNextPlayingText;
         private final ImageView vPlayingIcon;
+        private final ImageView vItemIcon;
 
         public SessionItemHolder(View itemView) {
             super(itemView);
@@ -186,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
             vNowPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_now);
             vNextPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_next);
             vPlayingIcon = (ImageView) itemView.findViewById(R.id.session_list_item_playing_icon);
+            vItemIcon = (ImageView) itemView.findViewById(R.id.session_list_item_icon);
             itemView.setOnClickListener(mOnClickListener);
         }
 
@@ -205,25 +207,39 @@ public class MainActivity extends AppCompatActivity {
             JsonObject queue = session.get("queue").getAsJsonObject();
             JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
             JsonObject nextTrack = ApiUtils.getNextTrack(queue);
+            String status = queue.get("track_status").getAsString();
+            String imageUrl = session.get("image_url").getAsString();
+            imageUrl = ApiUtils.getServerUrl(imageUrl);
 
+            Picasso.with(mContext)
+                    .load(imageUrl)
+                    .into(vItemIcon);
             vNameText.setText(name);
             vDescriptionText.setText(description);
 
             vPlayingIcon.setVisibility(View.GONE);
-            if (currentTrack == null) {
-                vNowPlayingText.setVisibility(View.GONE);
-            } else {
+            if (currentTrack != null) {
                 vPlayingIcon.setVisibility(View.VISIBLE);
-                vNowPlayingText.setVisibility(View.VISIBLE);
-                vNowPlayingText.setText(currentTrack.get("name").getAsString());
+                if (status.equals("playing")) {
+                    vPlayingIcon.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+                } else {
+                    vPlayingIcon.setImageResource(R.drawable.ic_pause_white_24dp);
+                }
             }
-            if (nextTrack == null) {
-                vNextPlayingText.setVisibility(View.GONE);
-            } else {
-                vPlayingIcon.setVisibility(View.VISIBLE);
-                vNextPlayingText.setVisibility(View.VISIBLE);
-                vNextPlayingText.setText("> " + nextTrack.get("name").getAsString());
-            }
+            //if (currentTrack == null) {
+            //    vNowPlayingText.setVisibility(View.GONE);
+            //} else {
+            //    vPlayingIcon.setVisibility(View.VISIBLE);
+            //    vNowPlayingText.setVisibility(View.VISIBLE);
+            //    vNowPlayingText.setText(currentTrack.get("name").getAsString());
+            //}
+            // if (nextTrack == null) {
+            //     vNextPlayingText.setVisibility(View.GONE);
+            // } else {
+            //     vPlayingIcon.setVisibility(View.VISIBLE);
+            //     vNextPlayingText.setVisibility(View.VISIBLE);
+            //     vNextPlayingText.setText("> " + nextTrack.get("name").getAsString());
+            // }
         }
 
     }

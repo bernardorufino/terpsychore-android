@@ -18,7 +18,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimaryDark"
             app:title="@string/app_name"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             />
@@ -30,7 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
-        android:background="@color/subthemeFarBackground"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:clipToPadding="false"
+        android:background="@color/musicPickerBackground"
         />
 
     <android.support.design.widget.FloatingActionButton
@@ -42,6 +44,6 @@
         android:src="@drawable/ic_add_white_24dp"
         app:layout_anchor="@id/sessions_list"
         app:layout_anchorGravity="bottom|right|end"
-        app:backgroundTint="@color/colorPrimaryDark" />
+        app:backgroundTint="@color/colorPrimary" />
 
 </android.support.design.widget.CoordinatorLayout>
