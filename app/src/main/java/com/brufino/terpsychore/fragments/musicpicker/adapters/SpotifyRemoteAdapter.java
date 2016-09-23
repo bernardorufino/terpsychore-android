@@ -1,9 +1,11 @@
 package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -27,9 +29,22 @@ public abstract class SpotifyRemoteAdapter<T> extends MusicPickerList.Adapter<T>
 
     private MusicPickerListFragment mFragment;
     private int mWaitTime = INITIAL_WAIT_TIME;
+    private Bundle mParameters;
+
+    public void setParameters(Bundle parameters) {
+        mParameters = parameters;
+    }
+
+    public Bundle getParameters() {
+        return mParameters;
+    }
 
     public void setFragment(MusicPickerListFragment fragment) {
         mFragment = fragment;
+    }
+
+    public MusicPickerActivity getActivity() {
+        return mFragment.getMusicPickerActivity();
     }
 
     public MusicPickerListFragment getFragment() {

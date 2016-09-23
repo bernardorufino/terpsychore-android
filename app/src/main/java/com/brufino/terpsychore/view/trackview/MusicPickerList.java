@@ -1,19 +1,17 @@
 package com.brufino.terpsychore.view.trackview;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.DynamicAdapter;
+import com.squareup.picasso.Picasso;
 
 import java.util.*;
 
@@ -118,25 +116,34 @@ public class MusicPickerList extends RelativeLayout {
         }
 
         @Override
-        public void onBindViewHolder(MusicPickerListItemHolder holder, int position, Item item) {
+        public void onBindViewHolder(final MusicPickerListItemHolder holder, final int position, final Item item) {
             // boolean loading = vMusicPickerList.mLoading && position == getItemCount() - 1;
             // String comingFrom = holder.vDescription.getText().toString();
             // String prefix = "[" + position + " / " + (getItemCount() - 1) + "] ";
             // if (loading) prefix += "[LOADING] ";
             // Log.d("VFY", prefix + item.description + " (from: " + comingFrom + ")");
-
+            holder.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener(holder, position, item);
+                    holder.bind(item);
+                }
+            });
             holder.bind(item);
             holder.setLoading(vMusicPickerList.mLoading && position == getItemCount() - 1);
             vMusicPickerList.mLoadingViewHolders.add(holder);
         }
+
+        protected abstract void onItemClickListener(MusicPickerListItemHolder holder, int position, Item item);
     }
 
-    private static class MusicPickerListItemHolder extends RecyclerView.ViewHolder {
+    public static class MusicPickerListItemHolder extends RecyclerView.ViewHolder {
 
         private final ImageView vImage;
         private final TextView vTitle;
         private final TextView vDescription;
         private final ProgressBar vLoading;
+        private final ViewGroup vWrapper;
 
         public MusicPickerListItemHolder(View itemView) {
             super(itemView);
@@ -144,16 +151,36 @@ public class MusicPickerList extends RelativeLayout {
             vTitle = (TextView) itemView.findViewById(R.id.item_music_picker_title);
             vDescription = (TextView) itemView.findViewById(R.id.item_music_picker_description);
             vLoading = (ProgressBar) itemView.findViewById(R.id.item_music_picker_loading);
+            vWrapper = (ViewGroup) itemView.findViewById(R.id.item_music_picker_wrapper);
         }
 
         public void bind(Item item) {
-            vImage.setImageDrawable(item.image);
             vTitle.setText(item.title);
             vDescription.setText(item.description);
+            Picasso.with(vImage.getContext())
+                    .load(item.imageUrl)
+                    .into(vImage);
+            setSelected(item.selected);
+        }
+
+        public void setSelected(boolean selected) {
+            if (selected) {
+                vTitle.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
+                vWrapper.setBackground(null);
+                vWrapper.setBackgroundColor(
+                        ContextCompat.getColor(itemView.getContext(), R.color.musicPickerSelectedItemBackground));
+            } else {
+                vTitle.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.musicPickerTextColor));
+                vWrapper.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.item_music_picker_bg));
+            }
         }
 
         public void setLoading(boolean loading) {
             vLoading.setVisibility((loading) ? View.VISIBLE : View.GONE);
+        }
+
+        public void setOnClickListener(View.OnClickListener listener) {
+            vWrapper.setOnClickListener(listener);
         }
     }
 
@@ -161,12 +188,14 @@ public class MusicPickerList extends RelativeLayout {
 
         public String title;
         public String description;
-        public Drawable image;
+        public String imageUrl;
+        public boolean selected = false;
+        public Object data = null;
 
-        public Item(String title, String description, Drawable image) {
+        public Item(String title, String description, String imageUrl) {
             this.title = title;
             this.description = description;
-            this.image = image;
+            this.imageUrl = imageUrl;
         }
     }
 }

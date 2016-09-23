@@ -7,9 +7,12 @@ import com.google.common.collect.Iterables;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import retrofit.client.Response;
+
+import java.util.List;
 
 public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
 
@@ -21,7 +24,12 @@ public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
             artists.append(", ").append(artist.name);
         }
         String description = artists.toString();
-        return new MusicPickerList.Item(title, description, null);
+        List<Image> images = item.track.album.images;
+        String imageUrl = (images.size() > 0) ? images.get(0).url : null;
+        MusicPickerList.Item musicPickerItem = new MusicPickerList.Item(title, description, imageUrl);
+        musicPickerItem.data = item;
+        musicPickerItem.selected = getActivity().isTrackSelected(item.track.uri);
+        return musicPickerItem;
     }
 
     @Override
@@ -43,5 +51,17 @@ public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
                         handleError(offset, limit, error, "songs");
                     }
                 });
+    }
+
+    @Override
+    protected void onItemClickListener(
+            MusicPickerList.MusicPickerListItemHolder holder,
+            int position,
+            MusicPickerList.Item item) {
+        SavedTrack savedTrack = (SavedTrack) item.data;
+        String trackUri = savedTrack.track.uri;
+        boolean selected = !getActivity().isTrackSelected(trackUri);
+        item.selected = selected;
+        getActivity().setTrackSelected(trackUri, savedTrack, selected);
     }
 }

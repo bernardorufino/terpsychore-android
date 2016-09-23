@@ -8,6 +8,7 @@
     >
 
     <LinearLayout
+        android:id="@+id/item_music_picker_wrapper"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,6 +17,7 @@
         android:paddingRight="@dimen/item_music_picker_padding"
         android:paddingBottom="@dimen/item_music_picker_half_padding"
         android:paddingLeft="@dimen/item_music_picker_padding"
+        android:background="@drawable/item_music_picker_bg"
         >
 
         <ImageView

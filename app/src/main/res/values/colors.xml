@@ -54,12 +54,11 @@
     <color name="musicPickerTextSecondaryColor">#A4A4A4</color>
     <color name="musicPickerHighlightTextColor">#00BF5A</color>
     <color name="musicPickerBackground">#121314</color>
+    <color name="musicPickerSelectedItemBackground">#000000</color>
     <color name="musicPickerIconTint">#88898C</color>
     <color name="musicPickerHeaderTextColor">#FFFFFF</color>
     <color name="musicPickerFooterBackground">#222326</color>
     <color name="musicPickerFooterTextColor">#DDDDDD</color>
     <color name="musicPickerFooterActionButtonBg">#28292C</color>
-
-
 
 </resources>

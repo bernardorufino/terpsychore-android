@@ -10,12 +10,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
+import kaaes.spotify.webapi.android.models.SavedTrack;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MusicPickerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -24,8 +30,12 @@ public class MusicPickerActivity extends AppCompatActivity
     private NavigationView vNavigationView;
     private Toolbar vToolbar;
     private TextView vHeaderUserName;
+    private TextView vSelectionStatus;
     private FrameLayout vMusicContent;
+    private ViewGroup vSelection;
+
     private MusicPickerListFragment mMusicPickerListFragment;
+    private Map<String, SavedTrack> mSelectedTrackUris = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +53,8 @@ public class MusicPickerActivity extends AppCompatActivity
         vNavigationView.setNavigationItemSelectedListener(this);
         vHeaderUserName = (TextView) findViewById(R.id.music_picker_nav_header_user_name);
         vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
+        vSelectionStatus = (TextView) findViewById(R.id.music_picker_selection_status);
+        vSelection = (ViewGroup) findViewById(R.id.music_picker_selection);
 
         mMusicPickerListFragment = new MusicPickerListFragment();
     }
@@ -81,8 +93,7 @@ public class MusicPickerActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-
-        MusicPickerListFragment musicPicker;
+        Bundle params = new Bundle();
         Fragment fragment;
         int id = item.getItemId();
         switch (id) {
@@ -91,21 +102,25 @@ public class MusicPickerActivity extends AppCompatActivity
                 fragment = new SearchFragment();
                 break;
             case R.id.music_picker_item_playlists:
-                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.PLAYLIST);
+                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.PLAYLISTS);
+                mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_songs:
-                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.SONG);
+                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.SONGS);
+                mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_albums:
-                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.ALBUM);
+                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.ALBUMS);
+                mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
             default:
                 throw new AssertionError("Unknown id");
         }
 
+        mMusicPickerListFragment.refresh();
 
          getSupportFragmentManager()
                  .beginTransaction()
@@ -116,5 +131,29 @@ public class MusicPickerActivity extends AppCompatActivity
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void showMusicPickerListFragment(String title, Bundle params) {
+        vToolbar.setTitle(title);
+        mMusicPickerListFragment.setParameters(params);
+        mMusicPickerListFragment.refresh();
+    }
+
+    public boolean isTrackSelected(String trackUri) {
+        return mSelectedTrackUris.containsKey(trackUri);
+    }
+
+    public void setTrackSelected(String trackUri, SavedTrack savedTrack, boolean selected) {
+        if (selected) {
+            mSelectedTrackUris.put(trackUri, savedTrack);
+        } else {
+            mSelectedTrackUris.remove(trackUri);
+        }
+        if (mSelectedTrackUris.size() == 0) {
+            vSelection.setVisibility(View.GONE);
+        } else {
+            vSelection.setVisibility(View.VISIBLE);
+            vSelectionStatus.setText(mSelectedTrackUris.size() + " tracks selected");
+        }
     }
 }

@@ -1,15 +1,19 @@
 package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
 import android.util.Log;
+import android.widget.Toast;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.SavedAlbum;
 import retrofit.client.Response;
+
+import java.util.List;
 
 public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
 
@@ -21,7 +25,9 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
             artists.append(", ").append(artist.name);
         }
         String description = artists.toString();
-        return new MusicPickerList.Item(title, description, null);
+        List<Image> images = item.album.images;
+        String imageUrl = (images.size() > 0) ? images.get(0).url : null;
+        return new MusicPickerList.Item(title, description, imageUrl);
     }
 
     @Override
@@ -43,5 +49,13 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
                         handleError(offset, limit, error, "albums");
                     }
                 });
+    }
+
+    @Override
+    protected void onItemClickListener(
+            MusicPickerList.MusicPickerListItemHolder holder,
+            int position,
+            MusicPickerList.Item item) {
+        Toast.makeText(getContext(), "TODO: Implement", Toast.LENGTH_SHORT).show();
     }
 }

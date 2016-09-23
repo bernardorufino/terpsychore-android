@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.fragments.musicpicker.adapters.AlbumsAdapter;
 import com.brufino.terpsychore.fragments.musicpicker.adapters.SpotifyRemoteAdapter;
 import com.brufino.terpsychore.fragments.musicpicker.adapters.PlaylistsAdapter;
@@ -21,27 +22,40 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MusicPickerListFragment extends Fragment {
 
-    public static final String SAVED_STATE_KEY_ITEM_TYPE = "itemType";
+    public static final String PARAM_ITEM_TYPE = "itemType";
+    private static final String SAVED_STATE_KEY_PARAMETERS = "parameters";
 
     private MusicPickerList vMusicList;
 
-    private Map<ItemType, SpotifyRemoteAdapter<?>> mAdapters = new HashMap<>();
-    private ItemType mItemType;
+    private Map<ContentType, SpotifyRemoteAdapter<?>> mAdapters = new HashMap<>();
+    private ContentType mContentType;
     private SpotifyRemoteAdapter<?> mAdapter;
+    private Bundle mParameters;
 
     public MusicPickerListFragment() {
-        mAdapters.put(ItemType.PLAYLIST, new PlaylistsAdapter());
-        mAdapters.put(ItemType.SONG, new SongsAdapter());
-        mAdapters.put(ItemType.ALBUM, new AlbumsAdapter());
+        mAdapters.put(ContentType.PLAYLISTS, new PlaylistsAdapter());
+        mAdapters.put(ContentType.SONGS, new SongsAdapter());
+        mAdapters.put(ContentType.ALBUMS, new AlbumsAdapter());
         for (SpotifyRemoteAdapter<?> adapter : mAdapters.values()) {
             adapter.setFragment(this);
         }
     }
 
-    public void setItemType(ItemType itemType) {
-        Log.d("VFY", "MusicPickerListFragment.setItemType()");
-        mItemType = itemType;
-        mAdapter = mAdapters.get(itemType);
+    public MusicPickerActivity getMusicPickerActivity() {
+        /* TODO: Don't cast, create interface, implement it in the activity and use it */
+        return (MusicPickerActivity) getActivity();
+    }
+
+    /**
+     * Because we want to reuse this fragment
+     */
+    public void setParameters(Bundle parameters) {
+        mParameters = parameters;
+    }
+
+    public void refresh() {
+        ContentType contentType = (ContentType) mParameters.getSerializable(PARAM_ITEM_TYPE);
+        mAdapter = mAdapters.get(contentType);
         if (vMusicList != null) {
             initializeAdapter();
         }
@@ -49,6 +63,7 @@ public class MusicPickerListFragment extends Fragment {
 
     private void initializeAdapter() {
         vMusicList.setAdapter(mAdapter);
+        mAdapter.setParameters(mParameters);
         if (mAdapter.getItemCount() == 0) {
             mAdapter.firstLoad();
         }
@@ -67,12 +82,12 @@ public class MusicPickerListFragment extends Fragment {
         //noinspection unchecked
         vMusicList = (MusicPickerList) getView().findViewById(R.id.music_picker_list);
 
-        /* TODO: Handler rotation below, basically newly created fragment does not have mAdapter, watch for lifecycle */
         if (savedInstanceState != null) {
-            ItemType itemType = (ItemType) savedInstanceState.getSerializable(SAVED_STATE_KEY_ITEM_TYPE);
-            setItemType(itemType);
+            Bundle parameters = savedInstanceState.getBundle(SAVED_STATE_KEY_PARAMETERS);
+            setParameters(parameters);
+            refresh();
         } else {
-            checkNotNull(mAdapter, "Should call setItemType() before attaching this fragment");
+            checkNotNull(mAdapter, "Should call setParameters() before attaching this fragment");
             initializeAdapter();
         }
     }
@@ -80,10 +95,10 @@ public class MusicPickerListFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(SAVED_STATE_KEY_ITEM_TYPE, mItemType);
+        outState.putBundle(SAVED_STATE_KEY_PARAMETERS, mParameters);
     }
 
-    public static enum ItemType {
-        PLAYLIST, SONG, ALBUM
+    public static enum ContentType {
+        PLAYLISTS, SONGS, ALBUMS
     }
 }
