@@ -9,10 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.MusicPickerActivity;
-import com.brufino.terpsychore.fragments.musicpicker.adapters.AlbumsAdapter;
-import com.brufino.terpsychore.fragments.musicpicker.adapters.SpotifyRemoteAdapter;
-import com.brufino.terpsychore.fragments.musicpicker.adapters.PlaylistsAdapter;
-import com.brufino.terpsychore.fragments.musicpicker.adapters.SongsAdapter;
+import com.brufino.terpsychore.fragments.musicpicker.adapters.*;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 
 import java.util.HashMap;
@@ -20,9 +17,12 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/* TODO: Separate in different instances of fragments to support backstack (maybe just call new Fragment in activity) */
 public class MusicPickerListFragment extends Fragment {
 
-    public static final String PARAM_ITEM_TYPE = "itemType";
+    public static final String PARAM_CONTENT_TYPE = "itemType";
+    public static final String PARAM_USER_ID = "userId";
+    public static final String PARAM_PLAYLIST_ID = "playlistId";
     private static final String SAVED_STATE_KEY_PARAMETERS = "parameters";
 
     private MusicPickerList vMusicList;
@@ -36,6 +36,8 @@ public class MusicPickerListFragment extends Fragment {
         mAdapters.put(ContentType.PLAYLISTS, new PlaylistsAdapter());
         mAdapters.put(ContentType.SONGS, new SongsAdapter());
         mAdapters.put(ContentType.ALBUMS, new AlbumsAdapter());
+        mAdapters.put(ContentType.PLAYLIST_SONGS, new PlaylistsSongsAdapter());
+        mAdapters.put(ContentType.ALBUM_SONGS, new PlaylistsSongsAdapter());
         for (SpotifyRemoteAdapter<?> adapter : mAdapters.values()) {
             adapter.setFragment(this);
         }
@@ -54,8 +56,9 @@ public class MusicPickerListFragment extends Fragment {
     }
 
     public void refresh() {
-        ContentType contentType = (ContentType) mParameters.getSerializable(PARAM_ITEM_TYPE);
-        mAdapter = mAdapters.get(contentType);
+        mContentType = (ContentType) mParameters.getSerializable(PARAM_CONTENT_TYPE);
+        mAdapter = mAdapters.get(mContentType);
+        checkNotNull(mAdapter, "No adapter for content type provided");
         if (vMusicList != null) {
             initializeAdapter();
         }
@@ -64,6 +67,9 @@ public class MusicPickerListFragment extends Fragment {
     private void initializeAdapter() {
         vMusicList.setAdapter(mAdapter);
         mAdapter.setParameters(mParameters);
+        if (mContentType.resetAdapter) {
+            mAdapter.reset();
+        }
         if (mAdapter.getItemCount() == 0) {
             mAdapter.firstLoad();
         }
@@ -98,7 +104,18 @@ public class MusicPickerListFragment extends Fragment {
         outState.putBundle(SAVED_STATE_KEY_PARAMETERS, mParameters);
     }
 
+    /* TODO: Or just create a new fragment and handle cache properly */
     public static enum ContentType {
-        PLAYLISTS, SONGS, ALBUMS
+        PLAYLISTS(false),
+        SONGS(false),
+        ALBUMS(false),
+        PLAYLIST_SONGS(true),
+        ALBUM_SONGS(true);
+
+        public boolean resetAdapter;
+
+        ContentType(boolean resetAdapter) {
+            this.resetAdapter = resetAdapter;
+        }
     }
 }

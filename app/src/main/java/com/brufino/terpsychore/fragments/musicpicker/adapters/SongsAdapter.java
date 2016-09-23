@@ -1,32 +1,35 @@
 package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
 import android.util.Log;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.*;
 import retrofit.client.Response;
 
 import java.util.List;
 
 public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
 
-    @Override
-    public MusicPickerList.Item transform(SavedTrack item) {
-        String title = item.track.name;
-        StringBuilder artists = new StringBuilder(item.track.artists.get(0).name);
-        for (ArtistSimple artist : Iterables.skip(item.track.artists, 1)) {
+    public static MusicPickerList.Item transformTrack(Track track) {
+        String title = track.name;
+        StringBuilder artists = new StringBuilder(track.artists.get(0).name);
+        for (ArtistSimple artist : Iterables.skip(track.artists, 1)) {
             artists.append(", ").append(artist.name);
         }
         String description = artists.toString();
-        List<Image> images = item.track.album.images;
+        List<Image> images = track.album.images;
         String imageUrl = (images.size() > 0) ? images.get(0).url : null;
-        MusicPickerList.Item musicPickerItem = new MusicPickerList.Item(title, description, imageUrl);
+        return new MusicPickerList.Item(title, description, imageUrl);
+    }
+
+    @Override
+    public MusicPickerList.Item transform(SavedTrack item) {
+        MusicPickerList.Item musicPickerItem = transformTrack(item.track);
+        musicPickerItem.type = MusicPickerListFragment.ContentType.SONGS;
         musicPickerItem.data = item;
         musicPickerItem.selected = getActivity().isTrackSelected(item.track.uri);
         return musicPickerItem;
@@ -59,9 +62,6 @@ public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
             int position,
             MusicPickerList.Item item) {
         SavedTrack savedTrack = (SavedTrack) item.data;
-        String trackUri = savedTrack.track.uri;
-        boolean selected = !getActivity().isTrackSelected(trackUri);
-        item.selected = selected;
-        getActivity().setTrackSelected(trackUri, savedTrack, selected);
+        onTrackClick(savedTrack.track, item);
     }
 }

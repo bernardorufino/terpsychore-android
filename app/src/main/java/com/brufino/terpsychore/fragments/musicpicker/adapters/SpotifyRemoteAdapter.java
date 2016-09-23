@@ -15,6 +15,7 @@ import com.google.gson.JsonObject;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Track;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -67,6 +68,13 @@ public abstract class SpotifyRemoteAdapter<T> extends MusicPickerList.Adapter<T>
     protected void addItemsPreTransform(Collection<? extends T> items) {
         mWaitTime = INITIAL_WAIT_TIME;
         super.addItemsPreTransform(items);
+    }
+
+    protected void onTrackClick(Track track, MusicPickerList.Item item) {
+        String trackUri = track.uri;
+        boolean selected = !getActivity().isTrackSelected(trackUri);
+        item.selected = selected;
+        getActivity().setTrackSelected(trackUri, track, selected);
     }
 
     protected void handleError(

@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
-import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.Track;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class MusicPickerActivity extends AppCompatActivity
     private ViewGroup vSelection;
 
     private MusicPickerListFragment mMusicPickerListFragment;
-    private Map<String, SavedTrack> mSelectedTrackUris = new HashMap<>();
+    private Map<String, Track> mSelectedTrackUris = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,17 +102,17 @@ public class MusicPickerActivity extends AppCompatActivity
                 fragment = new SearchFragment();
                 break;
             case R.id.music_picker_item_playlists:
-                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.PLAYLISTS);
+                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.PLAYLISTS);
                 mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_songs:
-                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.SONGS);
+                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.SONGS);
                 mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_albums:
-                params.putSerializable(MusicPickerListFragment.PARAM_ITEM_TYPE, MusicPickerListFragment.ContentType.ALBUMS);
+                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.ALBUMS);
                 mMusicPickerListFragment.setParameters(params);
                 fragment = mMusicPickerListFragment;
                 break;
@@ -143,9 +143,9 @@ public class MusicPickerActivity extends AppCompatActivity
         return mSelectedTrackUris.containsKey(trackUri);
     }
 
-    public void setTrackSelected(String trackUri, SavedTrack savedTrack, boolean selected) {
+    public void setTrackSelected(String trackUri, Track track, boolean selected) {
         if (selected) {
-            mSelectedTrackUris.put(trackUri, savedTrack);
+            mSelectedTrackUris.put(trackUri, track);
         } else {
             mSelectedTrackUris.remove(trackUri);
         }

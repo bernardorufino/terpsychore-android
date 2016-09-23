@@ -1,7 +1,7 @@
 package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
-import android.util.Log;
-import android.widget.Toast;
+import android.os.Bundle;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 import com.google.common.collect.ImmutableMap;
 import kaaes.spotify.webapi.android.SpotifyCallback;
@@ -19,14 +19,17 @@ public class PlaylistsAdapter extends SpotifyRemoteAdapter<PlaylistSimple> {
     public MusicPickerList.Item transform(PlaylistSimple item) {
         String title = item.name;
         String description = (item.owner.display_name != null) ? item.owner.display_name : "@" + item.owner.id;
+        description += " \u2022 " + item.tracks.total + ((item.tracks.total == 1) ? " song" : " songs");
         List<Image> images = item.images;
         String imageUrl = (images.size() > 0) ? images.get(0).url : null;
-        return new MusicPickerList.Item(title, description, imageUrl);
+        MusicPickerList.Item musicPickerItem = new MusicPickerList.Item(title, description, imageUrl);
+        musicPickerItem.type = MusicPickerListFragment.ContentType.PLAYLISTS;
+        musicPickerItem.data = item;
+        return musicPickerItem;
     }
 
     @Override
     protected void loadItems(final int offset, final int limit) {
-        Log.d("VFY", "PlaylistsAdapter.loadItems(" + offset + ", " + limit + ")");
         super.loadItems(offset, limit);
         getSpotifyService().getMyPlaylists(
                 new ImmutableMap.Builder<String, Object>()
@@ -50,6 +53,13 @@ public class PlaylistsAdapter extends SpotifyRemoteAdapter<PlaylistSimple> {
             MusicPickerList.MusicPickerListItemHolder holder,
             int position,
             MusicPickerList.Item item) {
-        Toast.makeText(getContext(), "TODO: Implement", Toast.LENGTH_SHORT).show();
+        PlaylistSimple playlist = (PlaylistSimple) item.data;
+        Bundle params = new Bundle();
+        params.putSerializable(
+                MusicPickerListFragment.PARAM_CONTENT_TYPE,
+                MusicPickerListFragment.ContentType.PLAYLIST_SONGS);
+        params.putString(MusicPickerListFragment.PARAM_USER_ID, playlist.owner.id);
+        params.putString(MusicPickerListFragment.PARAM_PLAYLIST_ID, playlist.id);
+        getActivity().showMusicPickerListFragment(item.title, params);
     }
 }

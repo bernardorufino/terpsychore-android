@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-         if (true) {
-             Intent musicPicker = new Intent(this, MusicPickerActivity.class);
-             startActivity(musicPicker);
-             return;
-         }
+        if (true) {
+            Intent musicPicker = new Intent(this, MusicPickerActivity.class);
+            startActivity(musicPicker);
+            return;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.mainActivityStatusBarColor));

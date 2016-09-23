@@ -2,6 +2,7 @@ package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
 import android.util.Log;
 import android.widget.Toast;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -27,7 +28,9 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
         String description = artists.toString();
         List<Image> images = item.album.images;
         String imageUrl = (images.size() > 0) ? images.get(0).url : null;
-        return new MusicPickerList.Item(title, description, imageUrl);
+        MusicPickerList.Item musicPickerItem = new MusicPickerList.Item(title, description, imageUrl);
+        musicPickerItem.type = MusicPickerListFragment.ContentType.ALBUMS;
+        return musicPickerItem;
     }
 
     @Override

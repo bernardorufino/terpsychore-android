@@ -134,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
+            String userSpotifyId = response.body().get("spotify_id").getAsString();
             String accessToken = response.body().get("access_token").getAsString();
             String displayName = response.body().get("display_name").getAsString();
             String userId = response.body().get("id").getAsString();
@@ -150,6 +151,7 @@ public class LoginActivity extends AppCompatActivity {
             SharedPreferences preferences =
                     getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE);
             preferences.edit()
+                    .putString(SharedPreferencesDefs.Main.KEY_USER_SPOTIFY_ID, userSpotifyId)
                     .putString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, accessToken)
                     .putString(SharedPreferencesDefs.Main.KEY_DISPLAY_NAME, displayName)
                     .putString(SharedPreferencesDefs.Main.KEY_USER_ID, userId)

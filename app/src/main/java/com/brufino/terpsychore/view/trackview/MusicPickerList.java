@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.lib.DynamicAdapter;
 import com.squareup.picasso.Picasso;
 
@@ -144,6 +145,7 @@ public class MusicPickerList extends RelativeLayout {
         private final TextView vDescription;
         private final ProgressBar vLoading;
         private final ViewGroup vWrapper;
+        private final ImageView vTypeIcon;
 
         public MusicPickerListItemHolder(View itemView) {
             super(itemView);
@@ -151,6 +153,7 @@ public class MusicPickerList extends RelativeLayout {
             vTitle = (TextView) itemView.findViewById(R.id.item_music_picker_title);
             vDescription = (TextView) itemView.findViewById(R.id.item_music_picker_description);
             vLoading = (ProgressBar) itemView.findViewById(R.id.item_music_picker_loading);
+            vTypeIcon = (ImageView) itemView.findViewById(R.id.item_music_picker_type);
             vWrapper = (ViewGroup) itemView.findViewById(R.id.item_music_picker_wrapper);
         }
 
@@ -161,6 +164,20 @@ public class MusicPickerList extends RelativeLayout {
                     .load(item.imageUrl)
                     .into(vImage);
             setSelected(item.selected);
+            switch (item.type) {
+                case PLAYLISTS:
+                    vTypeIcon.setImageResource(R.drawable.ic_queue_music_white_24dp);
+                    break;
+                case ALBUM_SONGS:
+                case PLAYLIST_SONGS:
+                case SONGS:
+                    vTypeIcon.setImageResource(R.drawable.ic_play_circle_filled_white_24dp);
+                    break;
+                case ALBUMS:
+                    vTypeIcon.setImageResource(R.drawable.ic_album_white_24dp);
+                    break;
+
+            }
         }
 
         public void setSelected(boolean selected) {
@@ -191,6 +208,7 @@ public class MusicPickerList extends RelativeLayout {
         public String imageUrl;
         public boolean selected = false;
         public Object data = null;
+        public MusicPickerListFragment.ContentType type;
 
         public Item(String title, String description, String imageUrl) {
             this.title = title;

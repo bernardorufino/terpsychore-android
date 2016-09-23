@@ -27,6 +27,12 @@ public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> exte
         mTriggerMargin = triggerMargin;
     }
 
+    public void reset() {
+        mList.clear();
+        mComplete = false;
+        mLoading = false;
+    }
+
     public void firstLoad() {
         mLoading = true;
         loadItems(0, mItemsPerRequest);
