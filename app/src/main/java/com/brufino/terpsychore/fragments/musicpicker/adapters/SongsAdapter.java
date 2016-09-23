@@ -14,21 +14,21 @@ import java.util.List;
 
 public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
 
-    public static MusicPickerList.Item transformTrack(Track track) {
+    public static MusicPickerList.Item transformTrack(Track track, AlbumSimple album) {
         String title = track.name;
         StringBuilder artists = new StringBuilder(track.artists.get(0).name);
         for (ArtistSimple artist : Iterables.skip(track.artists, 1)) {
             artists.append(", ").append(artist.name);
         }
         String description = artists.toString();
-        List<Image> images = track.album.images;
-        String imageUrl = (images.size() > 0) ? images.get(0).url : null;
+        List<Image> images = (album != null) ? album.images : null;
+        String imageUrl = (images != null && images.size() > 0) ? images.get(0).url : null;
         return new MusicPickerList.Item(title, description, imageUrl);
     }
 
     @Override
     public MusicPickerList.Item transform(SavedTrack item) {
-        MusicPickerList.Item musicPickerItem = transformTrack(item.track);
+        MusicPickerList.Item musicPickerItem = transformTrack(item.track, item.track.album);
         musicPickerItem.type = MusicPickerListFragment.ContentType.SONGS;
         musicPickerItem.data = item;
         musicPickerItem.selected = getActivity().isTrackSelected(item.track.uri);

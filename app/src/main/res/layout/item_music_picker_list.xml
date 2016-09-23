@@ -67,6 +67,7 @@
             android:layout_marginRight="@dimen/item_music_picker_padding"
             android:tint="@color/musicPickerTextSecondaryColor"
             android:src="@drawable/ic_remove_circle_white_24dp"
+            android:visibility="gone"
             />
 
         <ImageView

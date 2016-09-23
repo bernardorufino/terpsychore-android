@@ -1,6 +1,7 @@
 package com.brufino.terpsychore.view.trackview;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,10 +9,14 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.lib.DynamicAdapter;
+import com.brufino.terpsychore.util.ActivityUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.*;
@@ -140,21 +145,23 @@ public class MusicPickerList extends RelativeLayout {
 
     public static class MusicPickerListItemHolder extends RecyclerView.ViewHolder {
 
+        private final ViewGroup vWrapper;
         private final ImageView vImage;
         private final TextView vTitle;
         private final TextView vDescription;
         private final ProgressBar vLoading;
-        private final ViewGroup vWrapper;
+        private final ImageView vRemoveIcon;
         private final ImageView vTypeIcon;
 
         public MusicPickerListItemHolder(View itemView) {
             super(itemView);
+            vWrapper = (ViewGroup) itemView.findViewById(R.id.item_music_picker_wrapper);
             vImage = (ImageView) itemView.findViewById(R.id.item_music_picker_image);
             vTitle = (TextView) itemView.findViewById(R.id.item_music_picker_title);
             vDescription = (TextView) itemView.findViewById(R.id.item_music_picker_description);
             vLoading = (ProgressBar) itemView.findViewById(R.id.item_music_picker_loading);
+            vRemoveIcon = (ImageView) itemView.findViewById(R.id.item_music_picker_remove);
             vTypeIcon = (ImageView) itemView.findViewById(R.id.item_music_picker_type);
-            vWrapper = (ViewGroup) itemView.findViewById(R.id.item_music_picker_wrapper);
         }
 
         public void bind(Item item) {
@@ -182,11 +189,17 @@ public class MusicPickerList extends RelativeLayout {
 
         public void setSelected(boolean selected) {
             if (selected) {
+                ColorStateList colorList = ActivityUtils.getColorList(itemView.getContext(), R.color.colorPrimary);
+                vTypeIcon.setImageTintList(colorList);
+                vRemoveIcon.setVisibility(View.GONE);
                 vTitle.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.colorPrimary));
                 vWrapper.setBackground(null);
                 vWrapper.setBackgroundColor(
                         ContextCompat.getColor(itemView.getContext(), R.color.musicPickerSelectedItemBackground));
             } else {
+                ColorStateList colorList = ActivityUtils.getColorList(itemView.getContext(), R.color.musicPickerTextSecondaryColor);
+                vTypeIcon.setImageTintList(colorList);
+                vRemoveIcon.setVisibility(View.GONE);
                 vTitle.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.musicPickerTextColor));
                 vWrapper.setBackground(ContextCompat.getDrawable(itemView.getContext(), R.drawable.item_music_picker_bg));
             }

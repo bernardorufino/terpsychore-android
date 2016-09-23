@@ -31,6 +31,7 @@ public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> exte
         mList.clear();
         mComplete = false;
         mLoading = false;
+
     }
 
     public void firstLoad() {
@@ -82,7 +83,7 @@ public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> exte
             int totalItemCount = linearLayoutManager.getItemCount();
             int firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
 
-            if (mLoading && totalItemCount > mPreviousTotal) {
+            if (mLoading && totalItemCount != mPreviousTotal) {
                 /* TODO: What if empty result or error? */
                 mLoading = false;
                 mPreviousTotal = totalItemCount;

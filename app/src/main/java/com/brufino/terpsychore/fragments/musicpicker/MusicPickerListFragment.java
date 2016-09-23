@@ -23,6 +23,8 @@ public class MusicPickerListFragment extends Fragment {
     public static final String PARAM_CONTENT_TYPE = "itemType";
     public static final String PARAM_USER_ID = "userId";
     public static final String PARAM_PLAYLIST_ID = "playlistId";
+    public static final String PARAM_ALBUM_ID = "albumId";
+    public static final String PARAM_ALBUM = "album";
     private static final String SAVED_STATE_KEY_PARAMETERS = "parameters";
 
     private MusicPickerList vMusicList;
@@ -37,7 +39,7 @@ public class MusicPickerListFragment extends Fragment {
         mAdapters.put(ContentType.SONGS, new SongsAdapter());
         mAdapters.put(ContentType.ALBUMS, new AlbumsAdapter());
         mAdapters.put(ContentType.PLAYLIST_SONGS, new PlaylistsSongsAdapter());
-        mAdapters.put(ContentType.ALBUM_SONGS, new PlaylistsSongsAdapter());
+        mAdapters.put(ContentType.ALBUM_SONGS, new AlbumSongsAdapter());
         for (SpotifyRemoteAdapter<?> adapter : mAdapters.values()) {
             adapter.setFragment(this);
         }

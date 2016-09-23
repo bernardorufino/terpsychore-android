@@ -14,7 +14,7 @@ public class PlaylistsSongsAdapter extends SpotifyRemoteAdapter<PlaylistTrack> {
 
     @Override
     public MusicPickerList.Item transform(PlaylistTrack item) {
-        MusicPickerList.Item musicPickerItem = SongsAdapter.transformTrack(item.track);
+        MusicPickerList.Item musicPickerItem = SongsAdapter.transformTrack(item.track, item.track.album);
         musicPickerItem.type = MusicPickerListFragment.ContentType.PLAYLIST_SONGS;
         musicPickerItem.data = item;
         musicPickerItem.selected = getActivity().isTrackSelected(item.track.uri);

@@ -1,17 +1,14 @@
 package com.brufino.terpsychore.fragments.musicpicker.adapters;
 
+import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedAlbum;
+import kaaes.spotify.webapi.android.models.*;
 import retrofit.client.Response;
 
 import java.util.List;
@@ -30,6 +27,7 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
         String imageUrl = (images.size() > 0) ? images.get(0).url : null;
         MusicPickerList.Item musicPickerItem = new MusicPickerList.Item(title, description, imageUrl);
         musicPickerItem.type = MusicPickerListFragment.ContentType.ALBUMS;
+        musicPickerItem.data = item;
         return musicPickerItem;
     }
 
@@ -59,6 +57,13 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
             MusicPickerList.MusicPickerListItemHolder holder,
             int position,
             MusicPickerList.Item item) {
-        Toast.makeText(getContext(), "TODO: Implement", Toast.LENGTH_SHORT).show();
+        SavedAlbum album = (SavedAlbum) item.data;
+        Bundle params = new Bundle();
+        params.putSerializable(
+                MusicPickerListFragment.PARAM_CONTENT_TYPE,
+                MusicPickerListFragment.ContentType.ALBUM_SONGS);
+        params.putString(MusicPickerListFragment.PARAM_ALBUM_ID, album.album.id);
+        params.putParcelable(MusicPickerListFragment.PARAM_ALBUM,  album.album);
+        getActivity().showMusicPickerListFragment(item.title, params);
     }
 }
