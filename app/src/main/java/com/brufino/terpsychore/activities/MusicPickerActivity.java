@@ -1,5 +1,6 @@
 package com.brufino.terpsychore.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment.ContentType;
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -26,6 +28,8 @@ import java.util.Map;
 public class MusicPickerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final String RESULT_TRACK_URIS = "trackUris";
+
     private DrawerLayout vDrawer;
     private NavigationView vNavigationView;
     private Toolbar vToolbar;
@@ -33,9 +37,13 @@ public class MusicPickerActivity extends AppCompatActivity
     private TextView vSelectionStatus;
     private FrameLayout vMusicContent;
     private ViewGroup vSelection;
+    private FrameLayout vDoneButton;
 
     private MusicPickerListFragment mMusicPickerListFragment;
     private Map<String, Track> mSelectedTrackUris = new HashMap<>();
+    private MusicPickerListFragment mSongsFragment;
+    private MusicPickerListFragment mAlbumsFragment;
+    private MusicPickerListFragment mPlaylistsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +63,12 @@ public class MusicPickerActivity extends AppCompatActivity
         vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
         vSelectionStatus = (TextView) findViewById(R.id.music_picker_selection_status);
         vSelection = (ViewGroup) findViewById(R.id.music_picker_selection);
+        vDoneButton = (FrameLayout) findViewById(R.id.music_picker_selection_done);
+        vDoneButton.setOnClickListener(mOnDoneButtonClickListener);
 
-        mMusicPickerListFragment = new MusicPickerListFragment();
+        mSongsFragment = MusicPickerListFragment.create(ContentType.SONGS);
+        mAlbumsFragment = MusicPickerListFragment.create(ContentType.ALBUMS);
+        mPlaylistsFragment = MusicPickerListFragment.create(ContentType.PLAYLISTS);
     }
 
     @Override
@@ -102,41 +114,42 @@ public class MusicPickerActivity extends AppCompatActivity
                 fragment = new SearchFragment();
                 break;
             case R.id.music_picker_item_playlists:
-                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.PLAYLISTS);
-                mMusicPickerListFragment.setParameters(params);
-                fragment = mMusicPickerListFragment;
+                fragment = mPlaylistsFragment;
                 break;
             case R.id.music_picker_item_songs:
-                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.SONGS);
-                mMusicPickerListFragment.setParameters(params);
-                fragment = mMusicPickerListFragment;
+                fragment = mSongsFragment;
                 break;
             case R.id.music_picker_item_albums:
-                params.putSerializable(MusicPickerListFragment.PARAM_CONTENT_TYPE, MusicPickerListFragment.ContentType.ALBUMS);
-                mMusicPickerListFragment.setParameters(params);
-                fragment = mMusicPickerListFragment;
+                fragment = mAlbumsFragment;
                 break;
             default:
                 throw new AssertionError("Unknown id");
         }
 
-        mMusicPickerListFragment.refresh();
-
          getSupportFragmentManager()
                  .beginTransaction()
                  .replace(R.id.music_picker_content, fragment)
+                 .addToBackStack(null)
                  .commit();
-
-        vToolbar.setTitle(item.getTitle());
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    public void showMusicPickerListFragment(String title, Bundle params) {
+    @Override
+    public void setTitle(CharSequence title) {
         vToolbar.setTitle(title);
-        mMusicPickerListFragment.setParameters(params);
-        mMusicPickerListFragment.refresh();
+    }
+
+    public void showMusicPickerListFragment(Bundle args) {
+        MusicPickerListFragment fragment = new MusicPickerListFragment();
+        fragment.setArguments(args);
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.music_picker_content, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     public boolean isTrackSelected(String trackUri) {
@@ -156,4 +169,19 @@ public class MusicPickerActivity extends AppCompatActivity
             vSelectionStatus.setText(mSelectedTrackUris.size() + " tracks selected");
         }
     }
+
+    private View.OnClickListener mOnDoneButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mSelectedTrackUris.isEmpty()) {
+                setResult(RESULT_CANCELED);
+            } else {
+                Intent result = new Intent();
+                String[] trackUris = mSelectedTrackUris.keySet().toArray(new String[mSelectedTrackUris.size()]);
+                result.putExtra(RESULT_TRACK_URIS, trackUris);
+                setResult(RESULT_OK, result);
+            }
+            finish();
+        }
+    };
 }

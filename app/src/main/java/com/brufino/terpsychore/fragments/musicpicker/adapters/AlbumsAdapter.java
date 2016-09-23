@@ -58,12 +58,13 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
             int position,
             MusicPickerList.Item item) {
         SavedAlbum album = (SavedAlbum) item.data;
-        Bundle params = new Bundle();
-        params.putSerializable(
-                MusicPickerListFragment.PARAM_CONTENT_TYPE,
+        Bundle args = new Bundle();
+        args.putSerializable(
+                MusicPickerListFragment.ARG_CONTENT_TYPE,
                 MusicPickerListFragment.ContentType.ALBUM_SONGS);
-        params.putString(MusicPickerListFragment.PARAM_ALBUM_ID, album.album.id);
-        params.putParcelable(MusicPickerListFragment.PARAM_ALBUM,  album.album);
-        getActivity().showMusicPickerListFragment(item.title, params);
+        args.putString(MusicPickerListFragment.ARG_ALBUM_ID, album.album.id);
+        args.putParcelable(MusicPickerListFragment.ARG_ALBUM,  album.album);
+        args.putString(MusicPickerListFragment.ARG_TITLE, item.title);
+        getActivity().showMusicPickerListFragment(args);
     }
 }

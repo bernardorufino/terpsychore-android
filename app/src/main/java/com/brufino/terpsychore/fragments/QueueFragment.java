@@ -1,6 +1,8 @@
 package com.brufino.terpsychore.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.google.gson.JsonArray;
@@ -25,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueueFragment extends Fragment {
+
+    private static final int REQUEST_SELECT_TRACKS = 1;
 
     private RecyclerView vTrackList;
     private ViewGroup vTopBar;
@@ -68,9 +73,25 @@ public class QueueFragment extends Fragment {
     private View.OnClickListener mOnControlAddClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Toast.makeText(getContext(), "TODO: Implement!", Toast.LENGTH_SHORT).show();
+            Intent musicPicker = new Intent(getContext(), MusicPickerActivity.class);
+            startActivityForResult(musicPicker, REQUEST_SELECT_TRACKS);
         }
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_SELECT_TRACKS:
+                if (resultCode == Activity.RESULT_OK) {
+                    String[] trackUris = data.getStringArrayExtra(MusicPickerActivity.RESULT_TRACK_URIS);
+                    Toast.makeText(getContext(), trackUris.length + " to add [TODO]", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
+                }
+
+        }
+    }
 
     private View.OnClickListener mOnControlRefreshClickListener = new View.OnClickListener() {
         @Override

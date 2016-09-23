@@ -54,12 +54,13 @@ public class PlaylistsAdapter extends SpotifyRemoteAdapter<PlaylistSimple> {
             int position,
             MusicPickerList.Item item) {
         PlaylistSimple playlist = (PlaylistSimple) item.data;
-        Bundle params = new Bundle();
-        params.putSerializable(
-                MusicPickerListFragment.PARAM_CONTENT_TYPE,
+        Bundle args = new Bundle();
+        args.putSerializable(
+                MusicPickerListFragment.ARG_CONTENT_TYPE,
                 MusicPickerListFragment.ContentType.PLAYLIST_SONGS);
-        params.putString(MusicPickerListFragment.PARAM_USER_ID, playlist.owner.id);
-        params.putString(MusicPickerListFragment.PARAM_PLAYLIST_ID, playlist.id);
-        getActivity().showMusicPickerListFragment(item.title, params);
+        args.putString(MusicPickerListFragment.ARG_USER_ID, playlist.owner.id);
+        args.putString(MusicPickerListFragment.ARG_PLAYLIST_ID, playlist.id);
+        args.putString(MusicPickerListFragment.ARG_TITLE, item.title);
+        getActivity().showMusicPickerListFragment(args);
     }
 }

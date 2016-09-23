@@ -16,6 +16,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
+import retrofit.client.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -32,7 +33,7 @@ public abstract class SpotifyRemoteAdapter<T> extends MusicPickerList.Adapter<T>
     private int mWaitTime = INITIAL_WAIT_TIME;
     private Bundle mParameters;
 
-    public void setParameters(Bundle parameters) {
+    public void setArguments(Bundle parameters) {
         mParameters = parameters;
     }
 
@@ -83,7 +84,8 @@ public abstract class SpotifyRemoteAdapter<T> extends MusicPickerList.Adapter<T>
             final SpotifyError error,
             String objectDesc) {
 
-        int status = error.getRetrofitError().getResponse().getStatus();
+        Response response = error.getRetrofitError().getResponse();
+        int status = (response != null) ? response.getStatus() : -1;
         if (status == 401) {
             mWaitTime = INITIAL_WAIT_TIME;
             onUnauthorizedErrorRenewAccessTokenAndRetryLoadItems(offset, limit, error, objectDesc);

@@ -16,7 +16,7 @@ public class AlbumSongsAdapter extends SpotifyRemoteAdapter<Track> {
 
     @Override
     public MusicPickerList.Item transform(Track item) {
-        Album album = getParameters().getParcelable(MusicPickerListFragment.PARAM_ALBUM);
+        Album album = getParameters().getParcelable(MusicPickerListFragment.ARG_ALBUM);
         MusicPickerList.Item musicPickerItem = SongsAdapter.transformTrack(item, album);
         musicPickerItem.type = MusicPickerListFragment.ContentType.ALBUM_SONGS;
         musicPickerItem.data = item;
@@ -28,7 +28,7 @@ public class AlbumSongsAdapter extends SpotifyRemoteAdapter<Track> {
     protected void loadItems(final int offset, final int limit) {
         super.loadItems(offset, limit);
         Bundle params = getParameters();
-        String albumId = params.getString(MusicPickerListFragment.PARAM_ALBUM_ID);
+        String albumId = params.getString(MusicPickerListFragment.ARG_ALBUM_ID);
         getSpotifyService().getAlbumTracks(
                 albumId,
                 new ImmutableMap.Builder<String, Object>()

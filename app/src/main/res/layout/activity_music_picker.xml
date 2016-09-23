@@ -112,20 +112,28 @@
             android:textColor="@color/musicPickerFooterTextColor"
             />
 
-        <TextView
+        <FrameLayout
+            android:id="@+id/music_picker_selection_done"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:gravity="center"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:textColor="@color/musicPickerFooterTextColor"
-            android:text="Ok"
-            android:background="@color/musicPickerFooterActionButtonBg"
-            />
+            android:layout_centerVertical="true"
+            android:paddingLeft="18dp"
+            android:paddingRight="18dp"
+            android:background="@drawable/music_picker_selection_done_bg"
+            android:clickable="true"
+            >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:tint="@color/musicPickerFooterTextColor"
+                android:src="@drawable/ic_done_white_24dp"
+                />
+
+        </FrameLayout>
+
 
     </RelativeLayout>
 

@@ -25,8 +25,8 @@ public class PlaylistsSongsAdapter extends SpotifyRemoteAdapter<PlaylistTrack> {
     protected void loadItems(final int offset, final int limit) {
         super.loadItems(offset, limit);
         Bundle params = getParameters();
-        String playlistId = params.getString(MusicPickerListFragment.PARAM_PLAYLIST_ID);
-        String userId = params.getString(MusicPickerListFragment.PARAM_USER_ID);
+        String playlistId = params.getString(MusicPickerListFragment.ARG_PLAYLIST_ID);
+        String userId = params.getString(MusicPickerListFragment.ARG_USER_ID);
         getSpotifyService().getPlaylistTracks(
                 userId,
                 playlistId,
