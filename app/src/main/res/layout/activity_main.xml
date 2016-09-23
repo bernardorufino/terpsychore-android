@@ -24,16 +24,34 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/sessions_list"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:paddingTop="9dp"
-        android:paddingBottom="9dp"
-        android:clipToPadding="false"
-        android:background="@color/musicPickerBackground"
-        />
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/sessions_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:paddingTop="9dp"
+            android:paddingBottom="9dp"
+            android:clipToPadding="false"
+            android:background="@color/musicPickerBackground"
+            />
+
+        <ProgressBar
+            android:id="@+id/sessions_list_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:indeterminateTint="@color/colorPrimary"
+            />
+
+    </RelativeLayout>
+
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_session_button"

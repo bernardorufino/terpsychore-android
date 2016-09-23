@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
@@ -20,8 +21,6 @@ import com.brufino.terpsychore.fragments.EditSessionFragment;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,12 +35,17 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final int LOGIN_REQUEST_CODE = 0;
-    private RecyclerView vSessionsList;
-    private SessionListAdapter mSessionsAdapter;
-    private FloatingActionButton mAddSessionButton;
+
+    private RecyclerView vSessionList;
+    private FloatingActionButton vAddSessionButton;
+    private ProgressBar vLoading;
+
+    private List<JsonObject> mSessionList = new ArrayList<>();
+    private boolean mLoading = false;
+    private SessionListAdapter mSessionListAdapter;
     private SessionApi mSessionApi;
     private String mUserId;
-    private LinearLayoutManager mLinearLayoutManager;
+    private LinearLayoutManager mSessionListLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +56,19 @@ public class MainActivity extends AppCompatActivity {
             //getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.mainActivityStatusBarColor));
         }
 
-        vSessionsList = (RecyclerView) findViewById(R.id.sessions_list);
-        mSessionsAdapter = new SessionListAdapter();
-        mLinearLayoutManager = new LinearLayoutManager(this);
-        vSessionsList.setLayoutManager(mLinearLayoutManager);
-        vSessionsList.setAdapter(mSessionsAdapter);
-        mAddSessionButton = (FloatingActionButton) findViewById(R.id.add_session_button);
-        mAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
+        vSessionList = (RecyclerView) findViewById(R.id.sessions_list);
+        mSessionListAdapter = new SessionListAdapter(mSessionList);
+        mSessionListLayoutManager = new LinearLayoutManager(this);
+        vSessionList.setLayoutManager(mSessionListLayoutManager);
+        vSessionList.setAdapter(mSessionListAdapter);
+        vAddSessionButton = (FloatingActionButton) findViewById(R.id.add_session_button);
+        vAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
+        vLoading = (ProgressBar) findViewById(R.id.sessions_list_loading);
 
         mSessionApi = ApiUtils.createApi(SessionApi.class);
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {
-            mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
+            loadSessions(true);
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
@@ -75,32 +80,25 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onComplete(boolean success, String sessionName) {
             if (success && !sessionName.trim().isEmpty()) {
-                // Construct post body
                 JsonObject body = new JsonObject();
                 JsonObject session = new JsonObject();
                 session.addProperty("name", sessionName);
                 body.add("session", session);
 
-                // Post session
                 mSessionApi.postSession(mUserId, body).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
-                        // Update sessions
-                        mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
+                        loadSessions(false);
                     }
                     @Override
                     public void onFailure(Call<String> call, Throwable t) {
-                        throw Throwables.propagate(t);
+                        Log.d("VFY", "Error creating session", t);
+                        Toast.makeText(MainActivity.this, "Error creating session", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-                Toast.makeText(MainActivity.this, "Session " + sessionName + " created!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(MainActivity.this, "Canceled!", Toast.LENGTH_SHORT).show();
             }
         }
     };
-
 
     private View.OnClickListener mOnAddSessionButtonClick = new View.OnClickListener() {
         @Override
@@ -118,36 +116,62 @@ public class MainActivity extends AppCompatActivity {
             case LOGIN_REQUEST_CODE:
                 Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
                 mUserId = ActivityUtils.getUserId(this);
-                mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
+                loadSessions(true);
         }
     }
 
-    /* TODO: Handle failure */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("VFY", "MainActivity.onStart()");
+        loadSessions(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("VFY", "MainActivity.onResume()");
+    }
+
+    public void loadSessions(boolean showLoading) {
+        if (mLoading) {
+            return;
+        }
+        if (showLoading) {
+            vLoading.setVisibility(View.VISIBLE);
+        }
+        mLoading = true;
+        mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
+    }
+
     private Callback<JsonArray> mGetSessionsCallback = new Callback<JsonArray>() {
         @Override
         public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
+            mLoading = false;
+            vLoading.setVisibility(View.GONE);
             JsonArray sessions = response.body().getAsJsonArray();
-            Log.v("VFY", "sessions size = " + sessions.size());
-            ImmutableList.Builder<JsonObject> builder = new ImmutableList.Builder<>();
+            Log.v("VFY", "Sessions loaded: size = " + sessions.size());
+            mSessionList.clear();
             for (JsonElement session : sessions) {
-                builder.add(session.getAsJsonObject());
+                mSessionList.add(session.getAsJsonObject());
             }
-            mSessionsAdapter.setBackingList(builder.build());
+            mSessionListAdapter.notifyDataSetChanged();
         }
         @Override
         public void onFailure(Call<JsonArray> call, Throwable t) {
-            Log.e("VFY", "Failure while retrieving sessions list", t);
+            mLoading = false;
+            vLoading.setVisibility(View.GONE);
+            Log.e("VFY", "Error retrieving sessions list", t);
+            Toast.makeText(MainActivity.this, "Error retrieving sessions list", Toast.LENGTH_SHORT).show();
         }
     };
 
     public static class SessionListAdapter extends RecyclerView.Adapter<SessionItemHolder> {
 
-        // TODO: Analyse if it's better to create a lean adapter and rely on managing a list
-        private List<JsonObject> mBackingList = new ArrayList<>();
+        private List<JsonObject> mBackingList;
 
-        public void setBackingList(List<JsonObject> backingList) {
+        public SessionListAdapter(List<JsonObject> backingList) {
             mBackingList = backingList;
-            notifyDataSetChanged();
         }
 
         @Override
@@ -174,8 +198,6 @@ public class MainActivity extends AppCompatActivity {
         private final Context mContext;
         private final TextView vNameText;
         private final TextView vDescriptionText;
-        private final TextView vNowPlayingText;
-        private final TextView vNextPlayingText;
         private final ImageView vPlayingIcon;
         private final ImageView vItemIcon;
 
@@ -184,8 +206,6 @@ public class MainActivity extends AppCompatActivity {
             mContext = itemView.getContext();
             vNameText = (TextView) itemView.findViewById(R.id.session_list_item_name);
             vDescriptionText = (TextView) itemView.findViewById(R.id.session_list_item_description);
-            vNowPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_now);
-            vNextPlayingText = (TextView) itemView.findViewById(R.id.session_list_item_playing_next);
             vPlayingIcon = (ImageView) itemView.findViewById(R.id.session_list_item_playing_icon);
             vItemIcon = (ImageView) itemView.findViewById(R.id.session_list_item_icon);
             itemView.setOnClickListener(mOnClickListener);
@@ -226,20 +246,6 @@ public class MainActivity extends AppCompatActivity {
                     vPlayingIcon.setImageResource(R.drawable.ic_pause_white_24dp);
                 }
             }
-            //if (currentTrack == null) {
-            //    vNowPlayingText.setVisibility(View.GONE);
-            //} else {
-            //    vPlayingIcon.setVisibility(View.VISIBLE);
-            //    vNowPlayingText.setVisibility(View.VISIBLE);
-            //    vNowPlayingText.setText(currentTrack.get("name").getAsString());
-            //}
-            // if (nextTrack == null) {
-            //     vNextPlayingText.setVisibility(View.GONE);
-            // } else {
-            //     vPlayingIcon.setVisibility(View.VISIBLE);
-            //     vNextPlayingText.setVisibility(View.VISIBLE);
-            //     vNextPlayingText.setText("> " + nextTrack.get("name").getAsString());
-            // }
         }
 
     }
