@@ -15,6 +15,7 @@ import retrofit2.Response;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -221,6 +222,27 @@ public class QueueManager {
                 for (QueueListener queueListener : mQueueListeners) {
                     queueListener.onQueueRefreshError(QueueManager.this, t);
                 }
+            }
+        });
+    }
+
+    public void addTracks(String[] trackUris) {
+        // Filter out the spotify prefix
+        /* TODO: Put this someplace else? */
+        Pattern pattern = Pattern.compile("^spotify:track:");
+        for (int i = 0; i < trackUris.length; i++) {
+            trackUris[i] = pattern.matcher(trackUris[i]).replaceFirst("");
+        }
+
+        ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                refreshQueue();
+            }
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.d("VFY", "Error adding tracks", t);
+                Toast.makeText(mContext, "Error adding tracks, try again later", Toast.LENGTH_SHORT).show();
             }
         });
     }

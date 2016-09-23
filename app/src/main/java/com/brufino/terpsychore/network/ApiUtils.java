@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.google.common.base.Preconditions.*;
 
+/* TODO: Rewrite remote calls throughout the app and create a helper as a middle-man btw view requests and retrofit */
 public class ApiUtils {
 
     //public static final String BASE_URL = "http:// vibefy.herokuapp.com";
@@ -49,6 +50,23 @@ public class ApiUtils {
             return tracks.get(i).getAsJsonObject();
         }
         return null;
+    }
+
+    public static Call<String> postTracks(
+            Context context,
+            int sessionId,
+            String[] trackUris,
+            Callback<String> callback) {
+        SessionApi api = createApi(SessionApi.class);
+        JsonObject body = new JsonObject();
+        JsonArray tracks = new JsonArray();
+        for (String trackUri : trackUris) {
+            tracks.add(trackUri);
+        }
+        body.add("tracks", tracks);
+        Call<String> call = api.postTracks(sessionId, body);
+        call.enqueue(callback);
+        return call;
     }
 
     public static Call<JsonObject> renewToken(Context context, final Callback<JsonObject> callback) {

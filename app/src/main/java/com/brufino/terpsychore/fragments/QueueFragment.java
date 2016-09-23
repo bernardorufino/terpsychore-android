@@ -85,7 +85,7 @@ public class QueueFragment extends Fragment {
             case REQUEST_SELECT_TRACKS:
                 if (resultCode == Activity.RESULT_OK) {
                     String[] trackUris = data.getStringArrayExtra(MusicPickerActivity.RESULT_TRACK_URIS);
-                    Toast.makeText(getContext(), trackUris.length + " to add [TODO]", Toast.LENGTH_SHORT).show();
+                    mQueueManager.addTracks(trackUris);
                 } else {
                     Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
                 }
