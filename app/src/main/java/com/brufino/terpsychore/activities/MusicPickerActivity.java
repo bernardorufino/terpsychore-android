@@ -2,6 +2,7 @@ package com.brufino.terpsychore.activities;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,11 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.fragments.musicpicker.*;
-import com.brufino.terpsychore.view.trackview.MusicPickerList;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
+import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
+import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
 
 public class MusicPickerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -27,7 +25,7 @@ public class MusicPickerActivity extends AppCompatActivity
     private Toolbar vToolbar;
     private TextView vHeaderUserName;
     private FrameLayout vMusicContent;
-    private MusicPickerList<JsonObject> vMusicList;
+    private MusicPickerListFragment mMusicPickerListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,35 +42,10 @@ public class MusicPickerActivity extends AppCompatActivity
         vNavigationView = (NavigationView) findViewById(R.id.nav_view);
         vNavigationView.setNavigationItemSelectedListener(this);
         vHeaderUserName = (TextView) findViewById(R.id.music_picker_nav_header_user_name);
-        //vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
-        //noinspection unchecked
-        vMusicList = (MusicPickerList<JsonObject>) findViewById(R.id.music_picker_list);
-        vMusicList.setTransform(mPlaylistsTransform);
+        vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
+
+        mMusicPickerListFragment = new MusicPickerListFragment();
     }
-
-    private Function<JsonObject, MusicPickerList.Item> mPlaylistsTransform =
-            new Function<JsonObject, MusicPickerList.Item>() {
-        @Override
-        public MusicPickerList.Item apply(JsonObject input) {
-            return new MusicPickerList.Item("Discover Weekly", "by Spotify", null);
-        }
-    };
-
-    private Function<JsonObject, MusicPickerList.Item> mSongsTransform =
-            new Function<JsonObject, MusicPickerList.Item>() {
-        @Override
-        public MusicPickerList.Item apply(JsonObject input) {
-            return new MusicPickerList.Item("Concrete Angel", "Gareth Emery", null);
-        }
-    };
-
-    private Function<JsonObject, MusicPickerList.Item> mAlbumsTransform =
-            new Function<JsonObject, MusicPickerList.Item>() {
-        @Override
-        public MusicPickerList.Item apply(JsonObject input) {
-            return new MusicPickerList.Item("Embrace", "Armin van Buuren", null);
-        }
-    };
 
     @Override
     public void onBackPressed() {
@@ -109,60 +82,35 @@ public class MusicPickerActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        MusicPickerFragment fragment;
+        MusicPickerListFragment musicPicker;
+        Fragment fragment;
         int id = item.getItemId();
         switch (id) {
             case R.id.music_picker_item_search:
                 Toast.makeText(MusicPickerActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                fragment = new SearchFragment();
                 break;
             case R.id.music_picker_item_playlists:
-                vMusicList.setTransform(mPlaylistsTransform);
+                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.PLAYLIST);
+                fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_songs:
-                vMusicList.setTransform(mSongsTransform);
+                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.SONG);
+                fragment = mMusicPickerListFragment;
                 break;
             case R.id.music_picker_item_albums:
-                vMusicList.setTransform(mAlbumsTransform);
+                mMusicPickerListFragment.setItemType(MusicPickerListFragment.ItemType.ALBUM);
+                fragment = mMusicPickerListFragment;
                 break;
             default:
                 throw new AssertionError("Unknown id");
         }
 
-        vMusicList.setList(ImmutableList.<JsonObject>builder()
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .add(new JsonObject())
-                .build());
 
-        // getSupportFragmentManager()
-        //         .beginTransaction()
-        //         .replace(R.id.music_picker_content, fragment)
-        //         .commit();
+         getSupportFragmentManager()
+                 .beginTransaction()
+                 .replace(R.id.music_picker_content, fragment)
+                 .commit();
 
         vToolbar.setTitle(item.getTitle());
 

@@ -1,4 +1,7 @@
 package com.brufino.terpsychore.fragments.musicpicker;
 
-public class SearchFragment extends MusicPickerFragment {
+import android.support.v4.app.Fragment;
+
+public class SearchFragment extends Fragment {
+
 }

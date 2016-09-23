@@ -132,9 +132,9 @@ public class PlayerManager {
                 }
                 @Override
                 public void onFailure(Call<JsonObject> call, Throwable t) {
-                    Log.e("VFY", "Error while trying to renew access token because of logging error");
-                    Log.e("VFY", "Renew error", t);
-                    Log.e("VFY", "Logging error", throwable);
+                    Log.e("VFY", "Error while trying to renew access token because of login error");
+                    Log.e("VFY", "- Renew error", t);
+                    Log.e("VFY", "- Login error", throwable);
                     mInitializing = false;
                     throw Throwables.propagate(t);
                 }
