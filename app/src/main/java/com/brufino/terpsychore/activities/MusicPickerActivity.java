@@ -39,7 +39,6 @@ public class MusicPickerActivity extends AppCompatActivity
     private ViewGroup vSelection;
     private FrameLayout vDoneButton;
 
-    private MusicPickerListFragment mMusicPickerListFragment;
     private Map<String, Track> mSelectedTrackUris = new HashMap<>();
     private MusicPickerListFragment mSongsFragment;
     private MusicPickerListFragment mAlbumsFragment;
@@ -69,13 +68,19 @@ public class MusicPickerActivity extends AppCompatActivity
         mSongsFragment = MusicPickerListFragment.create(ContentType.SONGS);
         mAlbumsFragment = MusicPickerListFragment.create(ContentType.ALBUMS);
         mPlaylistsFragment = MusicPickerListFragment.create(ContentType.PLAYLISTS);
+
+        // Selecting default item
+        vNavigationView.setCheckedItem(R.id.music_picker_item_playlists);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.music_picker_content, mPlaylistsFragment)
+                .commit();
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.music_picker_drawer);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if (vDrawer.isDrawerOpen(GravityCompat.START)) {
+            vDrawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
@@ -105,7 +110,6 @@ public class MusicPickerActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        Bundle params = new Bundle();
         Fragment fragment;
         int id = item.getItemId();
         switch (id) {

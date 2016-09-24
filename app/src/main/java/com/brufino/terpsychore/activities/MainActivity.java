@@ -2,12 +2,12 @@ package com.brufino.terpsychore.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView vSessionList;
     private FloatingActionButton vAddSessionButton;
     private ProgressBar vLoading;
+    private Toolbar vToolbar;
 
     private List<JsonObject> mSessionList = new ArrayList<>();
     private boolean mLoading = false;
@@ -52,10 +53,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.mainActivityStatusBarColor));
-        }
-
+        vToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(vToolbar);
         vSessionList = (RecyclerView) findViewById(R.id.sessions_list);
         mSessionListAdapter = new SessionListAdapter(mSessionList);
         mSessionListLayoutManager = new LinearLayoutManager(this);

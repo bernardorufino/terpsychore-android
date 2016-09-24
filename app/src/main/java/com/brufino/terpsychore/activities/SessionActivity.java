@@ -73,6 +73,7 @@ public class SessionActivity extends AppCompatActivity {
         vOverlayFragmentContainer = (FrameLayout) findViewById(R.id.session_overlay_fragment_container);
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mQueueFragment = new QueueFragment();
         getSupportFragmentManager().beginTransaction()
