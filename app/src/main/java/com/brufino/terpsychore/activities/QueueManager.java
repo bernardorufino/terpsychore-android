@@ -93,7 +93,13 @@ public class QueueManager {
                     !playerState.playing &&
                     playerState.positionInMs == 0) {
                 changeTrack(3);
+            } else if (eventType == EventType.TRACK_CHANGED) {
+                Log.d("VFY", "didn't call changeTrack()");
+                Log.d("VFY", "  trackWasPlaying = " + trackWasPlaying);
+                Log.d("VFY", "  playerStatus = " + playerStatus);
+                Log.d("VFY", "  positionInMs = " + playerState.positionInMs);
             }
+
         }
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
@@ -282,11 +288,11 @@ public class QueueManager {
     }
 
     public boolean canPlay() {
-        return mPlayerManager.canControl() && isHost();
+        return mPlayerManager.canControl() && getCurrentTrack() != null && isHost();
     }
 
     public boolean canReplay() {
-        return mPlayerManager.canControl() && isHost();
+        return mPlayerManager.canControl() && getCurrentTrack() != null && isHost();
     }
 
     public boolean canNext() {
@@ -353,6 +359,9 @@ public class QueueManager {
             int currentTrackOffset,
             final boolean refreshAfterPost) {
         int currentTrack = mQueue.get("current_track").getAsInt() + currentTrackOffset;
+
+        mQueue.addProperty("track_status", status);
+        // TODO: Update times (We don't generally use them here, that's why it's working)
 
         JsonObject body = new JsonObject();
         body.addProperty("track_status", status);

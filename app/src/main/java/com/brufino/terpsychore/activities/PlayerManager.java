@@ -18,8 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkState;
-
 /* TODO: Absorb some Player methods and delegate them */
 public class PlayerManager {
 
@@ -183,11 +181,9 @@ public class PlayerManager {
     }
 
     public boolean canControl() {
-        boolean canControl = mPlayer != null && mPlayer.isInitialized();
-        if (canControl) {
-            checkState(!mInitializing, "mInitializing should not be true if we can control the player");
-        }
-        return canControl;
+        // (!mInitializing) can still be false (in which case we return false) while the other conditions are true
+        // because the player can become initialized before onLoggedIn(), which is where we set mInitializing = false.
+        return mPlayer != null && mPlayer.isInitialized() && !mInitializing;
     }
 
     public static interface PlayerListener {

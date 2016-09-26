@@ -119,6 +119,9 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
                 String trackArtist = currentTrack.get("artist").getAsString();
                 vTrackTitleName.setText(trackName);
                 vTrackTitleArtist.setText(trackArtist);
+            } else {
+                vTrackTitleName.setText("");
+                vTrackTitleArtist.setText("");
             }
 
             JsonObject nextTrack = queueManager.getNextTrack();
