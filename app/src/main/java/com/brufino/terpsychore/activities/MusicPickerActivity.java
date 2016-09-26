@@ -22,7 +22,7 @@ import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment.Con
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
 import kaaes.spotify.webapi.android.models.Track;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MusicPickerActivity extends AppCompatActivity
@@ -39,7 +39,7 @@ public class MusicPickerActivity extends AppCompatActivity
     private ViewGroup vSelection;
     private FrameLayout vDoneButton;
 
-    private Map<String, Track> mSelectedTrackUris = new HashMap<>();
+    private Map<String, Track> mSelectedTrackUris = new LinkedHashMap<>();
     private MusicPickerListFragment mSongsFragment;
     private MusicPickerListFragment mAlbumsFragment;
     private MusicPickerListFragment mPlaylistsFragment;

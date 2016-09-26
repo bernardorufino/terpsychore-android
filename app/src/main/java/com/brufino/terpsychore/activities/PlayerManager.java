@@ -169,7 +169,7 @@ public class PlayerManager {
 
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
-            Log.d("VFY", "onPlaybackError(): " + errorType.name());
+            Log.d("VFY", "onPlaybackError(): " + errorType.name() + " - " + s);
         }
     };
 

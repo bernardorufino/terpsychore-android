@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.*;
 import retrofit2.Call;
@@ -19,6 +20,10 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
 
+/* TODO: Fix when track is unavailable, queue status remains 'playing' but player status is not playing, and
+ * TODO: track position is 0 as well, so when user presses next it triggers a changeTrack() event (which shouldn't)
+ * TODO: and we receive an unusual long time to wait for the server to switch track (bc probably we receive this
+ * TODO: result before posting the queue status) */
 public class QueueManager {
 
     private static final String TRACK_URI_PREFIX = "spotify:track:";
@@ -49,10 +54,11 @@ public class QueueManager {
     }
 
     public void setQueue(JsonObject queue) {
+        annotateQueueTracks(queue);
         mQueue = queue;
-        mSessionId = queue.get("session_id").getAsInt();
+        mSessionId = mQueue.get("session_id").getAsInt();
         for (QueueListener queueListener : mQueueListeners) {
-            queueListener.onQueueChange(this, queue);
+            queueListener.onQueueChange(this, mQueue);
         }
 
         if (!mPlayerManager.canControl() && !mPlayerManager.isInitializing()) {
@@ -63,10 +69,21 @@ public class QueueManager {
         }
     }
 
+    private void annotateQueueTracks(JsonObject queue) {
+        int currentTrackOrder = queue.get("current_track").getAsInt();
+        JsonArray tracks = queue.get("tracks").getAsJsonArray();
+        for (int i = 0; i < tracks.size(); i++) {
+            JsonObject track = tracks.get(i).getAsJsonObject();
+            track.addProperty("played_track", i < currentTrackOrder);
+            track.addProperty("current_track", i == currentTrackOrder);
+            track.addProperty("next_track", i == currentTrackOrder + 1);
+        }
+    }
+
     private final PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
         @Override
         public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-            String playerStatus = (playerState.playing) ? "playing" : " paused";
+            String playerStatus = getTrackStatus(playerState);
             Log.d("VFY", "onPlaybackEvent(" + playerStatus + "): " + eventType + " " + playerState.positionInMs + " / " + playerState.durationInMs);
             // See https://github.com/spotify/android-sdk/issues/99 and search for END_OF_CONTEXT
             // It means there's nothing more to play
@@ -80,6 +97,11 @@ public class QueueManager {
         }
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
+            if (errorType == ErrorType.TRACK_UNAVAILABLE) {
+                Toast.makeText(mContext, "Track unavailable", Toast.LENGTH_SHORT).show();
+                // TODO: Edit canPlay() and canReplay() to disable them in this case
+                // TODO: Fix? postQueueStatus("paused", 0, 0, true);
+            }
         }
     };
 
@@ -99,7 +121,7 @@ public class QueueManager {
 
                     int delay = duration - serverPosition;
                     if (delay > 10000) {
-                        Log.w("VFY", "  [WARN] Unusually long time to wait (" + delay + " ms)");
+                        Log.w("VFY", "  [WARN] Unusual long time to wait (" + delay + " ms)");
                     }
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -229,7 +251,7 @@ public class QueueManager {
     public void addTracks(String[] trackUris) {
         // Filter out the spotify prefix
         /* TODO: Put this someplace else? */
-        Pattern pattern = Pattern.compile("^spotify:track:");
+        Pattern pattern = Pattern.compile("^" + TRACK_URI_PREFIX);
         for (int i = 0; i < trackUris.length; i++) {
             trackUris[i] = pattern.matcher(trackUris[i]).replaceFirst("");
         }
@@ -268,7 +290,7 @@ public class QueueManager {
     }
 
     public boolean canNext() {
-        return getNextTrack() != null && isHost();
+        return mPlayerManager.canControl() && getNextTrack() != null && isHost();
     }
 
     public void togglePlay() {
@@ -280,30 +302,11 @@ public class QueueManager {
             public void onPlayerState(PlayerState playerState) {
                 if (playerState.playing) {
                     getPlayer().pause();
-                    postQueueStatus("paused", playerState.positionInMs);
+                    postQueueStatus("paused", playerState.positionInMs, 0, false);
                 } else {
                     getPlayer().resume();
-                    postQueueStatus("playing", playerState.positionInMs);
+                    postQueueStatus("playing", playerState.positionInMs, 0, false);
                 }
-            }
-        });
-    }
-
-    private void postQueueStatus(String status, int positionInMs) {
-        int currentTrack = mQueue.get("current_track").getAsInt();
-
-        JsonObject body = new JsonObject();
-        body.addProperty("track_status", status);
-        body.addProperty("current_track", currentTrack);
-        body.addProperty("track_position", positionInMs);
-        mSessionApi.postQueueStatus(mSessionId, body).enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-            }
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.e("VFY", "Error trying to post queue status", t);
-                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -315,9 +318,9 @@ public class QueueManager {
         getPlayer().getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
-                int newPosition = Math.max(0,  playerState.positionInMs + rewindTimeInMs);
+                int newPosition = Math.max(0,  playerState.positionInMs - rewindTimeInMs);
                 getPlayer().seekToPosition(newPosition);
-                postQueueStatus(getTrackStatus(playerState), newPosition);
+                postQueueStatus(getTrackStatus(playerState), newPosition, 0, false);
             }
         });
     }
@@ -326,7 +329,51 @@ public class QueueManager {
         if (!canNext()) {
             return;
         }
-        Toast.makeText(mContext, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+        JsonObject nextTrack = getNextTrack();
+        final String trackUri = TRACK_URI_PREFIX + nextTrack.get("spotify_id").getAsString();
+        getPlayer().getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                String status = getTrackStatus(playerState);
+                getPlayer().play(PlayConfig
+                        .createFor(trackUri)
+                        .withInitialPosition(0));
+                if (status.equals("paused")) {
+                    getPlayer().pause();
+                }
+                // Will refresh after post, changing player state
+                postQueueStatus(status, 0, 1, true);
+            }
+        });
+    }
+
+    private void postQueueStatus(
+            String status,
+            int positionInMs,
+            int currentTrackOffset,
+            final boolean refreshAfterPost) {
+        int currentTrack = mQueue.get("current_track").getAsInt() + currentTrackOffset;
+
+        JsonObject body = new JsonObject();
+        body.addProperty("track_status", status);
+        body.addProperty("current_track", currentTrack);
+        body.addProperty("track_position", positionInMs);
+
+        Log.d("VFY", "postQueueStatus(status = " + status + ", positionInMs = " + positionInMs + ", " +
+                "currentTrackOffset = " + currentTrackOffset + ", refreshAfterPost = " + refreshAfterPost + ")");
+        mSessionApi.postQueueStatus(mSessionId, body).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (refreshAfterPost) {
+                    refreshQueue();
+                }
+            }
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.e("VFY", "Error trying to post queue status", t);
+                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private Player getPlayer() {

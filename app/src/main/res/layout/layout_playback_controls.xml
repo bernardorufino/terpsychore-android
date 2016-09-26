@@ -50,14 +50,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/sessionForegroundText"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/playback_control_next_track_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/sessionSecondaryText"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            android:maxLines="1" />
 
     </LinearLayout>
 

@@ -27,7 +27,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     private static final String SAVED_STATE_KEY_TRACK_CURVE = "trackCurve";
     private static final String SAVED_STATE_KEY_CURRENT_POSITION = "currentTrackTimeText";
     private static final String SAVED_STATE_KEY_DURATION = "totalTrackTimeText";
-    private static final int REPLAY_REWIND_TIME_IN_MS = 10_000;
+    private static final int REPLAY_REWIND_TIME_IN_MS = - 20_000;
 
     private GraphTrackView vGraphTrackView;
     private TrackProgressBar vTrackProgressBar;
@@ -181,7 +181,6 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         }
 
         String playerStatus = (playing) ? "playing" : "paused";
-        // Log.d("VFY", "[" + playerStatus + "] " + position + " = " + currentPositionInMs + " / " + durationInMs);
 
         mTrackCurve.seekPosition(position);
         vGraphTrackView.postInvalidate();
