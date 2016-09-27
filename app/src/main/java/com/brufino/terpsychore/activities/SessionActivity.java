@@ -1,7 +1,10 @@
 package com.brufino.terpsychore.activities;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,6 +19,7 @@ import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.session.ChatFragment;
 import com.brufino.terpsychore.fragments.session.QueueFragment;
 import com.brufino.terpsychore.fragments.session.TrackPlaybackFragment;
+import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -61,7 +65,6 @@ public class SessionActivity extends AppCompatActivity {
     private String mUserId;
     private JsonObject mSession;
     private JsonObject mQueue;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,11 +125,34 @@ public class SessionActivity extends AppCompatActivity {
         return true;
     }
 
+    private DialogInterface.OnClickListener mOnDeleteSessionListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            mSessionApi.deleteSession(mUserId, mSessionId).enqueue(new ApiCallback<String>() {
+                @Override
+                public void onSuccess(Call<String> call, Response<String> response) {
+                    Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
+                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_music_inbox);
+                    navigateUpTo(sessionsIntent);
+                }
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("VFY", "Error deleting session", t);
+                    Toast.makeText(SessionActivity.this, "Error deleting session", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    };
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(this)
+                        .setMessage("Remove session?")
+                        .setPositiveButton("Remove", mOnDeleteSessionListener)
+                        .setNegativeButton("Cancel", null)
+                        .show();
                 return true;
             case R.id.action_add_user:
                 Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();

@@ -3,10 +3,7 @@ package com.brufino.terpsychore.network;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 
 public interface SessionApi {
 
@@ -19,6 +16,9 @@ public interface SessionApi {
     @POST("user/{userId}/sessions")
     public Call<String> postSession(@Path("userId") String userId, @Body JsonObject body);
 
+    @DELETE("user/{userId}/session/{sessionId}")
+    public Call<String> deleteSession(@Path("userId") String userId, @Path("sessionId") int sessionId);
+
     @GET("user/{userId}/session/{sessionId}/queue")
     public Call<JsonObject> getQueue(@Path("userId") String userId, @Path("sessionId") int sessionId);
 
@@ -27,4 +27,5 @@ public interface SessionApi {
 
     @POST("session/{sessionId}/tracks")
     public Call<String> postTracks(@Path("sessionId") int sessionId, @Body JsonObject body);
+
 }

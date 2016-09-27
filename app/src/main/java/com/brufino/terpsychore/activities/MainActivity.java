@@ -31,6 +31,8 @@ import static com.google.common.base.Preconditions.*;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final String EXTRA_FRAGMENT = "openFragment";
+
     private static final int LOGIN_REQUEST_CODE = 0;
 
     private FloatingActionButton vAddSessionButton;
@@ -88,10 +90,11 @@ public class MainActivity extends AppCompatActivity
                 .into(vHeaderImage);
         vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
 
-        vNavigationView.setCheckedItem(R.id.main_drawer_sessions);
+        int menuResId = getIntent().getIntExtra(EXTRA_FRAGMENT, R.id.main_drawer_sessions);
+        vNavigationView.setCheckedItem(menuResId);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_content, mSessionListFragment)
+                .replace(R.id.main_content, getMainFragment(menuResId))
                 .commit();
     }
 
@@ -119,26 +122,25 @@ public class MainActivity extends AppCompatActivity
         vToolbar.setTitle(title);
     }
 
+    private MainFragment getMainFragment(int menuResId) {
+        switch (menuResId) {
+            case R.id.main_drawer_sessions:
+                return mSessionListFragment;
+            case R.id.main_drawer_music_inbox:
+                return mMusicInboxFragment;
+        }
+        throw new AssertionError("Unknown id");
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        MainFragment fragment;
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.main_drawer_sessions:
-                fragment = mSessionListFragment;
-                break;
-            case R.id.main_drawer_music_inbox:
-                fragment = mMusicInboxFragment;
-                break;
-            default:
-                throw new AssertionError("Unknown id");
-        }
+        MainFragment fragment = getMainFragment(item.getItemId());
 
-         getSupportFragmentManager()
-                 .beginTransaction()
-                 .replace(R.id.main_content, fragment)
-                 .addToBackStack(null)
-                 .commit();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_content, fragment)
+                .addToBackStack(null)
+                .commit();
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;
@@ -159,9 +161,7 @@ public class MainActivity extends AppCompatActivity
         }
         vFab = fab;
         if (vFab != null) {
-            CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(
-                    CoordinatorLayout.LayoutParams.WRAP_CONTENT,
-                    CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+            CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) vFab.getLayoutParams();
             layoutParams.setAnchorId(R.id.main_content);
             layoutParams.anchorGravity = Gravity.BOTTOM | Gravity.END;
             layoutParams.gravity = Gravity.BOTTOM | Gravity.END;
