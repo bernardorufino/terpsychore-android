@@ -4,12 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.EditSessionFragment;
+import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -32,7 +38,8 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int LOGIN_REQUEST_CODE = 0;
 
@@ -40,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton vAddSessionButton;
     private ProgressBar vLoading;
     private Toolbar vToolbar;
+    private DrawerLayout vDrawer;
+    private NavigationView vNavigationView;
 
     private List<JsonObject> mSessionList = new ArrayList<>();
     private boolean mLoading = false;
@@ -47,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private SessionApi mSessionApi;
     private String mUserId;
     private LinearLayoutManager mSessionListLayoutManager;
+    private ImageView vHeaderImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +65,14 @@ public class MainActivity extends AppCompatActivity {
 
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
+        vDrawer = (DrawerLayout) findViewById(R.id.main_drawer);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, vDrawer, vToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        vDrawer.addDrawerListener(toggle);
+        toggle.syncState();
+        vNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        vHeaderImage = (ImageView) vNavigationView.getHeaderView(0).findViewById(R.id.main_nav_header_image);
+        vNavigationView.setNavigationItemSelectedListener(this);
         vSessionList = (RecyclerView) findViewById(R.id.sessions_list);
         mSessionListAdapter = new SessionListAdapter(mSessionList);
         mSessionListLayoutManager = new LinearLayoutManager(this);
@@ -64,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
         vAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
         vLoading = (ProgressBar) findViewById(R.id.sessions_list_loading);
 
+         Picasso.with(this)
+                 .load(ActivityUtils.getImageUrl(this))
+                 .transform(new CircleTransformation())
+                 .placeholder(R.drawable.ic_account_circle_white_48dp)
+                 .into(vHeaderImage);
+
         mSessionApi = ApiUtils.createApi(SessionApi.class);
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {
@@ -72,7 +96,44 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
         }
+        vNavigationView.setCheckedItem(R.id.main_drawer_sessions);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (vDrawer.isDrawerOpen(GravityCompat.START)) {
+            vDrawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+    
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Fragment fragment;
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.main_drawer_sessions:
+                Toast.makeText(MainActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.main_drawer_queue:
+                Toast.makeText(MainActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                throw new AssertionError("Unknown id");
+        }
+
+        // getSupportFragmentManager()
+        //         .beginTransaction()
+        //         .replace(R.id.music_picker_content, fragment)
+        //         .addToBackStack(null)
+        //         .commit();
+
+        vDrawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
 
     private EditSessionFragment.OnSessionEditedListener mOnCreateNewSession =
             new EditSessionFragment.OnSessionEditedListener() {

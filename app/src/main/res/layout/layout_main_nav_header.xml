@@ -10,11 +10,10 @@
     >
 
     <ImageView
-        android:id="@+id/music_picker_nav_header_image"
+        android:id="@+id/main_nav_header_image"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:src="@drawable/ic_account_circle_white_48dp"
-        android:scaleType="centerCrop"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_marginRight="@dimen/music_picker_horizontal_margin"
@@ -23,7 +22,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/music_picker_nav_header_image"
+        android:layout_toRightOf="@id/main_nav_header_image"
         android:layout_centerVertical="true"
         android:orientation="vertical">
 
@@ -33,11 +32,11 @@
             android:textColor="@color/musicPickerHeaderTextColor"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="My Library"
+            android:text="Vibefy"
             />
 
         <TextView
-            android:id="@+id/music_picker_nav_header_user_name"
+            android:id="@+id/main_nav_header_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/musicPickerHeaderTextColor"

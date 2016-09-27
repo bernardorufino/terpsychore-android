@@ -14,6 +14,11 @@ public class ActivityUtils {
                 .getString(SharedPreferencesDefs.Main.KEY_USER_SPOTIFY_ID, null);
     }
 
+    public static String getImageUrl(Context context) {
+        return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
+                .getString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, null);
+    }
+
     public static String getUserId(Context context) {
         return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
                 .getString(SharedPreferencesDefs.Main.KEY_USER_ID, null);

@@ -14,12 +14,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment.ContentType;
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
+import com.brufino.terpsychore.lib.CircleTransformation;
+import com.brufino.terpsychore.util.ActivityUtils;
+import com.squareup.picasso.Picasso;
 import kaaes.spotify.webapi.android.models.Track;
 
 import java.util.LinkedHashMap;
@@ -38,6 +42,7 @@ public class MusicPickerActivity extends AppCompatActivity
     private FrameLayout vMusicContent;
     private ViewGroup vSelection;
     private FrameLayout vDoneButton;
+    private ImageView vHeaderImage;
 
     private Map<String, Track> mSelectedTrackUris = new LinkedHashMap<>();
     private MusicPickerListFragment mSongsFragment;
@@ -58,12 +63,19 @@ public class MusicPickerActivity extends AppCompatActivity
         toggle.syncState();
         vNavigationView = (NavigationView) findViewById(R.id.nav_view);
         vNavigationView.setNavigationItemSelectedListener(this);
+        vHeaderImage = (ImageView) vNavigationView.getHeaderView(0).findViewById(R.id.music_picker_nav_header_image);
         vHeaderUserName = (TextView) findViewById(R.id.music_picker_nav_header_user_name);
         vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
         vSelectionStatus = (TextView) findViewById(R.id.music_picker_selection_status);
         vSelection = (ViewGroup) findViewById(R.id.music_picker_selection);
         vDoneButton = (FrameLayout) findViewById(R.id.music_picker_selection_done);
         vDoneButton.setOnClickListener(mOnDoneButtonClickListener);
+
+        Picasso.with(this)
+                .load(ActivityUtils.getImageUrl(this))
+                .transform(new CircleTransformation())
+                .placeholder(R.drawable.ic_account_circle_white_48dp)
+                .into(vHeaderImage);
 
         mSongsFragment = MusicPickerListFragment.create(ContentType.SONGS);
         mAlbumsFragment = MusicPickerListFragment.create(ContentType.ALBUMS);
@@ -88,7 +100,7 @@ public class MusicPickerActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.spotify_music_picker, menu);
+        getMenuInflater().inflate(R.menu.activity_music_picker, menu);
         return true;
     }
 
@@ -107,7 +119,6 @@ public class MusicPickerActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         Fragment fragment;
