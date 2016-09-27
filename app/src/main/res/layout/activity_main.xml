@@ -54,35 +54,7 @@
         android:background="@color/musicPickerNavBackground"
         >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="30dp"
-            android:alpha="0.25"
-            >
-
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="3dp"
-                android:tint="#FFFFFF"
-                android:src="@drawable/ic_spotify_72dp"
-                />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Spotify"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                />
-
-        </LinearLayout>
+        <include layout="@layout/layout_spotify_footer" />
 
     </android.support.design.widget.NavigationView>
 
