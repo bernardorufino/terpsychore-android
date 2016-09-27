@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.ChatFragment;
 import com.brufino.terpsychore.fragments.QueueFragment;
@@ -111,6 +114,28 @@ public class SessionActivity extends AppCompatActivity {
         String sessionJson = savedInstanceState.getString(SAVED_STATE_KEY_SESSION);
         mSession = new JsonParser().parse(sessionJson).getAsJsonObject();
         loadSession(mSession);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_session, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_add_user:
+                Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_settings:
+                Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadSession(JsonObject session) {

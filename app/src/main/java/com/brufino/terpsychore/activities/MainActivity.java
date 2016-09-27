@@ -13,10 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -38,6 +35,8 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.*;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -49,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar vToolbar;
     private DrawerLayout vDrawer;
     private NavigationView vNavigationView;
+    private TextView vHeaderUserName;
 
     private List<JsonObject> mSessionList = new ArrayList<>();
     private boolean mLoading = false;
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         vNavigationView = (NavigationView) findViewById(R.id.nav_view);
         vHeaderImage = (ImageView) vNavigationView.getHeaderView(0).findViewById(R.id.main_nav_header_image);
+        vHeaderUserName = (TextView) vNavigationView.getHeaderView(0).findViewById(R.id.main_nav_header_user_name);
         vNavigationView.setNavigationItemSelectedListener(this);
         vSessionList = (RecyclerView) findViewById(R.id.sessions_list);
         mSessionListAdapter = new SessionListAdapter(mSessionList);
@@ -82,21 +83,50 @@ public class MainActivity extends AppCompatActivity
         vAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
         vLoading = (ProgressBar) findViewById(R.id.sessions_list_loading);
 
-         Picasso.with(this)
-                 .load(ActivityUtils.getImageUrl(this))
-                 .transform(new CircleTransformation())
-                 .placeholder(R.drawable.ic_account_circle_white_48dp)
-                 .into(vHeaderImage);
-
         mSessionApi = ApiUtils.createApi(SessionApi.class);
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {
-            loadSessions(true);
+            onCreateFinish();
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
         }
         vNavigationView.setCheckedItem(R.id.main_drawer_sessions);
+    }
+
+    private void onCreateFinish() {
+        checkState(mUserId != null, "mUserId shouldn't be null");
+
+        loadSessions(true);
+        Picasso.with(this)
+                .load(ActivityUtils.getImageUrl(this))
+                .transform(new CircleTransformation())
+                .placeholder(R.drawable.ic_account_circle_white_48dp)
+                .into(vHeaderImage);
+        vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
+        setTitle("Sessions");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        switch (requestCode) {
+            case LOGIN_REQUEST_CODE:
+                Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
+                mUserId = ActivityUtils.getUserId(this);
+                onCreateFinish();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mUserId != null) {
+            Log.d("VFY", "MainActivity.onStart() with mUserId != null");
+            loadSessions(false);
+        } else {
+            Log.d("VFY", "MainActivity.onStart() with mUserId == null");
+        }
     }
 
     @Override
@@ -107,7 +137,11 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-    
+
+    public void setTitle(CharSequence title) {
+        vToolbar.setTitle(title);
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Fragment fragment;
@@ -133,7 +167,21 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                loadSessions(true);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private EditSessionFragment.OnSessionEditedListener mOnCreateNewSession =
             new EditSessionFragment.OnSessionEditedListener() {
@@ -168,30 +216,6 @@ public class MainActivity extends AppCompatActivity
             dialog.show(getSupportFragmentManager(), EditSessionFragment.class.getSimpleName());
         }
     };
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
-        switch (requestCode) {
-            case LOGIN_REQUEST_CODE:
-                Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
-                mUserId = ActivityUtils.getUserId(this);
-                loadSessions(true);
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("VFY", "MainActivity.onStart()");
-        loadSessions(false);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d("VFY", "MainActivity.onResume()");
-    }
 
     public void loadSessions(boolean showLoading) {
         if (mLoading) {

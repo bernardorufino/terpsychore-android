@@ -64,7 +64,8 @@ public class MusicPickerActivity extends AppCompatActivity
         vNavigationView = (NavigationView) findViewById(R.id.nav_view);
         vNavigationView.setNavigationItemSelectedListener(this);
         vHeaderImage = (ImageView) vNavigationView.getHeaderView(0).findViewById(R.id.music_picker_nav_header_image);
-        vHeaderUserName = (TextView) findViewById(R.id.music_picker_nav_header_user_name);
+        vHeaderUserName = (TextView) vNavigationView.getHeaderView(0).findViewById(R.id.music_picker_nav_header_user_name);
+        vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
         vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
         vSelectionStatus = (TextView) findViewById(R.id.music_picker_selection_status);
         vSelection = (ViewGroup) findViewById(R.id.music_picker_selection);
@@ -106,16 +107,10 @@ public class MusicPickerActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

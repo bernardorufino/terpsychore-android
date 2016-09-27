@@ -55,7 +55,7 @@ public class PlayerManager {
 
     public void initialize() {
         String accessToken = ActivityUtils.checkedGetAccessToken(mContext);
-        // TODO: Check access token and renew before if needed, but also write code foi failure since
+        // TODO: Check access token and renew before if needed, but also write code for failure since
         // TODO: the access token can expire between last check and actual use
         Config playerConfig = new Config(mContext, accessToken, SPOTIFY_CLIENT_ID);
         Spotify.getPlayer(playerConfig, this, mSpotifyPlayerInitializationObserver);
