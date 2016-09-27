@@ -1,4 +1,4 @@
-package com.brufino.terpsychore.fragments;
+package com.brufino.terpsychore.fragments.session;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;

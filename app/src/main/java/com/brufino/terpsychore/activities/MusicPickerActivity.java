@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment.ContentType;
@@ -45,9 +44,10 @@ public class MusicPickerActivity extends AppCompatActivity
     private ImageView vHeaderImage;
 
     private Map<String, Track> mSelectedTrackUris = new LinkedHashMap<>();
+    private SearchFragment mSearchFragment;
+    private MusicPickerListFragment mPlaylistsFragment;
     private MusicPickerListFragment mSongsFragment;
     private MusicPickerListFragment mAlbumsFragment;
-    private MusicPickerListFragment mPlaylistsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +78,10 @@ public class MusicPickerActivity extends AppCompatActivity
                 .placeholder(R.drawable.ic_account_circle_white_48dp)
                 .into(vHeaderImage);
 
+        mSearchFragment = new SearchFragment();
+        mPlaylistsFragment = MusicPickerListFragment.create(ContentType.PLAYLISTS);
         mSongsFragment = MusicPickerListFragment.create(ContentType.SONGS);
         mAlbumsFragment = MusicPickerListFragment.create(ContentType.ALBUMS);
-        mPlaylistsFragment = MusicPickerListFragment.create(ContentType.PLAYLISTS);
 
         // Selecting default item
         vNavigationView.setCheckedItem(R.id.music_picker_item_playlists);
@@ -120,8 +121,7 @@ public class MusicPickerActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.music_picker_item_search:
-                Toast.makeText(MusicPickerActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
-                fragment = new SearchFragment();
+                fragment = mSearchFragment;
                 break;
             case R.id.music_picker_item_playlists:
                 fragment = mPlaylistsFragment;

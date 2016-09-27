@@ -79,7 +79,7 @@
 
     <fragment
         android:id="@+id/session_chat_fragment"
-        android:name="com.brufino.terpsychore.fragments.ChatFragment"
+        android:name="com.brufino.terpsychore.fragments.session.ChatFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/track_playback_controls"

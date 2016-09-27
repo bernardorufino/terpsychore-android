@@ -34,13 +34,13 @@
 
         <fragment
             android:id="@+id/session_track_playback_fragment"
-            android:name="com.brufino.terpsychore.fragments.TrackPlaybackFragment"
+            android:name="com.brufino.terpsychore.fragments.session.TrackPlaybackFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <fragment
             android:id="@+id/session_chat_fragment"
-            android:name="com.brufino.terpsychore.fragments.ChatFragment"
+            android:name="com.brufino.terpsychore.fragments.session.ChatFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />

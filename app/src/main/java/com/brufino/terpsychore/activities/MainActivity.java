@@ -1,39 +1,30 @@
 package com.brufino.terpsychore.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.*;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.fragments.EditSessionFragment;
+import com.brufino.terpsychore.fragments.main.MainFragment;
+import com.brufino.terpsychore.fragments.main.MusicInboxFragment;
+import com.brufino.terpsychore.fragments.main.SessionsListFragment;
 import com.brufino.terpsychore.lib.CircleTransformation;
-import com.brufino.terpsychore.network.ApiUtils;
-import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -42,21 +33,19 @@ public class MainActivity extends AppCompatActivity
 
     private static final int LOGIN_REQUEST_CODE = 0;
 
-    private RecyclerView vSessionList;
     private FloatingActionButton vAddSessionButton;
     private ProgressBar vLoading;
     private Toolbar vToolbar;
     private DrawerLayout vDrawer;
     private NavigationView vNavigationView;
     private TextView vHeaderUserName;
-
-    private List<JsonObject> mSessionList = new ArrayList<>();
-    private boolean mLoading = false;
-    private SessionListAdapter mSessionListAdapter;
-    private SessionApi mSessionApi;
-    private String mUserId;
-    private LinearLayoutManager mSessionListLayoutManager;
     private ImageView vHeaderImage;
+    private CoordinatorLayout vMainCoordinatorLayout;
+    private FloatingActionButton vFab;
+
+    private SessionsListFragment mSessionListFragment;
+    private MusicInboxFragment mMusicInboxFragment;
+    private String mUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,37 +63,36 @@ public class MainActivity extends AppCompatActivity
         vHeaderImage = (ImageView) vNavigationView.getHeaderView(0).findViewById(R.id.main_nav_header_image);
         vHeaderUserName = (TextView) vNavigationView.getHeaderView(0).findViewById(R.id.main_nav_header_user_name);
         vNavigationView.setNavigationItemSelectedListener(this);
-        vSessionList = (RecyclerView) findViewById(R.id.sessions_list);
-        mSessionListAdapter = new SessionListAdapter(mSessionList);
-        mSessionListLayoutManager = new LinearLayoutManager(this);
-        vSessionList.setLayoutManager(mSessionListLayoutManager);
-        vSessionList.setAdapter(mSessionListAdapter);
-        vAddSessionButton = (FloatingActionButton) findViewById(R.id.add_session_button);
-        vAddSessionButton.setOnClickListener(mOnAddSessionButtonClick);
-        vLoading = (ProgressBar) findViewById(R.id.sessions_list_loading);
+        vMainCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_layout);
 
-        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mSessionListFragment = new SessionsListFragment();
+        mMusicInboxFragment = new MusicInboxFragment();
+
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {
             onCreateFinish();
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
+            // onCreateFinish() is called in onActivityResult()
         }
-        vNavigationView.setCheckedItem(R.id.main_drawer_sessions);
     }
 
     private void onCreateFinish() {
         checkState(mUserId != null, "mUserId shouldn't be null");
 
-        loadSessions(true);
         Picasso.with(this)
                 .load(ActivityUtils.getImageUrl(this))
                 .transform(new CircleTransformation())
                 .placeholder(R.drawable.ic_account_circle_white_48dp)
                 .into(vHeaderImage);
         vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
-        setTitle("Sessions");
+
+        vNavigationView.setCheckedItem(R.id.main_drawer_sessions);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_content, mSessionListFragment)
+                .commit();
     }
 
     @Override
@@ -115,17 +103,6 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(MainActivity.this, "Logged in", Toast.LENGTH_LONG).show();
                 mUserId = ActivityUtils.getUserId(this);
                 onCreateFinish();
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (mUserId != null) {
-            Log.d("VFY", "MainActivity.onStart() with mUserId != null");
-            loadSessions(false);
-        } else {
-            Log.d("VFY", "MainActivity.onStart() with mUserId == null");
         }
     }
 
@@ -144,24 +121,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Fragment fragment;
+        MainFragment fragment;
         int id = item.getItemId();
         switch (id) {
             case R.id.main_drawer_sessions:
-                Toast.makeText(MainActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                fragment = mSessionListFragment;
                 break;
-            case R.id.main_drawer_queue:
-                Toast.makeText(MainActivity.this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+            case R.id.main_drawer_music_inbox:
+                fragment = mMusicInboxFragment;
                 break;
             default:
                 throw new AssertionError("Unknown id");
         }
 
-        // getSupportFragmentManager()
-        //         .beginTransaction()
-        //         .replace(R.id.music_picker_content, fragment)
-        //         .addToBackStack(null)
-        //         .commit();
+         getSupportFragmentManager()
+                 .beginTransaction()
+                 .replace(R.id.main_content, fragment)
+                 .addToBackStack(null)
+                 .commit();
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;
@@ -169,168 +146,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                loadSessions(true);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public ViewGroup getFabParent() {
+        return vMainCoordinatorLayout;
     }
 
-    private EditSessionFragment.OnSessionEditedListener mOnCreateNewSession =
-            new EditSessionFragment.OnSessionEditedListener() {
-        @Override
-        public void onComplete(boolean success, String sessionName) {
-            if (success && !sessionName.trim().isEmpty()) {
-                JsonObject body = new JsonObject();
-                JsonObject session = new JsonObject();
-                session.addProperty("name", sessionName);
-                body.add("session", session);
-
-                mSessionApi.postSession(mUserId, body).enqueue(new Callback<String>() {
-                    @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        loadSessions(false);
-                    }
-                    @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.d("VFY", "Error creating session", t);
-                        Toast.makeText(MainActivity.this, "Error creating session", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
+    public void setFab(FloatingActionButton fab) {
+        if (vFab != null && vFab.getParent() == vMainCoordinatorLayout) {
+            vMainCoordinatorLayout.removeView(vFab);
         }
-    };
-
-    private View.OnClickListener mOnAddSessionButtonClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            EditSessionFragment dialog = new EditSessionFragment();
-            dialog.setOnSessionEditedListener(mOnCreateNewSession);
-            dialog.show(getSupportFragmentManager(), EditSessionFragment.class.getSimpleName());
+        vFab = fab;
+        if (vFab != null) {
+            CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(
+                    CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                    CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.setAnchorId(R.id.main_content);
+            layoutParams.anchorGravity = Gravity.BOTTOM | Gravity.END;
+            layoutParams.gravity = Gravity.BOTTOM | Gravity.END;
+            vMainCoordinatorLayout.addView(vFab, layoutParams);
         }
-    };
-
-    public void loadSessions(boolean showLoading) {
-        if (mLoading) {
-            return;
-        }
-        if (showLoading) {
-            vLoading.setVisibility(View.VISIBLE);
-        }
-        mLoading = true;
-        mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
-    }
-
-    private Callback<JsonArray> mGetSessionsCallback = new Callback<JsonArray>() {
-        @Override
-        public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
-            mLoading = false;
-            vLoading.setVisibility(View.GONE);
-            JsonArray sessions = response.body().getAsJsonArray();
-            Log.v("VFY", "Sessions loaded: size = " + sessions.size());
-            mSessionList.clear();
-            for (JsonElement session : sessions) {
-                mSessionList.add(session.getAsJsonObject());
-            }
-            mSessionListAdapter.notifyDataSetChanged();
-        }
-        @Override
-        public void onFailure(Call<JsonArray> call, Throwable t) {
-            mLoading = false;
-            vLoading.setVisibility(View.GONE);
-            Log.e("VFY", "Error retrieving sessions list", t);
-            Toast.makeText(MainActivity.this, "Error retrieving sessions list", Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    public static class SessionListAdapter extends RecyclerView.Adapter<SessionItemHolder> {
-
-        private List<JsonObject> mBackingList;
-
-        public SessionListAdapter(List<JsonObject> backingList) {
-            mBackingList = backingList;
-        }
-
-        @Override
-        public SessionItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_session_list, parent, false);
-            return new SessionItemHolder(itemView);
-        }
-
-        @Override
-        public void onBindViewHolder(SessionItemHolder holder, int position) {
-            JsonObject session = mBackingList.get(position);
-            holder.bind(session);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mBackingList.size();
-        }
-    }
-
-    private static class SessionItemHolder extends RecyclerView.ViewHolder {
-
-        private int mSessionId;
-        private final Context mContext;
-        private final TextView vNameText;
-        private final TextView vDescriptionText;
-        private final ImageView vPlayingIcon;
-        private final ImageView vItemIcon;
-
-        public SessionItemHolder(View itemView) {
-            super(itemView);
-            mContext = itemView.getContext();
-            vNameText = (TextView) itemView.findViewById(R.id.session_list_item_name);
-            vDescriptionText = (TextView) itemView.findViewById(R.id.session_list_item_description);
-            vPlayingIcon = (ImageView) itemView.findViewById(R.id.session_list_item_playing_icon);
-            vItemIcon = (ImageView) itemView.findViewById(R.id.session_list_item_icon);
-            itemView.setOnClickListener(mOnClickListener);
-        }
-
-        private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(mContext, SessionActivity.class);
-                intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, mSessionId);
-                mContext.startActivity(intent);
-            }
-        };
-
-        public void bind(JsonObject session) {
-            mSessionId = session.get("id").getAsInt();
-            String name = session.get("name").getAsString();
-            String description = session.get("nusers").getAsInt() + " Connected";
-            JsonObject queue = session.get("queue").getAsJsonObject();
-            JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
-            JsonObject nextTrack = ApiUtils.getNextTrack(queue);
-            String status = queue.get("track_status").getAsString();
-            String imageUrl = session.get("image_url").getAsString();
-            imageUrl = ApiUtils.getServerUrl(imageUrl);
-
-            Picasso.with(mContext)
-                    .load(imageUrl)
-                    .into(vItemIcon);
-            vNameText.setText(name);
-            vDescriptionText.setText(description);
-
-            vPlayingIcon.setVisibility(View.GONE);
-            if (currentTrack != null) {
-                vPlayingIcon.setVisibility(View.VISIBLE);
-                if (status.equals("playing")) {
-                    vPlayingIcon.setImageResource(R.drawable.ic_play_arrow_white_24dp);
-                } else {
-                    vPlayingIcon.setImageResource(R.drawable.ic_pause_white_24dp);
-                }
-            }
-        }
-
     }
 }

@@ -3,7 +3,6 @@ package com.brufino.terpsychore.fragments.musicpicker;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.fragments.musicpicker.adapters.*;
 import com.brufino.terpsychore.view.trackview.MusicPickerList;
 
-/* TODO: Separate in different instances of fragments to support backstack (maybe just call new Fragment in activity) */
 public class MusicPickerListFragment extends Fragment {
 
     public static final String ARG_CONTENT_TYPE = "itemType";
@@ -51,7 +49,6 @@ public class MusicPickerListFragment extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d("VFY", "MusicPickerListFragment.onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
         //noinspection unchecked
         vMusicList = (MusicPickerList) getView().findViewById(R.id.music_picker_list);

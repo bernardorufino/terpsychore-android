@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.*;
 public class ApiUtils {
 
     //public static final String BASE_URL = "http:// vibefy.herokuapp.com";
-    public static final String BASE_URL = "http://192.168.0.31:5000";
+    public static final String BASE_URL = "http://192.168.0.101:5000";
 
     private static Retrofit sRetrofit;
 
