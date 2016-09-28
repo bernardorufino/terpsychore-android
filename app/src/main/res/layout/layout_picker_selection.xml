@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/picker_selection"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:paddingLeft="20dp"
+    android:background="@color/musicPickerFooterBackground"
+    android:visibility="gone"
+    tools:showIn="@layout/activity_music_picker">
+
+    <TextView
+        android:id="@+id/picker_selection_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:textSize="16sp"
+        android:textColor="@color/musicPickerFooterTextColor"
+        />
+
+    <FrameLayout
+        android:id="@+id/picker_selection_done"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
+        android:background="@drawable/music_picker_selection_done_bg"
+        android:clickable="true"
+        >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:tint="@color/musicPickerFooterTextColor"
+            android:src="@drawable/ic_done_white_24dp"
+            />
+
+    </FrameLayout>
+
+</RelativeLayout>
