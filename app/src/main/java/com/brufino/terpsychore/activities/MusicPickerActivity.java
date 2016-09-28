@@ -38,9 +38,9 @@ public class MusicPickerActivity extends AppCompatActivity
     private Toolbar vToolbar;
     private TextView vHeaderUserName;
     private TextView vSelectionStatus;
-    private FrameLayout vMusicContent;
     private ViewGroup vSelection;
-    private FrameLayout vDoneButton;
+    private FrameLayout vSelectionDone;
+    private FrameLayout vMusicContent;
     private ImageView vHeaderImage;
 
     private Map<String, Track> mSelectedTrackUris = new LinkedHashMap<>();
@@ -67,15 +67,15 @@ public class MusicPickerActivity extends AppCompatActivity
         vHeaderUserName = (TextView) vNavigationView.getHeaderView(0).findViewById(R.id.music_picker_nav_header_user_name);
         vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
         vMusicContent = (FrameLayout) findViewById(R.id.music_picker_content);
-        vSelectionStatus = (TextView) findViewById(R.id.music_picker_selection_status);
-        vSelection = (ViewGroup) findViewById(R.id.music_picker_selection);
-        vDoneButton = (FrameLayout) findViewById(R.id.music_picker_selection_done);
-        vDoneButton.setOnClickListener(mOnDoneButtonClickListener);
+        vSelectionStatus = (TextView) findViewById(R.id.picker_selection_status);
+        vSelection = (ViewGroup) findViewById(R.id.picker_selection);
+        vSelectionDone = (FrameLayout) findViewById(R.id.picker_selection_done);
+        vSelectionDone.setOnClickListener(mOnSelectionDoneClickListener);
 
         Picasso.with(this)
                 .load(ActivityUtils.getImageUrl(this))
                 .transform(new CircleTransformation())
-                .placeholder(R.drawable.ic_account_circle_white_48dp)
+                .placeholder(R.drawable.ic_account_circle_no_padding_white_48dp)
                 .into(vHeaderImage);
 
         mSearchFragment = new SearchFragment();
@@ -172,7 +172,7 @@ public class MusicPickerActivity extends AppCompatActivity
         } else {
             mSelectedTrackUris.remove(trackUri);
         }
-        if (mSelectedTrackUris.size() == 0) {
+        if (mSelectedTrackUris.isEmpty()) {
             vSelection.setVisibility(View.GONE);
         } else {
             vSelection.setVisibility(View.VISIBLE);
@@ -180,7 +180,7 @@ public class MusicPickerActivity extends AppCompatActivity
         }
     }
 
-    private View.OnClickListener mOnDoneButtonClickListener = new View.OnClickListener() {
+    private View.OnClickListener mOnSelectionDoneClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (mSelectedTrackUris.isEmpty()) {

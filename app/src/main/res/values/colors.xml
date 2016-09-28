@@ -49,17 +49,19 @@
     <drawable name="queue_control_normal_bg">#1A2A1D</drawable>
     <drawable name="queue_control_pressed_bg">#0A1A0D</drawable>
 
-    <color name="musicPickerNavBackground">#121314</color>
+    <color name="musicPickerNavBg">#121314</color>
     <color name="musicPickerTextColor">#FEFEFE</color>
     <color name="musicPickerTextSecondaryColor">#A4A4A4</color>
     <color name="musicPickerHighlightTextColor">#00BF5A</color>
     <color name="musicPickerBackground">#121314</color>
-    <color name="musicPickerSelectedItemBackground">#000000</color>
+    <color name="musicPickerSelectedItemBg">#000000</color>
     <color name="musicPickerIconTint">#88898C</color>
     <color name="musicPickerHeaderTextColor">#FFFFFF</color>
     <color name="musicPickerFooterBackground">#222326</color>
     <color name="musicPickerFooterTextColor">#DDDDDD</color>
     <color name="musicPickerFooterActionButtonBg">#28292C</color>
     <color name="musicPickerImageBg">#666666</color>
+    <color name="musicPickerToolbarInputBg">#469C4A</color>
+    <color name="musicPickerMessageImageTint">#FFFFFF</color>
 
 </resources>

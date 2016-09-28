@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.SessionActivity;
 import com.brufino.terpsychore.fragments.EditSessionFragment;
+import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -38,10 +39,10 @@ public class SessionsListFragment extends MainFragment {
     private ProgressBar vLoading;
 
     private List<JsonObject> mSessionList = new ArrayList<>();
-    private boolean mLoading = false;
-    private SessionApi mSessionApi;
     private SessionListAdapter mSessionListAdapter;
     private LinearLayoutManager mSessionListLayoutManager;
+    private boolean mLoading = false;
+    private SessionApi mSessionApi;
     private String mUserId;
 
     @Nullable
@@ -58,11 +59,11 @@ public class SessionsListFragment extends MainFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        vSessionList = (RecyclerView) getView().findViewById(R.id.sessions_list);
+        vSessionList = (RecyclerView) getView().findViewById(R.id.session_list);
         mSessionListAdapter = new SessionListAdapter(mSessionList);
         mSessionListLayoutManager = new LinearLayoutManager(getContext());
-        vSessionList.setLayoutManager(mSessionListLayoutManager);
         vSessionList.setAdapter(mSessionListAdapter);
+        vSessionList.setLayoutManager(mSessionListLayoutManager);
         vLoading = (ProgressBar) getView().findViewById(R.id.sessions_list_loading);
 
         mSessionApi = ApiUtils.createApi(SessionApi.class);
@@ -111,9 +112,9 @@ public class SessionsListFragment extends MainFragment {
         mSessionApi.getSessions(mUserId).enqueue(mGetSessionsCallback);
     }
 
-    private Callback<JsonArray> mGetSessionsCallback = new Callback<JsonArray>() {
+    private Callback<JsonArray> mGetSessionsCallback = new ApiCallback<JsonArray>() {
         @Override
-        public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
+        public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
             mLoading = false;
             vLoading.setVisibility(View.GONE);
             JsonArray sessions = response.body().getAsJsonArray();
@@ -181,8 +182,8 @@ public class SessionsListFragment extends MainFragment {
 
         @Override
         public void onBindViewHolder(SessionItemHolder holder, int position) {
-            JsonObject session = mBackingList.get(position);
-            holder.bind(session);
+            JsonObject item = mBackingList.get(position);
+            holder.bind(item);
         }
 
         @Override
@@ -193,20 +194,21 @@ public class SessionsListFragment extends MainFragment {
 
     private static class SessionItemHolder extends RecyclerView.ViewHolder {
 
-        private int mSessionId;
+        private final TextView vTitle;
+        private final TextView vDescription;
+        private final ImageView vImage;
+        private final ImageView vPlayingImage;
+
         private final Context mContext;
-        private final TextView vNameText;
-        private final TextView vDescriptionText;
-        private final ImageView vPlayingIcon;
-        private final ImageView vItemIcon;
+        private int mSessionId;
 
         public SessionItemHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
-            vNameText = (TextView) itemView.findViewById(R.id.session_list_item_name);
-            vDescriptionText = (TextView) itemView.findViewById(R.id.session_list_item_description);
-            vPlayingIcon = (ImageView) itemView.findViewById(R.id.session_list_item_playing_icon);
-            vItemIcon = (ImageView) itemView.findViewById(R.id.session_list_item_icon);
+            vTitle = (TextView) itemView.findViewById(R.id.item_session_title);
+            vDescription = (TextView) itemView.findViewById(R.id.item_session_description);
+            vImage = (ImageView) itemView.findViewById(R.id.item_session_image);
+            vPlayingImage = (ImageView) itemView.findViewById(R.id.item_session_playing_image);
             itemView.setOnClickListener(mOnClickListener);
         }
 
@@ -232,17 +234,17 @@ public class SessionsListFragment extends MainFragment {
 
             Picasso.with(mContext)
                     .load(imageUrl)
-                    .into(vItemIcon);
-            vNameText.setText(name);
-            vDescriptionText.setText(description);
+                    .into(vImage);
+            vTitle.setText(name);
+            vDescription.setText(description);
 
-            vPlayingIcon.setVisibility(View.GONE);
+            vPlayingImage.setVisibility(View.GONE);
             if (currentTrack != null) {
-                vPlayingIcon.setVisibility(View.VISIBLE);
+                vPlayingImage.setVisibility(View.VISIBLE);
                 if (status.equals("playing")) {
-                    vPlayingIcon.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+                    vPlayingImage.setImageResource(R.drawable.ic_play_arrow_white_24dp);
                 } else {
-                    vPlayingIcon.setImageResource(R.drawable.ic_pause_white_24dp);
+                    vPlayingImage.setImageResource(R.drawable.ic_pause_white_24dp);
                 }
             }
         }

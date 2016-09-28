@@ -5,17 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="?attr/actionBarSize"
+    android:background="@color/musicPickerBackground"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     >
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/sessions_list"
+        android:id="@+id/session_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="9dp"
-        android:paddingBottom="9dp"
+        android:paddingTop="@dimen/item_music_picker_half_padding"
+        android:paddingBottom="@dimen/item_music_picker_half_padding"
         android:clipToPadding="false"
-        android:background="@color/musicPickerBackground"
         />
 
     <ProgressBar

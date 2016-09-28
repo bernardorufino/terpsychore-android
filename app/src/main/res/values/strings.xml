@@ -7,4 +7,5 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="user_picker_user_not_found"><![CDATA[Nobody found<br/>Invite your friend to <b>%s</b>!]]></string>
 </resources>

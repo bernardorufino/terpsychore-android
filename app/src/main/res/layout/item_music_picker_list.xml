@@ -8,72 +8,38 @@
     >
 
     <LinearLayout
-        android:id="@+id/item_music_picker_wrapper"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:paddingTop="@dimen/item_music_picker_half_padding"
-        android:paddingRight="@dimen/item_music_picker_padding"
-        android:paddingBottom="@dimen/item_music_picker_half_padding"
-        android:paddingLeft="@dimen/item_music_picker_padding"
-        android:background="@drawable/item_music_picker_bg"
-        >
+        android:id="@+id/item_music_picker_container"
+        style="@style/ListItemContainer">
 
         <ImageView
             android:id="@+id/item_music_picker_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginRight="@dimen/item_music_picker_padding"
             android:background="@color/musicPickerImageBg"
-            />
+            style="@style/ListItemLeftImage" />
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="@dimen/item_music_picker_padding"
-            android:orientation="vertical"
-            >
+            style="@style/ListItemTextContainer">
 
             <TextView
                 android:id="@+id/item_music_picker_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/musicPickerTextColor"
-                android:paddingBottom="2dp"
                 android:maxLines="1"
-                />
+                style="@style/ListItemTextTitle" />
 
             <TextView
                 android:id="@+id/item_music_picker_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/musicPickerTextSecondaryColor"
                 android:maxLines="1"
-                />
+                style="@style/ListItemTextDescription" />
 
         </LinearLayout>
 
         <ImageView
             android:id="@+id/item_music_picker_remove"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/item_music_picker_padding"
-            android:tint="@color/musicPickerTextSecondaryColor"
             android:src="@drawable/ic_remove_circle_white_24dp"
             android:visibility="gone"
-            />
+            style="@style/ListItemRightImage" />
 
         <ImageView
             android:id="@+id/item_music_picker_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:tint="@color/musicPickerTextSecondaryColor"
-            />
+            style="@style/ListItemRightImage.Last" />
 
     </LinearLayout>
 

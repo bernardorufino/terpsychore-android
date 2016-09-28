@@ -49,7 +49,7 @@ public class PlaylistsAdapter extends SpotifyRemoteAdapter<PlaylistSimple> {
     }
 
     @Override
-    protected void onItemClickListener(
+    protected void onItemClick(
             MusicPickerList.MusicPickerListItemHolder holder,
             int position,
             MusicPickerList.Item item) {

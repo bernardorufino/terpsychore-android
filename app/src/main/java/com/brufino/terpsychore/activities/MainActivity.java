@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
         Picasso.with(this)
                 .load(ActivityUtils.getImageUrl(this))
                 .transform(new CircleTransformation())
-                .placeholder(R.drawable.ic_account_circle_white_48dp)
+                .placeholder(R.drawable.ic_account_circle_no_padding_white_48dp)
                 .into(vHeaderImage);
         vHeaderUserName.setText(ActivityUtils.getDisplayName(this));
 

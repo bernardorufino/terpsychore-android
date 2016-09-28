@@ -31,10 +31,15 @@
 
         <activity
             android:name=".activities.LoginActivity" />
+        <!--TODO: Try below on above-->
+        <!--android:theme="@style/AppTheme.NoActionBar"-->
 
         <activity
             android:name=".activities.MusicPickerActivity"
-            android:label="@string/title_activity_spotify_music_picker"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".activities.UserPickerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver

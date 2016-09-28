@@ -1,75 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="9dp"
-    android:paddingRight="17dp"
-    android:paddingBottom="9dp"
-    android:paddingLeft="17dp"
-    android:background="@drawable/item_music_picker_bg"
-    android:layout_marginBottom="0.5dp"
-    >
+    style="@style/ListItemContainer">
 
     <ImageView
-        android:id="@+id/session_list_item_icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="17dp"
-        android:src="@drawable/ic_wifi_tethering_black_36dp"
+        android:id="@+id/item_session_image"
         android:background="@color/musicPickerImageBg"
-        />
+        style="@style/ListItemLeftImage" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/session_list_item_icon"
-        >
+        style="@style/ListItemTextContainer">
 
         <TextView
-            android:id="@+id/session_list_item_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@color/musicPickerTextColor"
-            android:paddingBottom="2dp"
+            android:id="@+id/item_session_title"
             android:maxLines="1"
-            />
+            style="@style/ListItemTextTitle" />
 
         <TextView
-            android:id="@+id/session_list_item_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/musicPickerTextSecondaryColor"
+            android:id="@+id/item_session_description"
             android:maxLines="1"
-            />
+            style="@style/ListItemTextDescription" />
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        >
+    <ImageView
+        android:id="@+id/item_session_playing_image"
+        android:src="@drawable/ic_play_arrow_white_24dp"
+        style="@style/ListItemRightImage.Last" />
 
-            <ImageView
-                android:id="@+id/session_list_item_playing_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:tint="@color/musicPickerTextSecondaryColor"
-                android:src="@drawable/ic_play_arrow_white_24dp"
-                />
-
-    </RelativeLayout>
-
-</RelativeLayout>
+</LinearLayout>

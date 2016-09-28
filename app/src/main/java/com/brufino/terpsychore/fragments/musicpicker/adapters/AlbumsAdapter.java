@@ -53,7 +53,7 @@ public class AlbumsAdapter extends SpotifyRemoteAdapter<SavedAlbum> {
     }
 
     @Override
-    protected void onItemClickListener(
+    protected void onItemClick(
             MusicPickerList.MusicPickerListItemHolder holder,
             int position,
             MusicPickerList.Item item) {

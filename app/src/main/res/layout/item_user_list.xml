@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_user_container"
+    style="@style/ListItemContainer">
+
+    <ImageView
+        android:id="@+id/item_user_image"
+        style="@style/ListItemLeftImage" />
+
+    <LinearLayout
+        style="@style/ListItemTextContainer">
+
+        <TextView
+            android:id="@+id/item_user_title"
+            android:maxLines="1"
+            style="@style/ListItemTextTitle" />
+
+        <TextView
+            android:id="@+id/item_user_description"
+            android:maxLines="1"
+            style="@style/ListItemTextDescription" />
+
+    </LinearLayout>
+
+    <!--<ImageView-->
+        <!--android:id="@+id/item_user_detail_image"-->
+        <!--android:src="@drawable/ic_person_add_white_24dp"-->
+        <!--style="@style/ListItemRightImage.Last" />-->
 
 </LinearLayout>

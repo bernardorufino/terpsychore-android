@@ -57,7 +57,7 @@ public class SongsAdapter extends SpotifyRemoteAdapter<SavedTrack> {
     }
 
     @Override
-    protected void onItemClickListener(
+    protected void onItemClick(
             MusicPickerList.MusicPickerListItemHolder holder,
             int position,
             MusicPickerList.Item item) {

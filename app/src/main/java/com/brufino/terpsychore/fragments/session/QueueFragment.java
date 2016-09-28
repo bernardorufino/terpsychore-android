@@ -89,7 +89,6 @@ public class QueueFragment extends Fragment {
                 } else {
                     Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
                 }
-
         }
     }
 
@@ -129,6 +128,7 @@ public class QueueFragment extends Fragment {
         return trackItemHeight + topBarHeight;
     }
 
+    /* TODO: Use a non-static inner class and call everything from activity, just like UserPickerActivity */
     public static class TrackListAdapter extends RecyclerView.Adapter<TrackItemViewHolder> {
 
         private final List<JsonObject> mBackingList;

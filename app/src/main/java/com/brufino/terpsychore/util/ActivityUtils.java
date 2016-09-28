@@ -9,11 +9,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ActivityUtils {
 
-    public static String getUserSpotifyId(Context context) {
-        return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
-                .getString(SharedPreferencesDefs.Main.KEY_USER_SPOTIFY_ID, null);
-    }
-
     public static String getDisplayName(Context context) {
         return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
                 .getString(SharedPreferencesDefs.Main.KEY_DISPLAY_NAME, null);

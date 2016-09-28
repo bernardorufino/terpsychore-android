@@ -1,5 +1,6 @@
 package com.brufino.terpsychore.activities;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -46,6 +47,7 @@ public class SessionActivity extends AppCompatActivity {
     private static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
     private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
     private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
+    private static final int REQUEST_SELECT_USERS = 1;
 
     private Toolbar vToolbar;
     private TextView vTrackTitleName;
@@ -145,6 +147,20 @@ public class SessionActivity extends AppCompatActivity {
     };
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_SELECT_USERS:
+                if (resultCode == Activity.RESULT_OK) {
+                    String[] userIds = data.getStringArrayExtra(UserPickerActivity.RESULT_USER_IDS);
+                    Toast.makeText(this, "TODO: Do something with " + userIds.length + " user ids", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "No friends selected", Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
@@ -155,7 +171,8 @@ public class SessionActivity extends AppCompatActivity {
                         .show();
                 return true;
             case R.id.action_add_user:
-                Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(SessionActivity.this, UserPickerActivity.class);
+                startActivityForResult(intent, REQUEST_SELECT_USERS);
                 return true;
             case R.id.action_settings:
                 Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();

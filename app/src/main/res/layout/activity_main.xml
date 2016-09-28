@@ -51,7 +51,7 @@
         app:itemTextColor="@drawable/music_picker_nav_text_bg"
         app:headerLayout="@layout/layout_main_nav_header"
         app:menu="@menu/main_drawer"
-        android:background="@color/musicPickerNavBackground"
+        android:background="@color/musicPickerNavBg"
         >
 
         <include layout="@layout/layout_spotify_footer" />
