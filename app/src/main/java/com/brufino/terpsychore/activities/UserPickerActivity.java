@@ -274,7 +274,7 @@ public class UserPickerActivity extends Activity {
                 Picasso.with(mContext)
                         .load(R.drawable.ic_account_circle_no_padding_gray_48dp)
                         .into(vImage);
-                vImage.setImageTintList(ActivityUtils.getColorList(mContext, R.color.musicPickerTextSecondaryColor));
+                vImage.setImageTintList(ActivityUtils.getColorList(mContext, R.color.textSecondary));
             }
 
             vTitle.setText(displayName);
@@ -283,9 +283,9 @@ public class UserPickerActivity extends Activity {
             if (mSelectedUserIds.containsKey(userId)) {
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
                 vContainer.setBackground(null);
-                vContainer.setBackgroundColor(ContextCompat.getColor(mContext, R.color.musicPickerSelectedItemBg));
+                vContainer.setBackgroundColor(ContextCompat.getColor(mContext, R.color.selectedBg));
             } else {
-                vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.musicPickerTextColor));
+                vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.text));
                 vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_music_picker_bg));
             }
         }

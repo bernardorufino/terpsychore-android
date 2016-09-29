@@ -51,7 +51,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/musicPickerBackground"
+            android:background="@color/bg"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             >
 
@@ -71,9 +71,9 @@
                 android:layout_centerInParent="true"
                 android:gravity="center"
                 android:textSize="15sp"
-                android:drawableTint="@color/musicPickerTextSecondaryColor"
+                android:drawableTint="@color/textSecondary"
                 android:drawablePadding="@dimen/item_music_picker_half_padding"
-                android:textColor="@color/musicPickerTextSecondaryColor"
+                android:textColor="@color/textSecondary"
                 android:visibility="gone"
                 />
 

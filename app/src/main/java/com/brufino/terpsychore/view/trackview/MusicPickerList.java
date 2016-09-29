@@ -192,12 +192,12 @@ public class MusicPickerList extends RelativeLayout {
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
                 vContainer.setBackground(null);
                 vContainer.setBackgroundColor(
-                        ContextCompat.getColor(mContext, R.color.musicPickerSelectedItemBg));
+                        ContextCompat.getColor(mContext, R.color.selectedBg));
             } else {
-                ColorStateList colorList = ActivityUtils.getColorList(mContext, R.color.musicPickerTextSecondaryColor);
+                ColorStateList colorList = ActivityUtils.getColorList(mContext, R.color.textSecondary);
                 vTypeIcon.setImageTintList(colorList);
                 vRemoveIcon.setVisibility(View.GONE);
-                vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.musicPickerTextColor));
+                vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.text));
                 vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_music_picker_bg));
             }
         }

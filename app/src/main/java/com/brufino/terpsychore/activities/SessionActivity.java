@@ -92,7 +92,7 @@ public class SessionActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.session_overlay_fragment_container, mQueueFragment, QueueFragment.class.getSimpleName())
                 .commit();
-        
+
         mTrackPlaybackFragment =
                 (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
         mTrackPlaybackFragment.setQueueViewManager(mQueueViewManager);

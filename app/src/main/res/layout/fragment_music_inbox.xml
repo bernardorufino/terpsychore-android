@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@color/musicPickerBackground"
+    android:background="@color/bg"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     >
 
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:text="TODO: Implement!"
-        android:textColor="@color/musicPickerTextColor"
+        android:textColor="@color/text"
         />
 
 </LinearLayout>

@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:fitsSystemWindows="false"
         tools:openDrawer="start"
-        android:background="@color/musicPickerBackground">
+        android:background="@color/bg">
 
         <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -52,11 +52,11 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:fitsSystemWindows="true"
-            app:itemIconTint="@color/musicPickerIconTint"
+            app:itemIconTint="@color/navImageTint"
             app:itemTextColor="@drawable/music_picker_nav_text_bg"
             app:headerLayout="@layout/layout_music_picker_nav_header"
             app:menu="@menu/music_picker_drawer"
-            android:background="@color/musicPickerNavBg"
+            android:background="@color/navBg"
             >
 
             <include layout="@layout/layout_spotify_footer" />

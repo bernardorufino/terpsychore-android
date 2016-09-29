@@ -32,7 +32,7 @@
         <item name="android:foregroundGravity">center</item>
         <item name="android:background">@drawable/playback_button_bg</item>
         <item name="android:layout_alignParentLeft">true</item>
-        <item name="android:tint">@color/playbackControlDeactivated</item>
+        <item name="android:tint">@color/trackPlaybackControlDeactivated</item>
     </style>
 
     <style name="PlaybackButton.LeftSpaced">
@@ -75,7 +75,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/musicPickerTextColor</item>
+        <item name="android:textColor">@color/text</item>
         <item name="android:paddingBottom">2dp</item>
     </style>
 
@@ -83,14 +83,14 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/musicPickerTextSecondaryColor</item>
+        <item name="android:textColor">@color/textSecondary</item>
     </style>
 
     <style name="ListItemRightImage">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginRight">@dimen/item_music_picker_padding</item>
-        <item name="android:tint">@color/musicPickerTextSecondaryColor</item>
+        <item name="android:tint">@color/textSecondary</item>
     </style>
 
     <style name="ListItemRightImage.Last">

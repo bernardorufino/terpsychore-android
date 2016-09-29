@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <drawable name="playback_button_pressed">#388E3C</drawable>
-    <drawable name="playback_button">#4CAF50</drawable>
-
-    <color name="playbackControlActivated">#FFFFFF</color>
-    <color name="playbackControlDeactivated">#7CDF80</color>
-
-    <color name="sessionForegroundText">#FFFFFFFF</color>
-    <color name="sessionSecondaryText">#BBFFFFFF</color>
     <color name="chatReactionsBackground">#BB8CDF90</color>
 
     <!-- XxxTop is before the current position -->
@@ -17,20 +9,49 @@
     <color name="graphForeground">#444CAF50</color>
     <color name="graphForegroundTop">#4481C784</color>
 
+    <color name="playbackButtonPressedBg">#388E3C</color>
+    <color name="playbackButtonBg">#4CAF50</color>
+
+    <color name="queueHintPressedBg">@color/graphBackground</color>
+    <color name="queueHintBg">@color/graphForeground</color>
+
     <color name="colorPrimary">#4CAF50</color>
     <color name="colorPrimaryDark">#2E7D32</color>
-    <!--Blend color below (without alpha) with the primary dark using alpha as the weight-->
     <color name="colorPrimaryExtraDark">#2C722D</color>
-    <color name="mainActivityStatusBarColor">#2C722D</color>
     <color name="colorAccent">#D63737</color>
+    
+    <color name="trackPlaybackControlActivated">#FFFFFF</color>
+    <color name="trackPlaybackControlDeactivated">#7CDF80</color>
+
+    <!-- Session colors -->
+
+    <color name="sessionOverlayBg">#00000000</color>
+
+    <color name="trackPlaybackText">#FFFFFF</color>
+    <color name="trackPlaybackTextSecondary">#BBFFFFFF</color>
 
 
-    <color name="subthemeForeground">#E2E2E2</color>
-    <!--<color name="subthemeSecondaryForeground">#9E9E9E</color>-->
-    <color name="subthemeSecondaryForeground">#D2D2D2</color>
-    <color name="subthemeBackground">#143B08</color>
-    <!--#E2E2E2-->
-    <color name="subthemeFarBackground">#0A310C</color>
+    <!-- Generic colors -->
+
+    <color name="navBg">#121314</color>
+    <color name="navHeaderText">#FFFFFF</color>
+    <color name="navImageTint">#88898C</color>
+
+    <color name="text">#FEFEFE</color>
+    <color name="textSecondary">#A4A4A4</color>
+    <color name="textHighlighted">#00BF5A</color>
+    <color name="imageBg">#666666</color>
+
+    <color name="bg">#121314</color>
+    <color name="selectedBg">#000000</color>
+
+    <color name="footerBg">#222326</color>
+    <color name="footerText">#DDDDDD</color>
+    <color name="footerActionButtonBg">#28292C</color>
+
+    <color name="toolbarInputBg">#469C4A</color>
+
+    <!-- Queue colors -->
 
     <color name="queueBackground">#1A2A1D</color>
     <color name="queueTrackItemBackground">#1D2D20</color>
@@ -44,24 +65,7 @@
     <color name="queueTrackCurrentItemBackground">#213123</color>
     <color name="queueTrackNextItemBackground">#1D2D20</color>
 
-    <color name="sessionOverlayBackground">#00FFFFFF</color>
-
-    <drawable name="queue_control_normal_bg">#1A2A1D</drawable>
-    <drawable name="queue_control_pressed_bg">#0A1A0D</drawable>
-
-    <color name="musicPickerNavBg">#121314</color>
-    <color name="musicPickerTextColor">#FEFEFE</color>
-    <color name="musicPickerTextSecondaryColor">#A4A4A4</color>
-    <color name="musicPickerHighlightTextColor">#00BF5A</color>
-    <color name="musicPickerBackground">#121314</color>
-    <color name="musicPickerSelectedItemBg">#000000</color>
-    <color name="musicPickerIconTint">#88898C</color>
-    <color name="musicPickerHeaderTextColor">#FFFFFF</color>
-    <color name="musicPickerFooterBackground">#222326</color>
-    <color name="musicPickerFooterTextColor">#DDDDDD</color>
-    <color name="musicPickerFooterActionButtonBg">#28292C</color>
-    <color name="musicPickerImageBg">#666666</color>
-    <color name="musicPickerToolbarInputBg">#469C4A</color>
-    <color name="musicPickerMessageImageTint">#FFFFFF</color>
+    <color name="queueControlNormalBg">#1A2A1D</color>
+    <color name="queueControlPressedBg">#0A1A0D</color>
 
 </resources>

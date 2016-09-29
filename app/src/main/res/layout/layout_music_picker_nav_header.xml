@@ -30,7 +30,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/musicPickerHeaderTextColor"
+            android:textColor="@color/navHeaderText"
             android:textSize="16sp"
             android:textStyle="bold"
             android:text="My Library"
@@ -40,7 +40,7 @@
             android:id="@+id/music_picker_nav_header_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/musicPickerHeaderTextColor"
+            android:textColor="@color/navHeaderText"
             android:textSize="11sp"
             android:text="Bernardo Rufino"
             />

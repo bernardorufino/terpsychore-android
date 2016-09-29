@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="52dp"
     android:paddingLeft="20dp"
-    android:background="@color/musicPickerFooterBackground"
+    android:background="@color/footerBg"
     android:visibility="gone"
     tools:showIn="@layout/activity_music_picker">
 
@@ -17,7 +17,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:textSize="16sp"
-        android:textColor="@color/musicPickerFooterTextColor"
+        android:textColor="@color/footerText"
         />
 
     <FrameLayout
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:tint="@color/musicPickerFooterTextColor"
+            android:tint="@color/footerText"
             android:src="@drawable/ic_done_white_24dp"
             />
 

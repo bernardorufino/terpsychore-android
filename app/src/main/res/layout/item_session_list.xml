@@ -5,7 +5,7 @@
 
     <ImageView
         android:id="@+id/item_session_image"
-        android:background="@color/musicPickerImageBg"
+        android:background="@color/imageBg"
         style="@style/ListItemLeftImage" />
 
     <LinearLayout

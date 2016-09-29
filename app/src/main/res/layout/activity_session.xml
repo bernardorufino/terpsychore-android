@@ -29,7 +29,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:background="@color/bg"
+        >
 
         <fragment
             android:id="@+id/session_track_playback_fragment"
@@ -50,7 +52,7 @@
         android:id="@+id/session_overlay_layer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/sessionOverlayBackground"
+        android:background="@color/sessionOverlayBg"
         android:clickable="true">
 
         <FrameLayout

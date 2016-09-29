@@ -81,8 +81,8 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         vNextButton = (ImageButton) getView().findViewById(R.id.playback_control_next);
         vNextButton.setOnClickListener(mOnNextButtonClickListener);
 
-        mControlActivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlActivated);
-        mControlDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.playbackControlDeactivated);
+        mControlActivatedColor = ActivityUtils.getColorList(getContext(), R.color.trackPlaybackControlActivated);
+        mControlDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.trackPlaybackControlDeactivated);
 
         TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
                 .setFillColor(ContextCompat.getColor(getContext(), R.color.graphForeground))
