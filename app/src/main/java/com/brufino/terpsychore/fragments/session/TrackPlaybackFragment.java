@@ -88,7 +88,8 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
                 .setFillColor(ContextCompat.getColor(getContext(), R.color.graphForeground))
                 .setStroke(ContextCompat.getColor(getContext(), R.color.graphStroke), 8)
                 .setFillColorTop(ContextCompat.getColor(getContext(), R.color.graphForegroundTop))
-                .setStrokeTop(ContextCompat.getColor(getContext(), R.color.graphStrokeTop), 8);
+                //.setStrokeTop(ContextCompat.getColor(getContext(), R.color.graphStrokeTop), 8);
+                .setStrokeTop(0x00000000, 8);
 
         if (savedInstanceState != null) {
             mTrackCurve = savedInstanceState.getParcelable(SAVED_STATE_KEY_TRACK_CURVE);
@@ -182,8 +183,6 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
             vPlayButton.setImageResource((playing) ? R.drawable.ic_pause_white_36dp : R.drawable.ic_play_arrow_white_36dp);
             mPlaying = playing;
         }
-
-        String playerStatus = (playing) ? "playing" : "paused";
 
         mTrackCurve.seekPosition(position);
         vGraphTrackView.postInvalidate();

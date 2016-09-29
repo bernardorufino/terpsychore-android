@@ -16,6 +16,7 @@
             android:layout_weight="1"
             android:textSize="14sp"
             android:textColor="@color/subthemeForeground"
+            android:padding="5dp"
             android:background="@color/subthemeBackground"
             />
 
@@ -26,7 +27,6 @@
             android:orientation="horizontal"
             android:background="@color/colorPrimaryDark">
 
-            <!-- TODO: Change cursor color -->
             <EditText
                 android:id="@+id/chat_input"
                 android:layout_width="0dp"

@@ -92,6 +92,7 @@ public class SessionActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.session_overlay_fragment_container, mQueueFragment, QueueFragment.class.getSimpleName())
                 .commit();
+        
         mTrackPlaybackFragment =
                 (TrackPlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.session_track_playback_fragment);
         mTrackPlaybackFragment.setQueueViewManager(mQueueViewManager);
@@ -124,6 +125,12 @@ public class SessionActivity extends AppCompatActivity {
         String sessionJson = savedInstanceState.getString(SAVED_STATE_KEY_SESSION);
         mSession = new JsonParser().parse(sessionJson).getAsJsonObject();
         loadSession(mSession);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SAVED_STATE_KEY_SESSION, mSession.toString());
     }
 
     @Override
@@ -241,12 +248,6 @@ public class SessionActivity extends AppCompatActivity {
             vOverlayLayer.setVisibility(View.GONE);
         }
     };
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(SAVED_STATE_KEY_SESSION, mSession.toString());
-    }
 
     private Callback<JsonObject> mGetSessionCallback = new Callback<JsonObject>() {
         @Override

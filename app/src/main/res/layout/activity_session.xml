@@ -19,8 +19,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:title="@string/app_name"
+            android:background="@color/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             />
 
@@ -30,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="?attr/actionBarSize">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <fragment
             android:id="@+id/session_track_playback_fragment"
@@ -57,9 +56,7 @@
         <FrameLayout
             android:id="@+id/session_overlay_fragment_container"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-        </FrameLayout>
+            android:layout_height="wrap_content" />
 
     </RelativeLayout>
 

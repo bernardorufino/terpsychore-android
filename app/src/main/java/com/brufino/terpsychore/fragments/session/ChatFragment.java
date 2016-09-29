@@ -74,6 +74,7 @@ public class ChatFragment extends Fragment {
         List<View> views = new ArrayList<>(reactionResIds.length);
         int size = -1;
         for (int resId : reactionResIds) {
+            // TODO: Inflater for this, really?
             ImageView view = (ImageView) LayoutInflater
                     .from(getContext())
                     .inflate(R.layout.chat_reaction_icon, vReactionsContainer, false);
@@ -115,7 +116,7 @@ public class ChatFragment extends Fragment {
             switch (mButtonAction) {
                 case SEND_MESSAGE:
                     String message = vInput.getText().toString();
-                    vChatWindow.append(System.lineSeparator() + "Me: " + message);
+                    vChatWindow.append("Me: " + message + System.lineSeparator());
                     vInput.setText("");
                     break;
                 case OPEN_REACTIONS:
