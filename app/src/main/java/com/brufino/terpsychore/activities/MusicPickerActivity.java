@@ -22,9 +22,11 @@ import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment.Con
 import com.brufino.terpsychore.fragments.musicpicker.SearchFragment;
 import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.google.common.collect.Lists;
 import com.squareup.picasso.Picasso;
 import kaaes.spotify.webapi.android.models.Track;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -187,8 +189,8 @@ public class MusicPickerActivity extends AppCompatActivity
                 setResult(RESULT_CANCELED);
             } else {
                 Intent result = new Intent();
-                String[] trackUris = mSelectedTrackUris.keySet().toArray(new String[mSelectedTrackUris.size()]);
-                result.putExtra(RESULT_TRACK_URIS, trackUris);
+                ArrayList<String> trackUris = Lists.newArrayList(mSelectedTrackUris.keySet());
+                result.putStringArrayListExtra(RESULT_TRACK_URIS, trackUris);
                 setResult(RESULT_OK, result);
             }
             finish();

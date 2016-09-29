@@ -29,9 +29,13 @@ import com.google.common.base.Throwables;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.Player;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -67,6 +71,7 @@ public class SessionActivity extends AppCompatActivity {
     private String mUserId;
     private JsonObject mSession;
     private JsonObject mQueue;
+    private boolean mHost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +129,10 @@ public class SessionActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_session, menu);
+        int[] showIfHost = {R.id.action_delete, R.id.action_add_user};
+        for (int resId : showIfHost) {
+            menu.findItem(resId).setVisible(mHost);
+        }
         return true;
     }
 
@@ -152,8 +161,34 @@ public class SessionActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_SELECT_USERS:
                 if (resultCode == Activity.RESULT_OK) {
-                    String[] userIds = data.getStringArrayExtra(UserPickerActivity.RESULT_USER_IDS);
-                    Toast.makeText(this, "TODO: Do something with " + userIds.length + " user ids", Toast.LENGTH_SHORT).show();
+                    final List<String> userIds = data.getStringArrayListExtra(UserPickerActivity.RESULT_USER_IDS);
+                    ApiUtils.joinSession(SessionActivity.this, mSessionId, userIds, new ApiCallback<JsonObject>() {
+                        @Override
+                        public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
+                            // Invalidate image url both in memory cache and disk cache because a new one may be formed
+                            // with the new people just added
+                            String imageUrl = ApiUtils.getServerUrl(mSession.get("image_url").getAsString());
+                            // Invalidates memory cache
+                            Picasso.with(SessionActivity.this)
+                                    .invalidate(imageUrl);
+                            // Invalidates disk cache and download new image into it
+                            Picasso.with(SessionActivity.this)
+                                    .load(imageUrl)
+                                    .networkPolicy(NetworkPolicy.NO_CACHE)
+                                    .fetch();
+
+                            int nUsersAdded = response.body().get("nusers").getAsInt();
+                            String message = (nUsersAdded == 0) ? "No friend was added to this session" :
+                                             (nUsersAdded == 1) ? "1 friend added to this session"
+                                                                : nUsersAdded + " friends added to this session";
+                            Toast.makeText(SessionActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onFailure(Call<JsonObject> call, Throwable t) {
+                            Log.e("VFY", "Error adding users to session", t);
+                            Toast.makeText(SessionActivity.this, "Error adding friends to session", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     Toast.makeText(this, "No friends selected", Toast.LENGTH_SHORT).show();
                 }
@@ -183,10 +218,11 @@ public class SessionActivity extends AppCompatActivity {
 
     private void loadSession(JsonObject session) {
         mQueue = session.get("queue").getAsJsonObject();
-        boolean host = session.get("host").getAsBoolean();
-        mQueueManager.setHost(host);
+        mHost = session.get("host").getAsBoolean();
+        mQueueManager.setHost(mHost);
         mQueueManager.setQueue(mQueue);
         vToolbar.setTitle(session.get("name").getAsString());
+        invalidateOptionsMenu();
     }
 
     @Override

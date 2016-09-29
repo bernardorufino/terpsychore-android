@@ -10,5 +10,4 @@ public interface SearchApi {
 
     @GET("search/users/{query}")
     public Call<JsonObject> searchUsers(@Path("query") String query, @Query("user_id") String userId);
-
 }

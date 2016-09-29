@@ -17,5 +17,4 @@ public interface AuthenticationApi {
 
     @POST("auth/renew")
     public Call<JsonObject> renewToken(@Query("user_id") String userId);
-
 }

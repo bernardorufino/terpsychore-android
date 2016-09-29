@@ -28,4 +28,6 @@ public interface SessionApi {
     @POST("session/{sessionId}/tracks")
     public Call<String> postTracks(@Path("sessionId") int sessionId, @Body JsonObject body);
 
+    @POST("session/{sessionId}/join")
+    public Call<JsonObject> joinSession(@Path("sessionId") int sessionId, @Body JsonObject body);
 }

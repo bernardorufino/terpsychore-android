@@ -21,6 +21,7 @@ import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -73,6 +74,9 @@ public class QueueFragment extends Fragment {
     private View.OnClickListener mOnControlAddClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (!mQueueManager.isHost()) {
+                return;
+            }
             Intent musicPicker = new Intent(getContext(), MusicPickerActivity.class);
             startActivityForResult(musicPicker, REQUEST_SELECT_TRACKS);
         }
@@ -84,7 +88,7 @@ public class QueueFragment extends Fragment {
         switch (requestCode) {
             case REQUEST_SELECT_TRACKS:
                 if (resultCode == Activity.RESULT_OK) {
-                    String[] trackUris = data.getStringArrayExtra(MusicPickerActivity.RESULT_TRACK_URIS);
+                    ArrayList<String> trackUris = data.getStringArrayListExtra(MusicPickerActivity.RESULT_TRACK_URIS);
                     mQueueManager.addTracks(trackUris);
                 } else {
                     Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
@@ -111,10 +115,9 @@ public class QueueFragment extends Fragment {
         public void onQueueChange(QueueManager queueManager, JsonObject queue) {
             mTrackList.clear();
             JsonArray tracks = queue.get("tracks").getAsJsonArray();
-            for (int i = 0; i < tracks.size(); i++) {
-                mTrackList.add(tracks.get(i).getAsJsonObject());
-            }
+            mTrackList.addAll(CoreUtils.jsonArrayToJsonObjectList(tracks));
             mTrackListAdapter.notifyDataSetChanged();
+            vControlAdd.setVisibility(mQueueManager.isHost() ? View.VISIBLE : View.GONE);
         }
         @Override
         public void onQueueRefreshError(QueueManager queueManager, Throwable t) {

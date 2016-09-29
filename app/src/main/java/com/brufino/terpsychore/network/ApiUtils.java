@@ -3,7 +3,9 @@ package com.brufino.terpsychore.network;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,6 +14,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -56,18 +62,35 @@ public class ApiUtils {
         return null;
     }
 
+    public static Call<JsonObject> joinSession(
+            Context context,
+            int sessionId,
+            List<String> userIds,
+            Callback<JsonObject> callback) {
+        SessionApi api = createApi(SessionApi.class);
+        JsonObject body = new JsonObject();
+        body.add("user_ids", CoreUtils.stringListToJsonArray(userIds));
+        Call<JsonObject> call = api.joinSession(sessionId, body);
+        call.enqueue(callback);
+        return call;
+    }
+
     public static Call<String> postTracks(
             Context context,
             int sessionId,
-            String[] trackUris,
+            List<String> trackUris,
             Callback<String> callback) {
+
+        // Filter out the spotify prefix
+        Pattern pattern = Pattern.compile("^" + QueueManager.TRACK_URI_PREFIX);
+        List<String> trackIds = new ArrayList<>(trackUris.size());
+        for (String trackUri : trackUris) {
+            trackIds.add(pattern.matcher(trackUri).replaceFirst(""));
+        }
+
         SessionApi api = createApi(SessionApi.class);
         JsonObject body = new JsonObject();
-        JsonArray tracks = new JsonArray();
-        for (String trackUri : trackUris) {
-            tracks.add(trackUri);
-        }
-        body.add("tracks", tracks);
+        body.add("track_ids", CoreUtils.stringListToJsonArray(trackIds));
         Call<String> call = api.postTracks(sessionId, body);
         call.enqueue(callback);
         return call;

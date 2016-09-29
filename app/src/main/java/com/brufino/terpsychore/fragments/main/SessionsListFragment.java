@@ -20,8 +20,8 @@ import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 import retrofit2.Call;
@@ -120,9 +120,7 @@ public class SessionsListFragment extends MainFragment {
             JsonArray sessions = response.body().getAsJsonArray();
             Log.v("VFY", "Sessions loaded: size = " + sessions.size());
             mSessionList.clear();
-            for (JsonElement session : sessions) {
-                mSessionList.add(session.getAsJsonObject());
-            }
+            mSessionList.addAll(CoreUtils.jsonArrayToJsonObjectList(sessions));
             mSessionListAdapter.notifyDataSetChanged();
         }
         @Override
@@ -229,8 +227,7 @@ public class SessionsListFragment extends MainFragment {
             JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
             JsonObject nextTrack = ApiUtils.getNextTrack(queue);
             String status = queue.get("track_status").getAsString();
-            String imageUrl = session.get("image_url").getAsString();
-            imageUrl = ApiUtils.getServerUrl(imageUrl);
+            String imageUrl = ApiUtils.getServerUrl(session.get("image_url").getAsString());
 
             Picasso.with(mContext)
                     .load(imageUrl)

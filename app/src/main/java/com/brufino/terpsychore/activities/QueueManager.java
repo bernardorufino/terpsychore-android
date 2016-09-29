@@ -15,8 +15,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.*;
  * TODO: result before posting the queue status) */
 public class QueueManager {
 
-    private static final String TRACK_URI_PREFIX = "spotify:track:";
+    public static final String TRACK_URI_PREFIX = "spotify:track:";
     private static final int POSITION_PRECISION_FOR_ADJUST_IN_MS = 2000;
     private static final int POSITION_PRECISION_FOR_END_IN_MS = 100;
 
@@ -254,14 +254,7 @@ public class QueueManager {
         });
     }
 
-    public void addTracks(String[] trackUris) {
-        // Filter out the spotify prefix
-        /* TODO: Put this someplace else? */
-        Pattern pattern = Pattern.compile("^" + TRACK_URI_PREFIX);
-        for (int i = 0; i < trackUris.length; i++) {
-            trackUris[i] = pattern.matcher(trackUris[i]).replaceFirst("");
-        }
-
+    public void addTracks(List<String> trackUris) {
         ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {

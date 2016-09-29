@@ -79,6 +79,7 @@ public class PlayerManager {
     };
 
     private ConnectionStateCallback mConnectionStateCallback = new ConnectionStateCallback() {
+
         @Override
         public void onLoggedIn() {
             Log.d("VFY", "Logged in");

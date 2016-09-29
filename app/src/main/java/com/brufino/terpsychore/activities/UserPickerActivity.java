@@ -23,7 +23,9 @@ import com.brufino.terpsychore.lib.TrialScheduler;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SearchApi;
 import com.brufino.terpsychore.util.ActivityUtils;
-import com.brufino.terpsychore.util.SimpleTextWatcher;
+import com.brufino.terpsychore.lib.SimpleTextWatcher;
+import com.brufino.terpsychore.util.CoreUtils;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -140,9 +142,7 @@ public class UserPickerActivity extends Activity {
                 JsonObject body = response.body();
                 JsonArray results = body.get("results").getAsJsonArray();
                 mUserList.clear();
-                for (JsonElement user : results) {
-                    mUserList.add(user.getAsJsonObject());
-                }
+                mUserList.addAll(CoreUtils.jsonArrayToJsonObjectList(results));
                 mUserListAdapter.notifyDataSetChanged();
 
                 if (mUserList.isEmpty()) {
@@ -156,7 +156,7 @@ public class UserPickerActivity extends Activity {
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 onFinish();
-                Log.d("VFY", "Error searching for users (query = '" + query + "')", t);
+                Log.e("VFY", "Error searching for users (query = '" + query + "')", t);
                 Toast.makeText(UserPickerActivity.this, "Error searching for users", Toast.LENGTH_SHORT).show();
             }
         });
@@ -185,7 +185,7 @@ public class UserPickerActivity extends Activity {
                 setResult(RESULT_CANCELED);
             } else {
                 Intent result = new Intent();
-                String[] userIds = mSelectedUserIds.keySet().toArray(new String[mSelectedUserIds.size()]);
+                ArrayList<String> userIds = Lists.newArrayList(mSelectedUserIds.keySet());
                 result.putExtra(RESULT_USER_IDS, userIds);
                 setResult(RESULT_OK, result);
             }

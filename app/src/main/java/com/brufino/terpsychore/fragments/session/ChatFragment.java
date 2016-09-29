@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.*;
 import com.brufino.terpsychore.R;
-import com.brufino.terpsychore.util.SimpleTextWatcher;
+import com.brufino.terpsychore.lib.SimpleTextWatcher;
 import com.brufino.terpsychore.util.ViewUtils;
 
 import java.util.ArrayList;

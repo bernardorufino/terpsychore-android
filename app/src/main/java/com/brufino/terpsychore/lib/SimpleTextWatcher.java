@@ -1,4 +1,4 @@
-package com.brufino.terpsychore.util;
+package com.brufino.terpsychore.lib;
 
 import android.text.Editable;
 import android.text.TextWatcher;
