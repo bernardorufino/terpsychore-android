@@ -6,7 +6,6 @@
     android:layout_width="0dp"
     android:layout_height="0dp"
     android:orientation="horizontal"
-    android:background="@color/graphBackground"
     tools:showIn="@layout/activity_session">
 
     <ImageButton
@@ -39,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#88FFFFFF"
+            android:textColor="@color/trackPlaybackTextTerciary"
             android:textSize="11sp"
             android:text="Next" />
 

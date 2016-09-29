@@ -6,7 +6,7 @@
         android:id="@+id/track_progress_bar_bg"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimaryExtraDark" />
+        android:background="@color/trackPlaybackTimelineBg" />
 
     <View
         android:id="@+id/track_progress_bar_fg"
@@ -15,6 +15,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:background="@color/graphStrokeTop"/>
+        android:background="@color/trackPlaybackTimelineProgress"/>
 
 </merge>

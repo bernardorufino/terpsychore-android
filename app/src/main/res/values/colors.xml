@@ -3,33 +3,40 @@
     <color name="chatReactionsBackground">#BB8CDF90</color>
 
     <!-- XxxTop is before the current position -->
-    <color name="graphBackground">#388E3C</color>
-    <color name="graphStroke">#002E7D32</color>
-    <color name="graphStrokeTop">#A5D6A7</color>
-    <color name="graphForeground">#444CAF50</color>
-    <color name="graphForegroundTop">#4481C784</color>
+    <color name="trackPlaybackBg">#00FFFFFF</color>
+    <!--<color name="trackPlaybackBg">#FF000000</color>-->
 
-    <color name="playbackButtonPressedBg">#388E3C</color>
-    <color name="playbackButtonBg">#4CAF50</color>
+    <color name="graphStroke">#00FFFFFF</color>
+    <color name="graphStrokeTop">#00FFFFFF</color>
+    <color name="graphForeground">#09FFFFFF</color>
+    <color name="graphForegroundTop">#0EFFFFFF</color>
 
-    <color name="queueHintPressedBg">@color/graphBackground</color>
+    <color name="trackPlaybackTimelineProgress">#28FFFFFF</color>
+    <color name="trackPlaybackTimelineBg">#00FFFFFF</color>
+
+    <color name="playbackButtonBg">@color/queueHintBg</color>
+    <color name="playbackButtonPressedBg">@color/queueHintBg</color>
+
     <color name="queueHintBg">@color/graphForeground</color>
+    <color name="queueHintPressedBg">#00FFFFFF</color>
+
+    <!-- Session colors -->
+
+    <color name="trackPlaybackText">#FEFFFFFF</color>
+    <color name="trackPlaybackTextSecondary">#A4FFFFFF</color>
+    <color name="trackPlaybackTextTerciary">#88FFFFFF</color>
+
+    <color name="trackPlaybackIconActivated">#FFFEFEFE</color>
+    <color name="trackPlaybackIconDeactivated">#FF888888</color>
+
+    <color name="sessionOverlayBg">#00000000</color>
+
+    <!-- Main colors -->
 
     <color name="colorPrimary">#4CAF50</color>
     <color name="colorPrimaryDark">#2E7D32</color>
     <color name="colorPrimaryExtraDark">#2C722D</color>
     <color name="colorAccent">#D63737</color>
-    
-    <color name="trackPlaybackControlActivated">#FFFFFF</color>
-    <color name="trackPlaybackControlDeactivated">#7CDF80</color>
-
-    <!-- Session colors -->
-
-    <color name="sessionOverlayBg">#00000000</color>
-
-    <color name="trackPlaybackText">#FFFFFF</color>
-    <color name="trackPlaybackTextSecondary">#BBFFFFFF</color>
-
 
     <!-- Generic colors -->
 

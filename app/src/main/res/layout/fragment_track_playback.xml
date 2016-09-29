@@ -3,13 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="?attr/actionBarSize">
+    android:layout_marginTop="?attr/actionBarSize"
+    android:background="@color/trackPlaybackBg"
+    >
 
     <com.brufino.terpsychore.view.trackview.graph.GraphTrackView
         android:id="@+id/graph_track_view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/track_graph_height"
-        android:background="@color/graphBackground"
         />
 
     <RelativeLayout
@@ -30,6 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
+                android:textStyle="bold"
                 android:textColor="@color/trackPlaybackText"
                 android:maxLines="1"
                 />
@@ -44,7 +46,6 @@
                 />
 
         </LinearLayout>
-
 
     </RelativeLayout>
 
@@ -76,13 +77,5 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/playback_controls_height"
         android:layout_below="@id/track_progress_bar" />
-
-    <fragment
-        android:id="@+id/session_chat_fragment"
-        android:name="com.brufino.terpsychore.fragments.session.ChatFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/track_playback_controls"
-        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
