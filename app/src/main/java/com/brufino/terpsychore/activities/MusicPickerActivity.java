@@ -148,11 +148,6 @@ public class MusicPickerActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void setTitle(CharSequence title) {
-        vToolbar.setTitle(title);
-    }
-
     public void showMusicPickerListFragment(Bundle args) {
         MusicPickerListFragment fragment = new MusicPickerListFragment();
         fragment.setArguments(args);

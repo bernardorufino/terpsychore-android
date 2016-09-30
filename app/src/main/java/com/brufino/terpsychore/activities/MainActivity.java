@@ -118,10 +118,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void setTitle(CharSequence title) {
-        vToolbar.setTitle(title);
-    }
-
     private MainFragment getMainFragment(int menuResId) {
         switch (menuResId) {
             case R.id.main_drawer_sessions:

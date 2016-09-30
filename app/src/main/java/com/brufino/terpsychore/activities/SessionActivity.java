@@ -226,7 +226,7 @@ public class SessionActivity extends AppCompatActivity {
         mHost = session.get("host").getAsBoolean();
         mQueueManager.setHost(mHost);
         mQueueManager.setQueue(mQueue);
-        vToolbar.setTitle(session.get("name").getAsString());
+        setTitle(session.get("name").getAsString());
         invalidateOptionsMenu();
     }
 
