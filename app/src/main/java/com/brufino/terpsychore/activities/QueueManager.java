@@ -364,7 +364,7 @@ public class QueueManager {
             // Update position
             mQueue.addProperty("track_position", state.positionInMs);
         }
-        
+
         return mQueue;
     }
 

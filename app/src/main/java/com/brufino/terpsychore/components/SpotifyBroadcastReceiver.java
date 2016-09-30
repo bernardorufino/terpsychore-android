@@ -15,8 +15,7 @@ import android.util.Log;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.MainActivity;
 import com.brufino.terpsychore.activities.SessionActivity;
-
-import static com.google.common.base.Preconditions.*;
+import com.google.common.base.Strings;
 
 public class SpotifyBroadcastReceiver extends BroadcastReceiver {
 
@@ -71,6 +70,7 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
             case BroadcastTypes.PLAYBACK_STATE_CHANGED:
                 preferences = context.getSharedPreferences(SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE);
 
+                /* TODO: Got NPE on line trackName = ... */
                 /* TODO: Check for edge case where application is killed (process stopped), song is skipped,
                    TODO: application comes back to life and then song is played. Shared preferences will have
                    TODO: the outdated song in the records. Using memory instead of disk might be safer. At least we
@@ -83,11 +83,15 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
                 trackId = preferences.getString(CURRENT_TRACK_ID_KEY, null);
                 Log.d("VFY", "track id = " + trackId);
                 if (trackId != null) {
-                    trackName = checkNotNull(preferences.getString(CURRENT_TRACK_NAME_KEY, null));
-                    trackArtist = checkNotNull(preferences.getString(CURRENT_TRACK_ARTIST_KEY, null));
+                    trackName = preferences.getString(CURRENT_TRACK_NAME_KEY, null);
+                    trackArtist = preferences.getString(CURRENT_TRACK_ARTIST_KEY, null);
                     Log.d("VFY", "track name = " + trackName);
                     Log.d("VFY", "track artist = " + trackArtist);
-                    generateNotification(context, trackId, trackName, trackArtist);
+                    if (!Strings.isNullOrEmpty(trackName) && !Strings.isNullOrEmpty(trackArtist)) {
+                        generateNotification(context, trackId, trackName, trackArtist);
+                    } else {
+                        Log.e("VFY", "artist or name is null or empty!");
+                    }
                 }
                 break;
             case BroadcastTypes.QUEUE_CHANGED:
