@@ -14,6 +14,8 @@ public class PlaylistsSongsAdapter extends SpotifyRemoteAdapter<PlaylistTrack> {
 
     @Override
     public MusicPickerList.Item transform(PlaylistTrack item) {
+        // java.lang.NullPointerException: Attempt to read from field 'kaaes.spotify.webapi.android.models.AlbumSimple
+        // kaaes.spotify.webapi.android.models.Track.album' on a null object reference
         MusicPickerList.Item musicPickerItem = SongsAdapter.transformTrack(item.track, item.track.album);
         musicPickerItem.type = MusicPickerListFragment.ContentType.PLAYLIST_SONGS;
         musicPickerItem.data = item;

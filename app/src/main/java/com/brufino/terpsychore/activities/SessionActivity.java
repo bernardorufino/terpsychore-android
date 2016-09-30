@@ -59,7 +59,6 @@ public class SessionActivity extends AppCompatActivity {
     private RelativeLayout vOverlayLayer;
     private FrameLayout vOverlayFragmentContainer;
     private QueueFragment mQueueFragment;
-    private View vRootView;
 
     private TrackPlaybackFragment mTrackPlaybackFragment;
     private ChatFragment mChatFragment;
@@ -79,7 +78,6 @@ public class SessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
-        vRootView = findViewById(R.id.session_root_view);
         vOverlayLayer = (RelativeLayout) findViewById(R.id.session_overlay_layer);
         vOverlayLayer.setVisibility(View.GONE);
         vOverlayLayer.setOnClickListener(mOnOverlayLayerClickListener);
@@ -283,5 +281,4 @@ public class SessionActivity extends AppCompatActivity {
             vOverlayFragmentContainer.requestLayout();
         }
     };
-
 }

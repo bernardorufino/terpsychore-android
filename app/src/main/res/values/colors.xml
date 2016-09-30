@@ -38,12 +38,13 @@
 
     <!-- Session colors -->
 
-    <color name="trackPlaybackBg">#08FFFFFF</color> <!-- bg is @color/dark -->
+    <color name="trackPlaybackBg">#00FFFFFF</color>
+    <color name="trackPlaybackBgColorFilter">#CC121314</color>
 
     <color name="graphStroke">#00FFFFFF</color>
     <color name="graphStrokeTop">#00FFFFFF</color>
-    <color name="graphForeground">#05FFFFFF</color>
-    <color name="graphForegroundTop">#09FFFFFF</color>
+    <color name="graphForeground">#08FFFFFF</color>
+    <color name="graphForegroundTop">#0CFFFFFF</color>
 
     <color name="trackPlaybackTimelineProgress">#28FFFFFF</color>
     <color name="trackPlaybackTimelineBg">#00FFFFFF</color>

@@ -10,17 +10,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.PlayerManager;
 import com.brufino.terpsychore.activities.QueueManager;
+import com.brufino.terpsychore.lib.BackgroundTarget;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
 import com.brufino.terpsychore.view.trackview.graph.TrackCurve;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.player.Player;
+import com.squareup.picasso.Picasso;
+import jp.wasabeef.picasso.transformations.BlurTransformation;
+import jp.wasabeef.picasso.transformations.ColorFilterTransformation;
 
 public class TrackPlaybackFragment extends Fragment implements PlayerManager.TrackProgressListener {
 
@@ -42,14 +48,16 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     private TextView vNextTrackArtist;
     private ViewGroup vQueueView;
 
+    private String mBgImageUrl = null;
+    private boolean mPlaying = false;
     private QueueManager mQueueManager;
     private TrackCurve mTrackCurve;
-    private boolean mPlaying = false;
     private int mCurrentPosition;
     private int mDuration;
     private ColorStateList mControlActivatedColor;
     private ColorStateList mControlDeactivatedColor;
     private QueueViewManager mQueueViewManager;
+    private RelativeLayout vContainer;
 
     @Nullable
     @Override
@@ -62,6 +70,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         Log.d("VFY", "TrackPlaybackFragment.onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
 
+        vContainer = (RelativeLayout) getView();
         vTrackTitleName = (TextView) getView().findViewById(R.id.track_title_name);
         vTrackTitleArtist = (TextView) getView().findViewById(R.id.track_title_artist);
         vQueueView = (ViewGroup) getView().findViewById(R.id.playback_queue_next);
@@ -114,6 +123,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         @Override
         public void onQueueChange(QueueManager queueManager, JsonObject queue) {
             JsonObject currentTrack = queueManager.getCurrentTrack();
+            trySetTrackImageBackground(currentTrack);
             if (currentTrack != null) {
                 String trackName = currentTrack.get("name").getAsString();
                 String trackArtist = currentTrack.get("artist").getAsString();
@@ -142,6 +152,36 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         public void onQueueRefreshError(QueueManager queueManager, Throwable t) {
         }
     };
+
+    private void trySetTrackImageBackground(JsonObject currentTrack) {
+        if (vContainer == null) {
+            return;
+        }
+        boolean bgSet = false;
+
+        if (currentTrack != null) {
+            JsonElement trackImageUrlJson = currentTrack.get("image_url");
+            if (!trackImageUrlJson.isJsonNull()) {
+                String trackImageUrl = trackImageUrlJson.getAsString();
+                if (mBgImageUrl == null || !mBgImageUrl.equals(trackImageUrl)) {
+                    int colorFilter = ContextCompat.getColor(getContext(), R.color.trackPlaybackBgColorFilter);
+                    Picasso.with(getContext())
+                            .load(trackImageUrl)
+                            .transform(new BlurTransformation(getContext(), 20, 8))
+                            .transform(new ColorFilterTransformation(colorFilter))
+                            .into(BackgroundTarget.of(vContainer));
+                    mBgImageUrl = trackImageUrl;
+                }
+                bgSet = true;
+            }
+        }
+
+        if (!bgSet) {
+            vContainer.setBackground(null);
+            vContainer.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.trackPlaybackBg));
+            mBgImageUrl = null;
+        }
+    }
 
     private void updatePlaybackControlStates() {
         vPlayButton.setImageTintList(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
