@@ -69,7 +69,6 @@ public class SessionActivity extends AppCompatActivity {
     private int mSessionId;
     private String mUserId;
     private JsonObject mSession;
-    private JsonObject mQueue;
     private boolean mHost;
 
     @Override
@@ -123,11 +122,14 @@ public class SessionActivity extends AppCompatActivity {
         String sessionJson = savedInstanceState.getString(SAVED_STATE_KEY_SESSION);
         mSession = new JsonParser().parse(sessionJson).getAsJsonObject();
         loadSession(mSession);
+        // Refresh queue as well?
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        // Update session's queue property before saving state
+        mSession.add("queue", mQueueManager.getUpdatedQueue());
         outState.putString(SAVED_STATE_KEY_SESSION, mSession.toString());
     }
 
@@ -222,10 +224,10 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     private void loadSession(JsonObject session) {
-        mQueue = session.get("queue").getAsJsonObject();
+        JsonObject queue = session.get("queue").getAsJsonObject();
         mHost = session.get("host").getAsBoolean();
         mQueueManager.setHost(mHost);
-        mQueueManager.setQueue(mQueue);
+        mQueueManager.setQueue(queue);
         setTitle(session.get("name").getAsString());
         invalidateOptionsMenu();
     }

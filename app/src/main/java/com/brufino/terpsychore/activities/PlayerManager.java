@@ -25,11 +25,12 @@ public class PlayerManager {
     private static final long UPDATE_INTERVAL_IN_MS = 80;
 
     private List<TrackProgressListener> mTrackProgressListeners = new LinkedList<>();
+    private volatile boolean mAlive = true; /* TODO: Analyse concurrency issues */
     private Player mPlayer;
     private Context mContext;
     private PlayerListener mPlayerListener;
-    private volatile boolean mAlive = true; /* TODO: Analyse concurrency issues */
     private boolean mInitializing;
+    private PlayerState mLastKnownPlayerState;
 
     public PlayerManager(Context context) {
         mContext = context;
@@ -155,26 +156,21 @@ public class PlayerManager {
     private PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
         @Override
         public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-            // Apparently we can only reliably seekToPosition() after an AUDIO_FLUSH event
-            // See https://github.com/spotify/android-sdk/issues/12
-            if (eventType == EventType.AUDIO_FLUSH &&
-                    // playerState.durationInMs > 0 &&
-                    !mPlayer.isShutdown()) {
-                // mPlayer.seekToPosition(mCurrentPosition);
-                // mSeekPosition = false;
-            }
-            // Log.d("VFY", "onPlaybackEvent(): " + eventType.name());
+            Log.d("VFY", PlayerManager.class.getSimpleName() + ".onPlaybackEvent(): " + eventType.name());
         }
-
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
-            Log.d("VFY", "onPlaybackError(): " + errorType.name() + " - " + s);
+            Log.e("VFY", PlayerManager.class.getSimpleName() + ".onPlaybackError(): " + errorType.name() + " - " + s);
         }
     };
 
     public void onDestroy() {
         Spotify.destroyPlayer(this);
         mAlive = false;
+    }
+
+    public PlayerState getLastKnownPlayerState() {
+        return mLastKnownPlayerState;
     }
 
     public boolean isInitializing() {
@@ -218,10 +214,12 @@ public class PlayerManager {
             }
         }
 
+        /* TODO: Move this inside run()? */
         @Override
         public void onPlayerState(PlayerState playerState) {
             PlayerManager playerManager = mPlayerManagerRef.get();
             if (playerManager != null && playerManager.mAlive) {
+                playerManager.mLastKnownPlayerState = playerState;
                 if (playerState.durationInMs > 0) {
                     playerManager.notifyTrackUpdateListeners(
                             playerState.playing,

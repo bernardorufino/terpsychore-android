@@ -28,7 +28,6 @@ public class QueueManager {
 
     public static final String TRACK_URI_PREFIX = "spotify:track:";
     private static final int POSITION_PRECISION_FOR_ADJUST_IN_MS = 2000;
-    private static final int POSITION_PRECISION_FOR_END_IN_MS = 100;
 
     private Set<QueueListener> mQueueListeners = new LinkedHashSet<>();
     private final Context mContext;
@@ -80,7 +79,7 @@ public class QueueManager {
         }
     }
 
-    private final PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
+    private PlayerNotificationCallback mPlayerNotificationCallback = new PlayerNotificationCallback() {
         @Override
         public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
             String playerStatus = getTrackStatus(playerState);
@@ -94,12 +93,11 @@ public class QueueManager {
                     playerState.positionInMs == 0) {
                 changeTrack(3);
             } else if (eventType == EventType.TRACK_CHANGED) {
-                Log.d("VFY", "didn't call changeTrack()");
+                Log.d("VFY", "changeTrack() NOT called");
                 Log.d("VFY", "  trackWasPlaying = " + trackWasPlaying);
                 Log.d("VFY", "  playerStatus = " + playerStatus);
                 Log.d("VFY", "  positionInMs = " + playerState.positionInMs);
             }
-
         }
         @Override
         public void onPlaybackError(ErrorType errorType, String s) {
@@ -135,8 +133,7 @@ public class QueueManager {
                             changeTrack(tries - 1);
                         }
                     }, delay);
-                    Log.d("VFY", "  Track hash't changed in the server (order = " + newTrackOrder + "), scheduling " +
-                            "another try in " + delay + "ms");
+                    Log.d("VFY", "  Track hash't changed in the server (order = " + newTrackOrder + "), scheduling another try in " + delay + "ms");
                 } else {
                     if (tries <= 0) {
                         Log.d("VFY", "  Run out of tries, updating anyway...");
@@ -346,6 +343,31 @@ public class QueueManager {
         });
     }
 
+    /**
+     * Best effort approach, returned object may not be an accurate representation of the current state.
+     * WARNING: The returned object is not a copy of the internal variable, it should NOT be modified.
+     * TODO: Test what happens if this is called while refreshing queue, changing tracks, unavailable track, etc.
+     * TODO: Clone object upon returning it and remove warning above
+     *
+     * @return The queue object, updated.
+     */
+    public JsonObject getUpdatedQueue() {
+        PlayerState state = mPlayerManager.getLastKnownPlayerState();
+
+        if (state != null) {
+            // We update track_status on every interaction (which should all be through this class, see postQueueStatus())
+            // mQueue.addProperty("track_status", getTrackStatus(state.playing));
+
+            // current_track is believed to be right because we refresh the queue everytime the track changes
+            // mQueue.addProperty("current_track", ?);
+
+            // Update position
+            mQueue.addProperty("track_position", state.positionInMs);
+        }
+        
+        return mQueue;
+    }
+
     private void postQueueStatus(
             String status,
             int positionInMs,
@@ -354,7 +376,8 @@ public class QueueManager {
         int currentTrack = mQueue.get("current_track").getAsInt() + currentTrackOffset;
 
         mQueue.addProperty("track_status", status);
-        // TODO: Update times (We don't generally use them here, that's why it's working)
+        mQueue.addProperty("track_position", positionInMs);
+        // TODO: Test if track_position update is working (We don't generally use it, that's why it's seemingly working)
 
         JsonObject body = new JsonObject();
         body.addProperty("track_status", status);
