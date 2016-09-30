@@ -5,9 +5,10 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
 
         <TextView
             android:id="@+id/chat_window"
@@ -24,7 +25,9 @@
             android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal"
-            android:background="@color/colorPrimaryDark">
+            android:background="@color/colorPrimaryDark"
+            android:elevation="@dimen/card_elevation"
+            >
 
             <EditText
                 android:id="@+id/chat_input"
@@ -33,9 +36,9 @@
                 android:layout_weight="1"
                 android:layout_margin="12dp"
                 android:padding="2dp"
-                android:paddingLeft="6dp"
-                android:textColor="#CCFFFFFF"
-                android:background="@drawable/chat_input_bg" />
+                android:textColor="@color/chatInputText"
+                android:background="@drawable/chat_input_bg"
+                />
 
             <!-- width = imageWidth - |imageMarginRight| -->
             <View
@@ -71,6 +74,6 @@
         android:layout_marginRight="-15dp"
         android:layout_marginBottom="-15dp"
         android:background="@drawable/chat_action_button_bg"
-        android:elevation="10dp" />
+        android:elevation="@dimen/popup_elevation" />
 
 </RelativeLayout>

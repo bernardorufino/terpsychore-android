@@ -1,26 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="chatReactionsBackground">#BB8CDF90</color>
 
-    <!-- XxxTop is before the current position -->
-    <color name="trackPlaybackBg">#00FFFFFF</color>
-    <!--<color name="trackPlaybackBg">#FF000000</color>-->
+    <!-- Main colors -->
+
+    <color name="colorPrimary">#4CAF50</color>
+    <color name="colorPrimaryDark">#2E7D32</color>
+    <color name="colorPrimaryExtraDark">#2C722D</color>
+    <color name="colorAccent">#D63737</color>
+
+    <color name="dark3">#000102</color>
+    <color name="dark2">#060708</color>
+    <color name="dark1">#091011</color>
+    <color name="dark">#121314</color>
+    <color name="darkLighter1">#222324</color> <!-- #11FFFFFF on top of dark -->
+    <color name="darkLighter2">#28292A</color> <!-- #18FFFFFF on top of dark -->
+    <color name="darkLighter3">#3A3B3C</color> <!-- #1CFFFFFF on top of dark -->
+
+    <!-- Generic colors -->
+
+    <color name="navBg">@color/dark</color>
+    <color name="navHeaderText">#FFFFFF</color>
+    <color name="navImageTint">#88898C</color>
+
+    <color name="text">#FEFEFE</color>
+    <color name="textSecondary">#A4A4A4</color>
+    <color name="textHighlighted">#00BF5A</color>
+    <color name="imageBg">#666666</color>
+
+    <color name="bg">@color/dark</color>
+    <color name="selectedBg">@color/dark3</color>
+
+    <color name="footerBg">@color/darkLighter1</color>
+    <color name="footerText">#DDDDDD</color>
+    <color name="footerActionButtonBg">@color/darkLighter2</color>
+
+    <color name="toolbarInputBg">#469C4A</color>
+
+    <!-- Session colors -->
+
+    <color name="trackPlaybackBg">#08FFFFFF</color> <!-- bg is @color/dark -->
 
     <color name="graphStroke">#00FFFFFF</color>
     <color name="graphStrokeTop">#00FFFFFF</color>
-    <color name="graphForeground">#09FFFFFF</color>
-    <color name="graphForegroundTop">#0EFFFFFF</color>
+    <color name="graphForeground">#05FFFFFF</color>
+    <color name="graphForegroundTop">#09FFFFFF</color>
 
     <color name="trackPlaybackTimelineProgress">#28FFFFFF</color>
     <color name="trackPlaybackTimelineBg">#00FFFFFF</color>
 
+    <!--<color name="playbackButtonBg">@color/queueHintBg</color>-->
     <color name="playbackButtonBg">@color/queueHintBg</color>
-    <color name="playbackButtonPressedBg">@color/queueHintBg</color>
+    <color name="playbackButtonPressedBg">#00FFFFFF</color>
 
     <color name="queueHintBg">@color/graphForeground</color>
     <color name="queueHintPressedBg">#00FFFFFF</color>
-
-    <!-- Session colors -->
 
     <color name="trackPlaybackText">#FEFFFFFF</color>
     <color name="trackPlaybackTextSecondary">#A4FFFFFF</color>
@@ -31,48 +64,26 @@
 
     <color name="sessionOverlayBg">#00000000</color>
 
-    <!-- Main colors -->
+    <!-- Chat colors -->
 
-    <color name="colorPrimary">#4CAF50</color>
-    <color name="colorPrimaryDark">#2E7D32</color>
-    <color name="colorPrimaryExtraDark">#2C722D</color>
-    <color name="colorAccent">#D63737</color>
-
-    <!-- Generic colors -->
-
-    <color name="navBg">#121314</color>
-    <color name="navHeaderText">#FFFFFF</color>
-    <color name="navImageTint">#88898C</color>
-
-    <color name="text">#FEFEFE</color>
-    <color name="textSecondary">#A4A4A4</color>
-    <color name="textHighlighted">#00BF5A</color>
-    <color name="imageBg">#666666</color>
-
-    <color name="bg">#121314</color>
-    <color name="selectedBg">#000000</color>
-
-    <color name="footerBg">#222326</color>
-    <color name="footerText">#DDDDDD</color>
-    <color name="footerActionButtonBg">#28292C</color>
-
-    <color name="toolbarInputBg">#469C4A</color>
+    <color name="chatReactionsBackground">#BB8CDF90</color>
+    <color name="chatInputText">#CCFFFFFF</color>
 
     <!-- Queue colors -->
 
-    <color name="queueBackground">#1A2A1D</color>
-    <color name="queueTrackItemBackground">#1D2D20</color>
-    <color name="queueTrackItemForegroundText">#EEEEEE</color>
-    <color name="queueTrackItemSecondaryText">#CCEEEEEE</color>
+    <color name="queueBg">@color/darkLighter1</color>
+    <color name="queueTrackItemBg">@color/darkLighter2</color>
+    <color name="queueTrackItemText">#EEEEEE</color>
+    <color name="queueTrackItemTextSecondary">#CCEEEEEE</color>
 
     <color name="queueTrackPlayedIconTint">#747B76</color>
-    <color name="queueTrackPlayedForegroundText">#88EEEEEE</color>
-    <color name="queueTrackPlayedSecondaryText">#66EEEEEE</color>
+    <color name="queueTrackPlayedText">#88EEEEEE</color>
+    <color name="queueTrackPlayedTextSecondary">#66EEEEEE</color>
 
-    <color name="queueTrackCurrentItemBackground">#213123</color>
-    <color name="queueTrackNextItemBackground">#1D2D20</color>
+    <color name="queueTrackCurrentItemBg">@color/darkLighter3</color>
+    <color name="queueTrackNextItemBg">@color/darkLighter2</color>
 
-    <color name="queueControlNormalBg">#1A2A1D</color>
-    <color name="queueControlPressedBg">#0A1A0D</color>
+    <color name="queueControlBg">@color/queueBg</color>
+    <color name="queueControlPressedBg">@color/dark</color>
 
 </resources>

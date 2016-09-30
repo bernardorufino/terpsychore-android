@@ -186,11 +186,11 @@ public class QueueFragment extends Fragment {
 
             vStatusIcon.setVisibility(View.GONE);
             vRemoveIcon.setVisibility(View.VISIBLE);
-            int trackColor = ContextCompat.getColor(mContext, R.color.queueTrackItemBackground);
+            int trackColor = ContextCompat.getColor(mContext, R.color.queueTrackItemBg);
             vTrackItem.setBackgroundColor(trackColor);
-            int foregroundText = ContextCompat.getColor(mContext, R.color.queueTrackItemForegroundText);
+            int foregroundText = ContextCompat.getColor(mContext, R.color.queueTrackItemText);
             vTrackName.setTextColor(foregroundText);
-            int secondaryText = ContextCompat.getColor(mContext, R.color.queueTrackItemSecondaryText);
+            int secondaryText = ContextCompat.getColor(mContext, R.color.queueTrackItemTextSecondary);
             vTrackArtist.setTextColor(secondaryText);
             if (played) {
                 vStatusIcon.setImageResource(R.drawable.ic_history_white_24dp);
@@ -198,9 +198,9 @@ public class QueueFragment extends Fragment {
                 vStatusIcon.setImageTintList(colorList);
                 vStatusIcon.setVisibility(View.VISIBLE);
                 vRemoveIcon.setVisibility(View.GONE);
-                int playedForeground = ContextCompat.getColor(mContext, R.color.queueTrackPlayedForegroundText);
+                int playedForeground = ContextCompat.getColor(mContext, R.color.queueTrackPlayedText);
                 vTrackName.setTextColor(playedForeground);
-                int playedSecondary = ContextCompat.getColor(mContext, R.color.queueTrackPlayedSecondaryText);
+                int playedSecondary = ContextCompat.getColor(mContext, R.color.queueTrackPlayedTextSecondary);
                 vTrackArtist.setTextColor(playedSecondary);
             }
             if (current) {
@@ -208,11 +208,11 @@ public class QueueFragment extends Fragment {
                 vStatusIcon.setImageTintList(null);
                 vStatusIcon.setVisibility(View.VISIBLE);
                 vRemoveIcon.setVisibility(View.GONE);
-                int currentColor = ContextCompat.getColor(mContext, R.color.queueTrackCurrentItemBackground);
+                int currentColor = ContextCompat.getColor(mContext, R.color.queueTrackCurrentItemBg);
                 vTrackItem.setBackgroundColor(currentColor);
             }
             if (next) {
-                int nextColor = ContextCompat.getColor(mContext, R.color.queueTrackNextItemBackground);
+                int nextColor = ContextCompat.getColor(mContext, R.color.queueTrackNextItemBg);
                 vTrackItem.setBackgroundColor(nextColor);
             }
         }

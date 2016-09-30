@@ -33,11 +33,19 @@
         android:background="@color/bg"
         >
 
-        <fragment
-            android:id="@+id/session_track_playback_fragment"
-            android:name="com.brufino.terpsychore.fragments.session.TrackPlaybackFragment"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/bg"
+            android:elevation="@dimen/card_elevation">
+
+            <fragment
+                android:id="@+id/session_track_playback_fragment"
+                android:name="com.brufino.terpsychore.fragments.session.TrackPlaybackFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
 
         <fragment
             android:id="@+id/session_chat_fragment"
@@ -52,13 +60,16 @@
         android:id="@+id/session_overlay_layer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/sessionOverlayBg"
         android:clickable="true">
 
+        <!-- Need bg for the elevation to work -->
         <FrameLayout
             android:id="@+id/session_overlay_fragment_container"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/bg"
+            android:elevation="@dimen/popup_elevation"
+            />
 
     </RelativeLayout>
 
