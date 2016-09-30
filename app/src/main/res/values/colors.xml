@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Python help -->
+    <!--apply_alpha = lambda a, c, bg: hex(int(0.5 + float(int(a, 16) * int(c, 16) + (255 - int(a, 16)) * int(bg, 16))/255))-->
+
     <!-- Main colors -->
 
     <color name="colorPrimary">#4CAF50</color>
