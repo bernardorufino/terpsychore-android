@@ -2,20 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_delete"
-        android:orderInCategory="100"
-        android:title="Delete"
-        android:icon="@drawable/ic_delete_white_24dp"
+        android:id="@+id/action_unjoin_session"
+        android:orderInCategory="1"
+        android:title="Leave Session"
+        android:icon="@drawable/ic_output_white_24dp"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_add_user"
-        android:orderInCategory="99"
+        android:orderInCategory="2"
         android:title="Add User"
         android:icon="@drawable/ic_person_add_white_24dp"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="3"
+        android:title="Delete Session"
+        android:icon="@drawable/ic_delete_white_24dp"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_settings"
-        android:orderInCategory="98"
+        android:orderInCategory="4"
         android:title="Settings"
         app:showAsAction="never" />
 </menu>

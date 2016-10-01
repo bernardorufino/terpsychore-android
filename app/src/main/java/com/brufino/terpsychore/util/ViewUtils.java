@@ -7,12 +7,25 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.RelativeLayout;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class ViewUtils {
+
+    public static void refreshImageInCaches(Context context, String imageUrl) {
+        // Invalidates memory cache
+        Picasso.with(context)
+                .invalidate(imageUrl);
+        // Invalidates disk cache and download new image into it
+        Picasso.with(context)
+                .load(imageUrl)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .fetch();
+    }
 
     public static String formatTrackTime(int timeInMs) {
         int secs = (int) (timeInMs / 1000.0 + 0.5);

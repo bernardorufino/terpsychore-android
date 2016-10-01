@@ -29,8 +29,6 @@ import com.google.common.base.Throwables;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.Player;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -143,12 +141,40 @@ public class SessionActivity extends AppCompatActivity {
         return true;
     }
 
+    private DialogInterface.OnClickListener mOnUnjoinSessionListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            mSessionApi.unjoinSession(mSessionId, mUserId).enqueue(new ApiCallback<JsonObject>() {
+                @Override
+                public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
+                    Toast.makeText(SessionActivity.this, "Left session", Toast.LENGTH_SHORT).show();
+                    Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
+                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_music_inbox);
+                    navigateUpTo(sessionsIntent);
+                }
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t, Response<JsonObject> response) {
+                    if (response != null) {
+                        JsonObject body = ApiUtils.getCheckedErrorBodyAsJsonElement(response).getAsJsonObject();
+                        if (body.get("error").getAsString().equals("last_admin")) {
+                            Toast.makeText(SessionActivity.this, "Can't leave session, you're the last host", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                    Log.e("VFY", "Error leaving/unjoining session", t);
+                    Toast.makeText(SessionActivity.this, "Error leaving session", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    };
+
     private DialogInterface.OnClickListener mOnDeleteSessionListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             mSessionApi.deleteSession(mUserId, mSessionId).enqueue(new ApiCallback<String>() {
                 @Override
                 public void onSuccess(Call<String> call, Response<String> response) {
+                    Toast.makeText(SessionActivity.this, "Session deleted", Toast.LENGTH_SHORT).show();
                     Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
                     sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_music_inbox);
                     navigateUpTo(sessionsIntent);
@@ -172,17 +198,9 @@ public class SessionActivity extends AppCompatActivity {
                     ApiUtils.joinSession(SessionActivity.this, mSessionId, userIds, new ApiCallback<JsonObject>() {
                         @Override
                         public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
-                            // Invalidate image url both in memory cache and disk cache because a new one may be formed
-                            // with the new people just added
+                            // A new session image may be formed with the new people just added
                             String imageUrl = ApiUtils.getServerUrl(mSession.get("image_url").getAsString());
-                            // Invalidates memory cache
-                            Picasso.with(SessionActivity.this)
-                                    .invalidate(imageUrl);
-                            // Invalidates disk cache and download new image into it
-                            Picasso.with(SessionActivity.this)
-                                    .load(imageUrl)
-                                    .networkPolicy(NetworkPolicy.NO_CACHE)
-                                    .fetch();
+                            ViewUtils.refreshImageInCaches(SessionActivity.this, imageUrl);
 
                             int nUsersAdded = response.body().get("nusers").getAsInt();
                             String message = (nUsersAdded == 0) ? "No friend was added to this session" :
@@ -205,9 +223,16 @@ public class SessionActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_unjoin_session:
+                new AlertDialog.Builder(this)
+                        .setMessage("Leave session?")
+                        .setPositiveButton("Leave", mOnUnjoinSessionListener)
+                        .setNegativeButton("Cancel", null)
+                        .show();
+                return true;
             case R.id.action_delete:
                 new AlertDialog.Builder(this)
-                        .setMessage("Remove session?")
+                        .setMessage("Delete session?")
                         .setPositiveButton("Remove", mOnDeleteSessionListener)
                         .setNegativeButton("Cancel", null)
                         .show();
