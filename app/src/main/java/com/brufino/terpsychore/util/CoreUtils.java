@@ -9,6 +9,10 @@ import java.util.List;
 
 public class CoreUtils {
 
+    public static String getJsonAsStringOrNull(JsonElement jsonElement) {
+        return jsonElement.isJsonNull() ? null : jsonElement.getAsString();
+    }
+
     /* TODO: Search for places where we can use the methods below */
 
     public static List<JsonObject> jsonArrayToJsonObjectList(JsonArray jsonArray) {

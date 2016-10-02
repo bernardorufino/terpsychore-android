@@ -22,6 +22,6 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="4"
-        android:title="Settings"
+        android:title="Session Settings"
         app:showAsAction="never" />
 </menu>

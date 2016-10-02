@@ -18,6 +18,7 @@ import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -139,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
             String displayName = response.body().get("display_name").getAsString();
             String userId = response.body().get("id").getAsString();
             String email = response.body().get("email").getAsString();
-            String imageUrl = response.body().get("image_url").getAsString();
+            String imageUrl = CoreUtils.getJsonAsStringOrNull(response.body().get("image_url"));
             String expiresAt = response.body().get("expires_at").getAsString(); // TODO: Transform into date
 
             Picasso.with(LoginActivity.this)
