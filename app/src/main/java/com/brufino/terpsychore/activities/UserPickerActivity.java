@@ -146,7 +146,7 @@ public class UserPickerActivity extends Activity {
                 mUserListAdapter.notifyDataSetChanged();
 
                 if (mUserList.isEmpty()) {
-                    String htmlMessage = getString(R.string.user_picker_user_not_found, getString(R.string.app_name));
+                    String htmlMessage = getString(R.string.user_picker_user_not_found);
                     setMessage(Html.fromHtml(htmlMessage), R.drawable.ic_sentiment_dissatisfied_white_48dp);
                 } else {
                     setMessage(null, -1);

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/main_drawer_group_tabs"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/main_drawer_sessions"
             android:icon="@drawable/ic_wifi_tethering_white_24dp"
@@ -10,6 +12,15 @@
             android:id="@+id/main_drawer_music_inbox"
             android:icon="@drawable/ic_library_music_white_24dp"
             android:title="Music Inbox" />
+    </group>
+
+    <group
+        android:id="@+id/main_drawer_group_actions"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/main_drawer_logout"
+            android:icon="@drawable/ic_output_white_24dp"
+            android:title="Logout" />
     </group>
 
 </menu>

@@ -46,6 +46,19 @@ public class LoginActivity extends AppCompatActivity {
     private static final int DELIVER_RESULT_DELAY_MS = 1500;
     private static final int RESULT_SUCCESS_LOGIN = 1;
 
+    public static void logout(Context context) {
+        context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
+                .edit()
+                .putString(SharedPreferencesDefs.Main.KEY_USER_SPOTIFY_ID, null)
+                .putString(SharedPreferencesDefs.Main.KEY_ACCESS_TOKEN, null)
+                .putString(SharedPreferencesDefs.Main.KEY_DISPLAY_NAME, null)
+                .putString(SharedPreferencesDefs.Main.KEY_USER_ID, null)
+                .putString(SharedPreferencesDefs.Main.KEY_EMAIL, null)
+                .putString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, null)
+                .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, null)
+                .apply();
+    }
+
     private TextView vMessageText;
     private ImageView vProfileImage;
     private ProgressBar vProgressBar;

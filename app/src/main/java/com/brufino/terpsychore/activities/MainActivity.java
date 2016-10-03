@@ -1,5 +1,6 @@
 package com.brufino.terpsychore.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -8,8 +9,10 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -94,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         vNavigationView.setCheckedItem(menuResId);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.main_content, getMainFragment(menuResId))
+                .replace(R.id.main_content, checkedGetMainFragment(menuResId))
                 .commit();
     }
 
@@ -118,25 +121,51 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private MainFragment checkedGetMainFragment(int menuResId) {
+        return checkNotNull(getMainFragment(menuResId), "Unknown fragment for menuResId");
+    }
+
     private MainFragment getMainFragment(int menuResId) {
         switch (menuResId) {
             case R.id.main_drawer_sessions:
                 return mSessionListFragment;
             case R.id.main_drawer_music_inbox:
                 return mMusicInboxFragment;
+            default:
+                return null;
         }
-        throw new AssertionError("Unknown id");
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         MainFragment fragment = getMainFragment(item.getItemId());
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.main_content, fragment)
-                .addToBackStack(null)
-                .commit();
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.main_content, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            switch (item.getItemId()) {
+                case R.id.main_drawer_logout:
+                    new AlertDialog.Builder(this)
+                            .setMessage(R.string.logout_message)
+                            .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    LoginActivity.logout(MainActivity.this);
+                                    Log.d("VFY", "after logout: user id = " + ActivityUtils.getUserId(MainActivity.this));
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                    break;
+                default:
+                    throw new AssertionError("Unknown menu id");
+            }
+        }
 
         vDrawer.closeDrawer(GravityCompat.START);
         return true;

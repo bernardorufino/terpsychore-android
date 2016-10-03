@@ -24,6 +24,7 @@
     <color name="navBg">@color/dark</color>
     <color name="navHeaderText">#FFFFFF</color>
     <color name="navImageTint">#88898C</color>
+    <color name="navListDivider">#18191A</color>
 
     <color name="text">#FEFEFE</color>
     <color name="textSecondary">#A4A4A4</color>
