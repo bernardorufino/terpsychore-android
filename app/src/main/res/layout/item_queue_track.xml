@@ -3,10 +3,10 @@
     android:id="@+id/queue_track_item"
     android:layout_width="match_parent"
     android:layout_height="@dimen/queue_track_item_height"
+    android:layout_marginBottom="@dimen/queue_track_item_margin"
     android:background="@color/queueTrackItemBg"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:layout_marginBottom="0.5dp"
     >
 
     <FrameLayout

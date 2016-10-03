@@ -71,6 +71,7 @@ public class SessionsListFragment extends MainFragment {
         checkNotNull(mUserId, "mUserId shouldn't be null at SessionsListFragment.onActivityCreated()");
 
         setHasOptionsMenu(true);
+        loadSessions(true);
     }
 
     @Override

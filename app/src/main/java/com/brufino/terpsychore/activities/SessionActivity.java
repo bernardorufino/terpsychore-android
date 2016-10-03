@@ -58,6 +58,7 @@ public class SessionActivity extends AppCompatActivity {
     private FrameLayout vOverlayFragmentContainer;
     private QueueFragment mQueueFragment;
 
+    private View mLastViewHintForQueueFragment;
     private TrackPlaybackFragment mTrackPlaybackFragment;
     private ChatFragment mChatFragment;
     private Player mPlayer;
@@ -78,6 +79,7 @@ public class SessionActivity extends AppCompatActivity {
         vOverlayLayer = (RelativeLayout) findViewById(R.id.session_overlay_layer);
         vOverlayLayer.setVisibility(View.GONE);
         vOverlayLayer.setOnClickListener(mOnOverlayLayerClickListener);
+        vOverlayLayer.addOnLayoutChangeListener(mOnOverlayLayoutChangeListener);
         vOverlayFragmentContainer = (FrameLayout) findViewById(R.id.session_overlay_fragment_container);
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
@@ -102,6 +104,9 @@ public class SessionActivity extends AppCompatActivity {
         mQueueManager = new QueueManager(this, mPlayerManager);
         mTrackPlaybackFragment.setQueueManager(mQueueManager);
         mQueueFragment.setQueueManager(mQueueManager);
+        // mQueue_Post_Listener because it's run after all the other listeners, if a listener before is needed please
+        // name it mQueue_Pre_Listener (_ only for emphasis)
+        mQueueManager.addQueueListener(mQueuePostListener);
 
         /* TODO: Don't fetch again if rotation etc. initializePlayer(); */
         if (savedInstanceState == null) {
@@ -292,20 +297,51 @@ public class SessionActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private QueueManager.QueueListener mQueuePostListener = new QueueManager.QueueListener() {
+        @Override
+        public void onQueueChange(QueueManager queueManager, JsonObject queue) {
+            positionQueueFragmentIfOverlayVisible();
+        }
+        @Override
+        public void onQueueRefreshError(QueueManager queueManager, Throwable t) {
+        }
+    };
+
+    private View.OnLayoutChangeListener mOnOverlayLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int l, int t, int r, int b, int oldL, int oldT, int oldR, int oldB) {
+            if (l != oldL || t != oldT || r != oldR || b != oldB) {
+                positionQueueFragmentIfOverlayVisible();
+            }
+        }
+    };
+
+    private void positionQueueFragmentIfOverlayVisible() {
+        if (!vOverlayLayer.isShown()) {
+            return;
+        }
+
+        Rect position = ViewUtils.getRelativeGlobalVisibleRect(mLastViewHintForQueueFragment, vOverlayLayer);
+        int left = position.left;
+        int top = position.bottom + mQueueFragment.getVerticalOffset();
+        int maxHeight = vOverlayLayer.getHeight() - top;
+        int desiredHeight = mQueueFragment.getDesiredHeight(maxHeight);
+
+        RelativeLayout.LayoutParams layoutParams
+                = (RelativeLayout.LayoutParams) vOverlayFragmentContainer.getLayoutParams();
+        layoutParams.setMargins(left, top, 0, 0);
+        layoutParams.width = position.width();
+        layoutParams.height = desiredHeight;
+        vOverlayFragmentContainer.requestLayout();
+    }
+
     private TrackPlaybackFragment.QueueViewManager mQueueViewManager = new TrackPlaybackFragment.QueueViewManager() {
         @Override
         public void onOpenQueueView(View viewHint) {
-            Rect position = ViewUtils.getRelativeGlobalVisibleRect(viewHint, vOverlayLayer);
-            int left = position.left;
-            int top = position.bottom - mQueueFragment.getTopBarPlusTrackItemHeight();
-
+            mLastViewHintForQueueFragment = viewHint;
             vOverlayLayer.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams layoutParams
-                    = (RelativeLayout.LayoutParams) vOverlayFragmentContainer.getLayoutParams();
-            layoutParams.setMargins(left, top, 0, 0);
-            layoutParams.width = position.width();
-            layoutParams.height = 900;
-            vOverlayFragmentContainer.requestLayout();
+            positionQueueFragmentIfOverlayVisible();
+            mQueueFragment.onVisible();
         }
     };
 }

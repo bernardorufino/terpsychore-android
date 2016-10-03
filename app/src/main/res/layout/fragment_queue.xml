@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/queue_top_bar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/queue_top_bar_height"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:clickable="true"
@@ -19,6 +19,7 @@
             android:id="@+id/queue_control_fullscreen"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginLeft="9dp"
             android:padding="9dp"
             android:src="@drawable/ic_fullscreen_white_24dp"
             android:background="@drawable/queue_control_bg"

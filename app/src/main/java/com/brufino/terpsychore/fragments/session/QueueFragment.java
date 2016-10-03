@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +40,12 @@ public class QueueFragment extends Fragment {
     private ImageView vControlFullscreen;
 
     private List<JsonObject> mTrackList = new ArrayList<>();
+    private int mPlayedTracks = 0;
+    private int mCurrentTracks = 0;
+    private int mUpcomingTracks = 0;
     private QueueManager mQueueManager;
     private TrackListAdapter mTrackListAdapter;
+    private LinearLayoutManager mLayoutManager;
 
     @Nullable
     @Override
@@ -54,8 +59,8 @@ public class QueueFragment extends Fragment {
 
         vTopBar = (ViewGroup) getView().findViewById(R.id.queue_top_bar);
         vTrackList = (RecyclerView) getView().findViewById(R.id.queue_track_list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        vTrackList.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        vTrackList.setLayoutManager(mLayoutManager);
         mTrackListAdapter = new TrackListAdapter(mTrackList);
         vTrackList.setAdapter(mTrackListAdapter);
         vControlAdd = (ImageView) getView().findViewById(R.id.queue_control_add);
@@ -118,6 +123,17 @@ public class QueueFragment extends Fragment {
             mTrackList.addAll(CoreUtils.jsonArrayToJsonObjectList(tracks));
             mTrackListAdapter.notifyDataSetChanged();
             vControlAdd.setVisibility(mQueueManager.isHost() ? View.VISIBLE : View.GONE);
+
+            mPlayedTracks = mCurrentTracks = mUpcomingTracks = 0;
+            for (JsonObject track : mTrackList) {
+                if (track.get("played_track").getAsBoolean()) {
+                    mPlayedTracks++;
+                } else if (track.get("current_track").getAsBoolean()) {
+                    mCurrentTracks++;
+                } else {
+                    mUpcomingTracks++;
+                }
+            }
         }
         @Override
         public void onQueueRefreshError(QueueManager queueManager, Throwable t) {
@@ -125,10 +141,51 @@ public class QueueFragment extends Fragment {
         }
     };
 
-    public int getTopBarPlusTrackItemHeight() {
+    public void onVisible() {
+        mLayoutManager.scrollToPositionWithOffset(mPlayedTracks + mCurrentTracks, 0);
+    }
+
+    public int getVerticalOffset() {
         int trackItemHeight = getResources().getDimensionPixelSize(R.dimen.queue_track_item_height);
         int topBarHeight = getResources().getDimensionPixelSize(R.dimen.queue_top_bar_height);
-        return trackItemHeight + topBarHeight;
+        return -(trackItemHeight + topBarHeight);
+    }
+
+    public int getDesiredHeight(int maxHeight) {
+        int heightIfEnoughItems = getDesiredHeightIfEnoughItems(maxHeight);
+        int actualItemsHeight = heightForItems(Math.max(3, mTrackList.size()));
+        return Math.min(actualItemsHeight, heightIfEnoughItems);
+    }
+
+    private int getDesiredHeightIfEnoughItems(int maxHeight) {
+        int h;
+
+        h = maxHeight - heightOfItems(2);
+        if (h >= heightForItems(4)) return h;
+
+        h = heightForItems(4);
+        if (maxHeight - heightOfItems(1) >= h) return h;
+
+        h = maxHeight - heightOfItems(1);
+        if (h >= heightForItems(3)) return h;
+
+        h = heightForItems(3);
+        if (maxHeight >= h) return h;
+
+        return maxHeight;
+    }
+
+    private int heightForItems(int numberOfItems) {
+        int trackItemHeight = getResources().getDimensionPixelSize(R.dimen.queue_track_item_height);
+        int trackItemMargin = getResources().getDimensionPixelOffset(R.dimen.queue_track_item_margin);
+        int topBarHeight = getResources().getDimensionPixelSize(R.dimen.queue_top_bar_height);
+        return numberOfItems * (trackItemHeight + trackItemMargin) + topBarHeight;
+    }
+
+    private int heightOfItems(int numberOfItems) {
+        int trackItemHeight = getResources().getDimensionPixelSize(R.dimen.queue_track_item_height);
+        int trackItemMargin = getResources().getDimensionPixelOffset(R.dimen.queue_track_item_margin);
+        return numberOfItems * (trackItemHeight + trackItemMargin);
     }
 
     /* TODO: Use a non-static inner class and call everything from activity, just like UserPickerActivity */
@@ -149,6 +206,7 @@ public class QueueFragment extends Fragment {
         @Override
         public void onBindViewHolder(TrackItemViewHolder holder, int position) {
             JsonObject item = mBackingList.get(position);
+            Log.v("VFY", position + " = " + item.get("name").getAsString());
             holder.bind(item);
         }
 

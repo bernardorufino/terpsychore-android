@@ -61,7 +61,11 @@
         android:id="@+id/session_overlay_layer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true">
+        android:layout_marginTop="?actionBarSize"
+        android:visibility="gone"
+        android:clickable="true"
+        android:background="@color/sessionOverlayBg"
+        >
 
         <!-- Need bg for the elevation to work -->
         <FrameLayout
