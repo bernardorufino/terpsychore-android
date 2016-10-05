@@ -20,6 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
@@ -78,8 +79,24 @@ public class ApiUtils {
         return null;
     }
 
+    public static <T> Call<JsonObject> postMessage(
+            int sessionId,
+            String type,
+            Map<String, T> attributes,
+            Callback<JsonObject> callback) {
+        MessagesApi api = createApi(MessagesApi.class);
+        JsonObject body = new JsonObject();
+        body.addProperty("type", type);
+        JsonObject message = CoreUtils.mapToJsonObject(attributes);
+        message.addProperty("session_id", sessionId);
+        body.add("message", message);
+        Call<JsonObject> call = api.postMessage(sessionId, body);
+        call.enqueue(callback);
+        return call;
+
+    }
+
     public static Call<JsonObject> joinSession(
-            Context context,
             int sessionId,
             List<String> userIds,
             Callback<JsonObject> callback) {
@@ -92,7 +109,6 @@ public class ApiUtils {
     }
 
     public static Call<String> postTracks(
-            Context context,
             int sessionId,
             List<String> trackUris,
             Callback<String> callback) {

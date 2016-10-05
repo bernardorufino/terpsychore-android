@@ -25,7 +25,6 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
-import com.google.common.base.Throwables;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.Player;
@@ -99,6 +98,8 @@ public class SessionActivity extends AppCompatActivity {
         mUserId = checkNotNull(ActivityUtils.getUserId(this), "User id can't be null");
         mSessionId = getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1);
         checkState(mSessionId != -1, "Can't start SessionActivity without a session id");
+        mChatFragment.setSessionId(mSessionId);
+
         mPlayerManager = new PlayerManager(this);
         mPlayerManager.addTrackUpdateListener(mTrackPlaybackFragment);
         mQueueManager = new QueueManager(this, mPlayerManager);
@@ -154,7 +155,7 @@ public class SessionActivity extends AppCompatActivity {
                 public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
                     Toast.makeText(SessionActivity.this, "Left session", Toast.LENGTH_SHORT).show();
                     Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
-                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_music_inbox);
+                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_sessions);
                     navigateUpTo(sessionsIntent);
                 }
                 @Override
@@ -181,7 +182,7 @@ public class SessionActivity extends AppCompatActivity {
                 public void onSuccess(Call<String> call, Response<String> response) {
                     Toast.makeText(SessionActivity.this, "Session deleted", Toast.LENGTH_SHORT).show();
                     Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
-                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_music_inbox);
+                    sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_sessions);
                     navigateUpTo(sessionsIntent);
                 }
                 @Override
@@ -200,7 +201,7 @@ public class SessionActivity extends AppCompatActivity {
             case REQUEST_SELECT_USERS:
                 if (resultCode == Activity.RESULT_OK) {
                     final List<String> userIds = data.getStringArrayListExtra(UserPickerActivity.RESULT_USER_IDS);
-                    ApiUtils.joinSession(SessionActivity.this, mSessionId, userIds, new ApiCallback<JsonObject>() {
+                    ApiUtils.joinSession(mSessionId, userIds, new ApiCallback<JsonObject>() {
                         @Override
                         public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
                             // A new session image may be formed with the new people just added
@@ -279,15 +280,19 @@ public class SessionActivity extends AppCompatActivity {
         }
     };
 
-    private Callback<JsonObject> mGetSessionCallback = new Callback<JsonObject>() {
+    private Callback<JsonObject> mGetSessionCallback = new ApiCallback<JsonObject>() {
         @Override
-        public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+        public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
             mSession = response.body().getAsJsonObject();
             loadSession(mSession);
         }
         @Override
         public void onFailure(Call<JsonObject> call, Throwable t) {
-            throw Throwables.propagate(t);
+            Log.e("VFY", "Error retrieving session " + mSessionId, t);
+            Toast.makeText(SessionActivity.this, "Error retrieving session", Toast.LENGTH_SHORT).show();
+            Intent sessionsIntent = new Intent(SessionActivity.this, MainActivity.class);
+            sessionsIntent.putExtra(MainActivity.EXTRA_FRAGMENT, R.id.main_drawer_sessions);
+            navigateUpTo(sessionsIntent);
         }
     };
 

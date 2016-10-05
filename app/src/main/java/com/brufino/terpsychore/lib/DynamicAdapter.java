@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.*;
  */
 public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
 
-    private List<I> mList = new ArrayList<>();
+    protected List<I> mList = new ArrayList<>();
     private int mItemsPerRequest;
     private int mTriggerMargin;
     private boolean mComplete = false;
@@ -31,7 +31,6 @@ public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> exte
         mList.clear();
         mComplete = false;
         mLoading = false;
-
     }
 
     public void firstLoad() {
@@ -98,6 +97,10 @@ public abstract class DynamicAdapter<I, VH extends RecyclerView.ViewHolder> exte
 
     protected void reportError() {
         mLoading = false;
+    }
+
+    public I getItem(int position) {
+        return mList.get(position);
     }
 
     @Override

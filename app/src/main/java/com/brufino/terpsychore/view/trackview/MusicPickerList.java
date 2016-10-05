@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.lib.DynamicAdapter;
+import com.brufino.terpsychore.lib.LoadingListIndicator;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.squareup.picasso.Picasso;
 
@@ -30,8 +31,9 @@ public class MusicPickerList extends RelativeLayout {
     private RecyclerView vList;
     private LinearLayoutManager mLayoutManager;
     private Adapter<?> mAdapter;
-    private boolean mLoading;
+
     private ProgressBar vLoading;
+    private LoadingListIndicator<MusicPickerListItemHolder> mLoadingIndicator;
 
     public MusicPickerList(Context context) {
         super(context);
@@ -54,47 +56,32 @@ public class MusicPickerList extends RelativeLayout {
         mLayoutManager = new LinearLayoutManager(getContext());
         vList.setLayoutManager(mLayoutManager);
         vLoading = (ProgressBar) findViewById(R.id.music_picker_list_loading);
+
+        mLoadingIndicator = new LoadingListIndicator<>(vList, vLoading);
     }
 
     public <T> void setAdapter(Adapter<T> adapter) {
         mAdapter = adapter;
-        mAdapter.setMusicPickerList(this);
+        mAdapter.setLoadingIndicator(mLoadingIndicator);
         vList.setAdapter(mAdapter);
-    }
-
-    private Collection<MusicPickerListItemHolder> mLoadingViewHolders = new HashSet<>();
-
-    public void setLoading(boolean loading) {
-        mLoading = loading;
-        if (loading) {
-            if (vList.getChildCount() == 0) {
-                vLoading.setVisibility(View.VISIBLE);
-            } // else it's handled in mAdapter.onBindViewHolder()
-        } else {
-            vLoading.setVisibility(View.GONE);
-            for (MusicPickerListItemHolder viewHolder : mLoadingViewHolders) {
-                viewHolder.setLoading(false);
-            }
-            mLoadingViewHolders.clear();
-        }
     }
 
     public abstract static class Adapter<T> extends DynamicAdapter<Item, MusicPickerListItemHolder> {
 
-        private MusicPickerList vMusicPickerList;
+        private LoadingListIndicator<MusicPickerListItemHolder> mLoadingIndicator;
 
         public Adapter() {
             super(ITEMS_PER_REQUEST, TRIGGER_MARGIN);
         }
 
-        private void setMusicPickerList(MusicPickerList musicPickerList) {
-            vMusicPickerList = musicPickerList;
+        private void setLoadingIndicator(LoadingListIndicator<MusicPickerListItemHolder> loadingIndicator) {
+            mLoadingIndicator = loadingIndicator;
         }
 
         public abstract Item transform(T item);
 
         protected void addItemsPreTransform(Collection<? extends T> items) {
-            vMusicPickerList.setLoading(false);
+            mLoadingIndicator.setLoading(false);
             List<Item> itemsPostTransform = new ArrayList<>(items.size());
             for (T itemPreTransform : items) {
                 Item item = transform(itemPreTransform);
@@ -105,11 +92,11 @@ public class MusicPickerList extends RelativeLayout {
 
         @Override
         protected void loadItems(int offset, int limit) {
-            vMusicPickerList.setLoading(true);
+            mLoadingIndicator.setLoading(true);
         }
 
         protected void reportError() {
-            vMusicPickerList.setLoading(false);
+            mLoadingIndicator.setLoading(false);
             super.reportError();
         }
 
@@ -121,23 +108,22 @@ public class MusicPickerList extends RelativeLayout {
         }
 
         @Override
-        public void onBindViewHolder(final MusicPickerListItemHolder holder, final int position, final Item item) {
+        public void onBindViewHolder(final MusicPickerListItemHolder holder, int position, final Item item) {
             holder.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onItemClick(holder, position, item);
+                    onItemClick(holder, holder.getAdapterPosition(), item);
                     holder.bind(item);
                 }
             });
             holder.bind(item);
-            holder.setLoading(vMusicPickerList.mLoading && position == getItemCount() - 1);
-            vMusicPickerList.mLoadingViewHolders.add(holder);
+            mLoadingIndicator.onBindViewHolder(holder, position, this);
         }
 
         protected abstract void onItemClick(MusicPickerListItemHolder holder, int position, Item item);
     }
 
-    public static class MusicPickerListItemHolder extends RecyclerView.ViewHolder {
+    public static class MusicPickerListItemHolder extends RecyclerView.ViewHolder implements LoadingListIndicator.Item {
 
         private final ViewGroup vContainer;
         private final ImageView vImage;

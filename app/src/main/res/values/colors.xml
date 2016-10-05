@@ -73,6 +73,7 @@
 
     <color name="chatReactionsBackground">#BB8CDF90</color>
     <color name="chatInputText">#CCFFFFFF</color>
+    <color name="chatInputHintText">#66FFFFFF</color>
 
     <!-- Queue colors -->
 

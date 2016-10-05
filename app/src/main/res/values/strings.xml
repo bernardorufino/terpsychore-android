@@ -11,4 +11,6 @@
 
     <string name="logout_message">This will logout and close the app. To enter with a different user, please switch
         accounts in Spotify before launching Vibefy again.</string>
+    <string name="chat_input_hint">Type a message</string>
+    <string name="user_picker_search_hint">Search for name or username</string>
 </resources>

@@ -42,6 +42,8 @@
                     android:paddingBottom="2dp"
                     android:paddingLeft="10dp"
                     android:background="@drawable/user_picker_search_input_bg"
+                    android:inputType="text"
+                    android:hint="@string/user_picker_search_hint"
                     />
 
             </android.support.v7.widget.Toolbar>

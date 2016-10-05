@@ -21,6 +21,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
@@ -35,9 +36,13 @@ import static com.google.common.base.Preconditions.*;
 
 public class SessionsListFragment extends MainFragment {
 
+    private static final long REFRESH_LIMIT_TO_INVALIDATE_SESSION_IMAGES_IN_MS = 500;
+
     private RecyclerView vSessionList;
     private ProgressBar vLoading;
 
+    private long mLastRefreshRequest = System.currentTimeMillis();
+    private volatile boolean mInvalidateSessionImages = false;
     private List<JsonObject> mSessionList = new ArrayList<>();
     private SessionListAdapter mSessionListAdapter;
     private LinearLayoutManager mSessionListLayoutManager;
@@ -96,6 +101,13 @@ public class SessionsListFragment extends MainFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
+                /* TODO: Remove this double refresh when GCM is working */
+                long now = System.currentTimeMillis();
+                if (now - mLastRefreshRequest < REFRESH_LIMIT_TO_INVALIDATE_SESSION_IMAGES_IN_MS) {
+                    Log.d("VFY", "Session images invalidation marked");
+                    mInvalidateSessionImages = true;
+                }
+                mLastRefreshRequest = now;
                 loadSessions(true);
                 return true;
         }
@@ -122,6 +134,13 @@ public class SessionsListFragment extends MainFragment {
             Log.v("VFY", "Sessions loaded: size = " + sessions.size());
             mSessionList.clear();
             mSessionList.addAll(CoreUtils.jsonArrayToJsonObjectList(sessions));
+            if (mInvalidateSessionImages) {
+                for (JsonObject session : mSessionList) {
+                    String imageUrl = ApiUtils.getServerUrl(session.get("image_url").getAsString());
+                    ViewUtils.refreshImageInCaches(getContext(), imageUrl);
+                }
+                mInvalidateSessionImages = false;
+            }
             mSessionListAdapter.notifyDataSetChanged();
         }
         @Override

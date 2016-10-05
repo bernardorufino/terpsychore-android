@@ -252,7 +252,7 @@ public class QueueManager {
     }
 
     public void addTracks(List<String> trackUris) {
-        ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
+        ApiUtils.postTracks(mSessionId, trackUris, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 refreshQueue();

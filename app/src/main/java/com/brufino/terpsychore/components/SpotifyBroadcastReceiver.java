@@ -103,7 +103,7 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
     private Notification getNotification(Context context, String trackId, String trackName, String trackArtist) {
         Bitmap bitmap = ((BitmapDrawable) ContextCompat.getDrawable(context, R.drawable.ic_logo_circle)).getBitmap();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_logo_circle)
+                .setSmallIcon(R.drawable.ic_logo)
                 .setContentTitle(trackName)
                 .setContentText("Enter Vibefy Session")
                 .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
