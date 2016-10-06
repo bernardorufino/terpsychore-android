@@ -220,6 +220,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
 
     private static class CurrentUserMessageViewHolder extends UserMessageViewHolder {
         public static final int LAYOUT = R.layout.item_chat_current_user_message;
+        public static final boolean HAS_IMAGE = false;
 
         public CurrentUserMessageViewHolder(View itemView) {
             super(itemView);
@@ -232,6 +233,10 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             vBubble.setBackgroundResource((firstOfUser)
                     ? R.drawable.chat_current_user_message_first_bg
                     : R.drawable.chat_current_user_message_bg);
+            if (!HAS_IMAGE) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vImage.getLayoutParams();
+                layoutParams.width = 0;
+            }
         }
     }
 
@@ -249,6 +254,12 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             vBubble.setBackgroundResource((firstOfUser)
                     ? R.drawable.chat_user_message_first_bg
                     : R.drawable.chat_user_message_bg);
+            if (!CurrentUserMessageViewHolder.HAS_IMAGE) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vContainer.getLayoutParams();
+                int tickSize = mContext.getResources().getDimensionPixelSize(R.dimen.user_message_tick_size);
+                layoutParams.rightMargin = 2 * tickSize - 5; // +n fine tune
+
+            }
         }
     }
 

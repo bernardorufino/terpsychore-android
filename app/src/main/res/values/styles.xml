@@ -101,21 +101,22 @@
     <style name="UserMessageContainer">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:layout_marginRight">45dp</item> <!-- 5 (opposite margin) + 32 (image) + 8 (tick)  -->
+        <item name="android:layout_marginLeft">@dimen/user_message_tick_size</item>
+        <item name="android:layout_marginRight">50dp</item> <!-- 32 (image) + 2 * 9 (tick)  -->
         <item name="android:orientation">horizontal</item>
-        <item name="android:padding">2dp</item>
         <item name="android:gravity">top</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
     </style>
 
     <style name="UserMessageContainer.Current">
-        <item name="android:layout_marginLeft">45dp</item>
-        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginLeft">50dp</item>
+        <item name="android:layout_marginRight">@dimen/user_message_tick_size</item>
     </style>
 
     <style name="UserMessageImage">
-        <item name="android:layout_width">32dp</item>
-        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_width">@dimen/user_message_image_size</item>
+        <item name="android:layout_height">@dimen/user_message_image_size</item>
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:tint">@color/navImageTint</item>
         <item name="android:src">@drawable/ic_account_circle_no_padding_white_48dp</item>
@@ -124,7 +125,6 @@
     <style name="UserMessageImage.Current">
         <item name="android:layout_alignParentLeft">false</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:visibility">gone</item>
     </style>
 
     <style name="UserMessageBubble">
@@ -156,7 +156,5 @@
         <item name="android:gravity">right</item>
         <item name="android:textColor">@color/chatCurrentUserMessageText</item>
     </style>
-
-
 
 </resources>
