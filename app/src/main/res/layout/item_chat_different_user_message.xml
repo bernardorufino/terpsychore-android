@@ -2,19 +2,19 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_chat_message_container"
-    android:gravity="right"
+    android:gravity="left"
     style="@style/UserMessageContainer"
     >
 
     <RelativeLayout
         android:id="@+id/item_chat_message_bubble"
-        android:background="@drawable/chat_current_user_message_bg"
-        style="@style/UserMessage.Current"
+        android:background="@drawable/chat_user_message_bg"
+        style="@style/UserMessage"
         >
 
         <com.brufino.terpsychore.lib.CustomTextView
             android:id="@+id/item_chat_message_content"
-            style="@style/UserMessageText.Current"
+            style="@style/UserMessageText"
             />
 
     </RelativeLayout>

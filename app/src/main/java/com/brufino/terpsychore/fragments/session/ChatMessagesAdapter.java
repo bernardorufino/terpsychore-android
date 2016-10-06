@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
@@ -24,6 +25,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessagesAdapter.MessageViewHolder> {
 
@@ -59,6 +61,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                 mLoadingIndicator.setLoading(false);
                 List<JsonObject> items = toMessageList(response.body());
                 addItems(items);
+                annotateMessages();
             }
             @Override
             public void onFailure(Call<JsonArray> call, Throwable t, Response<JsonArray> response) {
@@ -78,6 +81,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                 List<JsonObject> items = toMessageList(response.body());
                 mList.addAll(0, items);
                 notifyDataSetChanged();
+                annotateMessages();
             }
             @Override
             public void onFailure(Call<JsonArray> call, Throwable t) {
@@ -85,6 +89,21 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                 Toast.makeText(mContext, "Error loading new messages", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void annotateMessages() {
+        String lastUserId = null;
+        for (JsonObject message : Lists.reverse(mList)) {
+            String type = message.get("type").getAsString();
+            if (!message.get("user").isJsonNull()) {
+                String userId = message.get("user").getAsJsonObject().get("id").getAsString();
+                message.remove("first_of_user");
+                if (!Objects.equals(userId, lastUserId)) {
+                    lastUserId = userId;
+                    message.addProperty("first_of_user", true);
+                }
+            }
+        }
     }
 
     public List<JsonObject> toMessageList(JsonArray response) {
@@ -125,7 +144,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             int layout;
             switch (type) {
                 case "current_user_message": layout = CurrentUserMessageViewHolder.LAYOUT; break;
-                case "user_message": layout = UserMessageViewHolder.LAYOUT; break;
+                case "user_message": layout = DifferentUserMessageViewHolder.LAYOUT; break;
                 case "session_message": layout = SessionMessageViewHolder.LAYOUT; break;
                 default: throw new AssertionError("Unknown view type");
             }
@@ -135,7 +154,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             inflater.inflate(layout, content, true);
             switch (type) {
                 case "current_user_message": return new CurrentUserMessageViewHolder(container);
-                case "user_message": return new UserMessageViewHolder(container);
+                case "user_message": return new DifferentUserMessageViewHolder(container);
                 case "session_message": return new SessionMessageViewHolder(container);
                 default: throw new AssertionError("Unknown view type");
             }
@@ -155,37 +174,61 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public abstract void bind(JsonObject item);
     }
 
-    private static class CurrentUserMessageViewHolder extends MessageViewHolder {
-        public static final int LAYOUT = R.layout.item_chat_current_user_message;
-
-        private final TextView vContent;
-
-        public CurrentUserMessageViewHolder(View itemView) {
-            super(itemView);
-            vContent = (TextView) itemView.findViewById(R.id.item_chat_message_content);
-        }
-
-        @Override
-        public void bind(JsonObject item) {
-            String content = item.get("content").getAsString();
-            vContent.setText(content);
-        }
-    }
-
     private static class UserMessageViewHolder extends MessageViewHolder {
-        public static final int LAYOUT = R.layout.item_chat_user_message;
 
-        private final TextView vContent;
+        protected final ViewGroup vContainer;
+        protected final RelativeLayout vBubble;
+        protected final TextView vContent;
 
         public UserMessageViewHolder(View itemView) {
             super(itemView);
+            vContainer = (ViewGroup) itemView.findViewById(R.id.item_chat_message_container);
+            vBubble = (RelativeLayout) itemView.findViewById(R.id.item_chat_message_bubble);
             vContent = (TextView) itemView.findViewById(R.id.item_chat_message_content);
         }
 
         @Override
         public void bind(JsonObject item) {
             String content = item.get("content").getAsString();
+            boolean firstOfUser = item.has("first_of_user");
             vContent.setText(content);
+            int topMarginRes = (firstOfUser) ? R.dimen.user_message_first_top_margin : R.dimen.user_message_top_margin;
+            int topMargin = vContainer.getResources().getDimensionPixelSize(topMarginRes);
+            ((ViewGroup.MarginLayoutParams) vContainer.getLayoutParams()).topMargin = topMargin;
+        }
+    }
+
+    private static class CurrentUserMessageViewHolder extends UserMessageViewHolder {
+        public static final int LAYOUT = R.layout.item_chat_current_user_message;
+
+        public CurrentUserMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public void bind(JsonObject item) {
+            super.bind(item);
+            boolean firstOfUser = item.has("first_of_user");
+            vBubble.setBackgroundResource((firstOfUser)
+                    ? R.drawable.chat_current_user_message_first_bg
+                    : R.drawable.chat_current_user_message_bg);
+        }
+    }
+
+    private static class DifferentUserMessageViewHolder extends UserMessageViewHolder {
+        public static final int LAYOUT = R.layout.item_chat_different_user_message;
+
+        public DifferentUserMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public void bind(JsonObject item) {
+            super.bind(item);
+            boolean firstOfUser = item.has("first_of_user");
+            vBubble.setBackgroundResource((firstOfUser)
+                    ? R.drawable.chat_user_message_first_bg
+                    : R.drawable.chat_user_message_bg);
         }
     }
 

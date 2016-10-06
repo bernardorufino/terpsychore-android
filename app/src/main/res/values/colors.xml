@@ -71,9 +71,15 @@
 
     <!-- Chat colors -->
 
-    <color name="chatReactionsBackground">#BB8CDF90</color>
+    <color name="chatReactionsBg">#BB8CDF90</color>
     <color name="chatInputText">#CCFFFFFF</color>
     <color name="chatInputHintText">#66FFFFFF</color>
+
+    <color name="chatUserMessageBg">#333333</color>
+    <color name="chatUserMessageText">@color/text</color>
+
+    <color name="chatCurrentUserMessageBg">@color/colorPrimaryExtraDark</color>
+    <color name="chatCurrentUserMessageText">@color/text</color>
 
     <!-- Queue colors -->
 

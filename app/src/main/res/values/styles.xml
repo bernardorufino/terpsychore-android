@@ -98,4 +98,46 @@
         <item name="android:layout_marginRight">0dp</item>
     </style>
 
+    <style name="UserMessageContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">2dp</item>
+    </style>
+
+    <style name="UserMessage">
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginRight">@dimen/user_message_tick_size</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">@dimen/user_message_padding_top</item>
+        <item name="android:paddingBottom">@dimen/user_message_padding_bottom</item>
+        <item name="android:paddingLeft">@dimen/user_message_tick_side_padding</item>
+        <item name="android:paddingRight">@dimen/user_message_opposite_tick_side_padding</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentRight">false</item>
+    </style>
+
+    <style name="UserMessage.Current">
+        <item name="android:layout_marginLeft">@dimen/user_message_tick_size</item>
+        <item name="android:layout_marginRight">0dp</item>
+        <item name="android:paddingLeft">@dimen/user_message_opposite_tick_side_padding</item>
+        <item name="android:paddingRight">@dimen/user_message_tick_side_padding</item>
+        <item name="android:layout_alignParentLeft">false</item>
+        <item name="android:layout_alignParentRight">true</item>
+    </style>
+
+    <style name="UserMessageText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/chatUserMessageText</item>
+        <!--<item name="android:singleLine">false</item>-->
+    </style>
+
+    <style name="UserMessageText.Current">
+        <item name="android:gravity">right</item>
+        <item name="android:textColor">@color/chatCurrentUserMessageText</item>
+    </style>
+
 </resources>
