@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,6 +29,8 @@ import com.brufino.terpsychore.util.ViewUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.Player;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,10 +58,11 @@ public class SessionActivity extends AppCompatActivity {
     private TextView vTrackTitleArtist;
     private RelativeLayout vOverlayLayer;
     private FrameLayout vOverlayFragmentContainer;
-    private QueueFragment mQueueFragment;
+    private ViewGroup vTrackPlaybackFragmentContainer;
 
     private View mLastViewHintForQueueFragment;
     private TrackPlaybackFragment mTrackPlaybackFragment;
+    private QueueFragment mQueueFragment;
     private ChatFragment mChatFragment;
     private Player mPlayer;
     private PlayerManager mPlayerManager;
@@ -83,6 +87,7 @@ public class SessionActivity extends AppCompatActivity {
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        vTrackPlaybackFragmentContainer = (ViewGroup) findViewById(R.id.session_track_playback_fragment_container);
 
         mQueueFragment = new QueueFragment();
         getSupportFragmentManager().beginTransaction()
@@ -108,6 +113,8 @@ public class SessionActivity extends AppCompatActivity {
         // mQueue_Post_Listener because it's run after all the other listeners, if a listener before is needed please
         // name it mQueue_Pre_Listener (_ only for emphasis)
         mQueueManager.addQueueListener(mQueuePostListener);
+
+        KeyboardVisibilityEvent.setEventListener(this, mKeyboardVisibilityListener);
 
         /* TODO: Don't fetch again if rotation etc. initializePlayer(); */
         if (savedInstanceState == null) {
@@ -146,6 +153,13 @@ public class SessionActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    private KeyboardVisibilityEventListener mKeyboardVisibilityListener = new KeyboardVisibilityEventListener() {
+        @Override
+        public void onVisibilityChanged(boolean isOpen) {
+            vTrackPlaybackFragmentContainer.setVisibility((isOpen) ? View.GONE : View.VISIBLE);
+        }
+    };
 
     private DialogInterface.OnClickListener mOnUnjoinSessionListener = new DialogInterface.OnClickListener() {
         @Override

@@ -67,7 +67,7 @@
     <color name="trackPlaybackIconActivated">#FFFEFEFE</color>
     <color name="trackPlaybackIconDeactivated">#FF888888</color>
 
-    <color name="sessionOverlayBg">#00000000</color>
+    <color name="sessionOverlayBg">#88000000</color>
 
     <!-- Chat colors -->
 
