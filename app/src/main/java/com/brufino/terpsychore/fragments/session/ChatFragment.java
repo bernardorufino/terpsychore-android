@@ -138,8 +138,7 @@ public class ChatFragment extends Fragment {
     private Callback<JsonObject> mOnMessagePosted = new ApiCallback<JsonObject>() {
         @Override
         public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
-            mMessagesAdapter.reset();
-            mMessagesAdapter.firstLoad();
+            mMessagesAdapter.loadNewItems();
         }
         @Override
         public void onFailure(Call<JsonObject> call, Throwable t) {
