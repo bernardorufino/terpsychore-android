@@ -22,13 +22,13 @@
     <dimen name="queue_track_item_margin">0.5dp</dimen>
 
     <dimen name="user_message_radius">11dp</dimen>
-    <dimen name="user_message_tick_size">7dp</dimen>
-    <dimen name="user_message_radius_plus_tick_size">18dp</dimen>
+    <dimen name="user_message_tick_size">8dp</dimen>
+    <dimen name="user_message_radius_plus_tick_size">19dp</dimen>
 
     <dimen name="user_message_padding_top">5dp</dimen>
     <dimen name="user_message_padding_bottom">7dp</dimen>
 
-    <dimen name="user_message_tick_side_padding">18dp</dimen>
+    <dimen name="user_message_tick_side_padding">19dp</dimen>
     <dimen name="user_message_opposite_tick_side_padding">11dp</dimen>
 
     <dimen name="user_message_top_margin">0dp</dimen>

@@ -78,7 +78,7 @@
     <color name="chatUserMessageBg">#333333</color>
     <color name="chatUserMessageText">@color/text</color>
 
-    <color name="chatCurrentUserMessageBg">@color/colorPrimaryExtraDark</color>
+    <color name="chatCurrentUserMessageBg">#265A2D</color>
     <color name="chatCurrentUserMessageText">@color/text</color>
 
     <!-- Queue colors -->

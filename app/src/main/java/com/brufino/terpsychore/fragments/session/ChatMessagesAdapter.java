@@ -6,12 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
+import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.DynamicAdapter;
 import com.brufino.terpsychore.lib.LoadingListIndicator;
 import com.brufino.terpsychore.network.ApiUtils;
@@ -21,6 +19,7 @@ import com.brufino.terpsychore.util.CoreUtils;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -177,24 +176,45 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     private static class UserMessageViewHolder extends MessageViewHolder {
 
         protected final ViewGroup vContainer;
-        protected final RelativeLayout vBubble;
+        protected final ViewGroup vBubble;
         protected final TextView vContent;
+        protected final ImageView vImage;
+        protected final Context mContext;
 
         public UserMessageViewHolder(View itemView) {
             super(itemView);
+            mContext = itemView.getContext();
             vContainer = (ViewGroup) itemView.findViewById(R.id.item_chat_message_container);
-            vBubble = (RelativeLayout) itemView.findViewById(R.id.item_chat_message_bubble);
+            vBubble = (ViewGroup) itemView.findViewById(R.id.item_chat_message_bubble);
             vContent = (TextView) itemView.findViewById(R.id.item_chat_message_content);
+            vImage = (ImageView) itemView.findViewById(R.id.item_chat_image);
         }
 
         @Override
         public void bind(JsonObject item) {
             String content = item.get("content").getAsString();
             boolean firstOfUser = item.has("first_of_user");
+            String imageUrl = CoreUtils.getJsonAsStringOrNull(item.get("user").getAsJsonObject().get("image_url"));
+
             vContent.setText(content);
+
             int topMarginRes = (firstOfUser) ? R.dimen.user_message_first_top_margin : R.dimen.user_message_top_margin;
             int topMargin = vContainer.getResources().getDimensionPixelSize(topMarginRes);
             ((ViewGroup.MarginLayoutParams) vContainer.getLayoutParams()).topMargin = topMargin;
+
+            if (!firstOfUser) {
+                vImage.setVisibility(View.INVISIBLE);
+            } else {
+                vImage.setVisibility(View.VISIBLE);
+                Picasso.with(mContext)
+                        .load(imageUrl)
+                        .transform(new CircleTransformation())
+                        .placeholder(R.drawable.ic_account_circle_no_padding_white_48dp)
+                        .into(vImage);
+                vImage.setImageTintList((imageUrl == null)
+                        ? ActivityUtils.getColorList(mContext, R.color.navImageTint)
+                        : null);
+            }
         }
     }
 

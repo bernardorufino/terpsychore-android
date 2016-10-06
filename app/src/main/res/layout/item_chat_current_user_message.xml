@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_chat_message_container"
-    android:gravity="right"
-    style="@style/UserMessageContainer"
+    style="@style/UserMessageContainer.Current"
     >
 
-    <RelativeLayout
+    <ImageView
+        android:id="@+id/item_chat_image"
+        style="@style/UserMessageImage.Current"
+        />
+
+    <FrameLayout
         android:id="@+id/item_chat_message_bubble"
         android:background="@drawable/chat_current_user_message_bg"
-        style="@style/UserMessage.Current"
+        style="@style/UserMessageBubble.Current"
         >
 
         <com.brufino.terpsychore.lib.CustomTextView
@@ -17,6 +21,6 @@
             style="@style/UserMessageText.Current"
             />
 
-    </RelativeLayout>
+    </FrameLayout>
 
-</LinearLayout>
+</RelativeLayout>
