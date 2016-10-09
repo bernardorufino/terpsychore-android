@@ -17,4 +17,7 @@ public interface AuthenticationApi {
 
     @POST("auth/renew")
     public Call<JsonObject> renewToken(@Query("user_id") String userId);
+
+    @POST("user/{userId}/devices")
+    public Call<JsonObject> registerDevice(@Path("userId") String userId, @Body JsonObject body);
 }

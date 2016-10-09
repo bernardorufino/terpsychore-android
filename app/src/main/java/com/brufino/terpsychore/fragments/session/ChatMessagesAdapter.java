@@ -29,8 +29,8 @@ import java.util.Objects;
 public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessagesAdapter.MessageViewHolder> {
 
     private static final List<String> TYPES = Lists.newArrayList(
-            "current_user_message",
-            "user_message",
+            "current_chat_message",
+            "chat_message",
             "session_message");
 
     private final MessagesApi mMessagesApi;
@@ -73,7 +73,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     }
 
     public void loadNewItems() {
-        int newerThanMessageId = mList.get(0).get("id").getAsInt();
+        int newerThanMessageId = mList.isEmpty() ? -1 : mList.get(0).get("id").getAsInt();
         mMessagesApi.getNewMessages(mSessionId, newerThanMessageId).enqueue(new ApiCallback<JsonArray>() {
             @Override
             public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
@@ -109,10 +109,10 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         String currentUserId = ActivityUtils.getUserId(mContext);
         List<JsonObject> items = CoreUtils.jsonArrayToJsonObjectList(response);
         for (JsonObject item : items) {
-            if (item.get("type").getAsString().equals("user_message")) {
+            if (item.get("type").getAsString().equals("chat_message")) {
                 String userId = item.get("user").getAsJsonObject().get("id").getAsString();
                 if (currentUserId.equals(userId)) {
-                    item.addProperty("type", "current_user_message");
+                    item.addProperty("type", "current_chat_message");
                 }
             }
         }
@@ -142,8 +142,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public static MessageViewHolder create(ViewGroup parent, String type) {
             int layout;
             switch (type) {
-                case "current_user_message": layout = CurrentUserMessageViewHolder.LAYOUT; break;
-                case "user_message": layout = DifferentUserMessageViewHolder.LAYOUT; break;
+                case "current_chat_message": layout = CurrentUserMessageViewHolder.LAYOUT; break;
+                case "chat_message": layout = DifferentUserMessageViewHolder.LAYOUT; break;
                 case "session_message": layout = SessionMessageViewHolder.LAYOUT; break;
                 default: throw new AssertionError("Unknown view type");
             }
@@ -152,8 +152,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             ViewGroup content = (ViewGroup) container.findViewById(R.id.item_chat_content);
             inflater.inflate(layout, content, true);
             switch (type) {
-                case "current_user_message": return new CurrentUserMessageViewHolder(container);
-                case "user_message": return new DifferentUserMessageViewHolder(container);
+                case "current_chat_message": return new CurrentUserMessageViewHolder(container);
+                case "chat_message": return new DifferentUserMessageViewHolder(container);
                 case "session_message": return new SessionMessageViewHolder(container);
                 default: throw new AssertionError("Unknown view type");
             }

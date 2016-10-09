@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "150352934924",
+    "firebase_url": "https://vibefy-c08e7.firebaseio.com",
+    "project_id": "vibefy-c08e7",
+    "storage_bucket": "vibefy-c08e7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:150352934924:android:7960b0046ece8e79",
+        "android_client_info": {
+          "package_name": "com.brufino.terpsychore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "150352934924-8611cgo23ghd14e4p6q29dut24k45sr9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv94BSudsJJul_OjsWpAGWiloTH9vnIVE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

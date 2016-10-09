@@ -12,6 +12,7 @@ public class SharedPreferencesDefs {
         public static final String KEY_IMAGE_URL = "image_url";
         public static final String KEY_EXPIRES_AT = "expires_at";
         public static final String KEY_EMAIL = "email";
+        public static final String KEY_FIREBASE_TOKEN = "firebaseToken";
     }
 
     // Prevents instantiation

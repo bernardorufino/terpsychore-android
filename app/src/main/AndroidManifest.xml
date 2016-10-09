@@ -30,9 +30,10 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".activities.LoginActivity" />
-        <!--TODO: Try below on above-->
-        <!--android:theme="@style/AppTheme.NoActionBar"-->
+            android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+        <!-- Remove theme above? -->
 
         <activity
             android:name=".activities.MusicPickerActivity"
@@ -52,6 +53,20 @@
                 <action android:name="com.spotify.music.queuechanged" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".messaging.FirebaseMessagingServiceImpl">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".messaging.FirebaseInstanceIdServiceImpl">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
 
     </application>
 

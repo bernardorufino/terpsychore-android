@@ -1,10 +1,10 @@
 package com.brufino.terpsychore.activities;
 
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +22,7 @@ import com.brufino.terpsychore.fragments.session.ChatFragment;
 import com.brufino.terpsychore.fragments.session.QueueFragment;
 import com.brufino.terpsychore.fragments.session.TrackPlaybackFragment;
 import com.brufino.terpsychore.lib.ApiCallback;
+import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -153,6 +154,44 @@ public class SessionActivity extends AppCompatActivity {
         }
         return true;
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                mBroadcastReceiver,
+                new IntentFilter(FirebaseMessagingServiceImpl.PLAYBACK_MESSAGE_RECEIVED));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int sessionId = intent.getIntExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_SESSION_ID, -1);
+            if (sessionId == -1) {
+                Log.e("VFY", "Error: received PLAYBACK_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId);
+            } else {
+                Log.d("VFY", "Received PLAYBACK_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId + "(mSessionId = " + mSessionId + ")");
+                if (mSessionId == sessionId) {
+                    String messageString = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE);
+                    boolean includeTracks = false;
+                    if (messageString != null) {
+                        JsonObject message = new JsonParser().parse(messageString).getAsJsonObject();
+                        String action = message.get("action").getAsString();
+                        if (action.equals("sync_tracks")) {
+                            includeTracks = true;
+                        }
+                    }
+                    mQueueManager.refreshQueue(includeTracks);
+                }
+            }
+        }
+    };
 
     private KeyboardVisibilityEventListener mKeyboardVisibilityListener = new KeyboardVisibilityEventListener() {
         @Override

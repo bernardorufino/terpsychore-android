@@ -1,8 +1,13 @@
 package com.brufino.terpsychore.fragments.session;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextWatcher;
@@ -15,6 +20,7 @@ import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.SimpleTextWatcher;
+import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -88,6 +94,36 @@ public class ChatFragment extends Fragment {
                 });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
+                mBroadcastReceiver,
+                new IntentFilter(FirebaseMessagingServiceImpl.CHAT_MESSAGE_RECEIVED));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int sessionId = intent.getIntExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_SESSION_ID, -1);
+            if (sessionId == -1) {
+                Log.e("VFY", "Error: received CHAT_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId);
+            } else {
+                Log.d("VFY", "Received CHAT_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId + " (mSessionId = " + mSessionId + ")");
+                if (mSessionId == sessionId) {
+                    Log.d("VFY", "  Updating...");
+                    mMessagesAdapter.loadNewItems();
+                }
+            }
+        }
+    };
+
     private int[] reactionResIds = {
             R.drawable.reaction_love,
             R.drawable.reaction_wow,
@@ -158,8 +194,9 @@ public class ChatFragment extends Fragment {
                     }
                     String userId = ActivityUtils.getUserId(getContext());
                     ApiUtils.postMessage(
+                            getContext(),
                             mSessionId,
-                            "user_message",
+                            "chat_message",
                             new ImmutableMap.Builder<String, String>()
                                     .put("content", content)
                                     .put("user_id", userId)

@@ -20,13 +20,22 @@ public interface SessionApi {
     public Call<String> deleteSession(@Path("userId") String userId, @Path("sessionId") int sessionId);
 
     @GET("user/{userId}/session/{sessionId}/queue")
-    public Call<JsonObject> getQueue(@Path("userId") String userId, @Path("sessionId") int sessionId);
+    public Call<JsonObject> getQueue(
+            @Path("userId") String userId,
+            @Path("sessionId") int sessionId,
+            @Query("include_tracks") boolean includeTracks);
 
     @POST("session/{sessionId}/queue/status")
-    public Call<JsonObject> postQueueStatus(@Path("sessionId") int sessionId, @Body JsonObject body);
+    public Call<JsonObject> postQueueStatus(
+            @Path("sessionId") int sessionId,
+            @Query("user_id") String userId,
+            @Body JsonObject body);
 
     @POST("session/{sessionId}/tracks")
-    public Call<String> postTracks(@Path("sessionId") int sessionId, @Body JsonObject body);
+    public Call<String> postTracks(
+            @Path("sessionId") int sessionId,
+            @Query("user_id") String userId,
+            @Body JsonObject body);
 
     @POST("session/{sessionId}/join")
     public Call<JsonObject> joinSession(@Path("sessionId") int sessionId, @Body JsonObject body);

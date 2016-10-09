@@ -19,5 +19,8 @@ public interface MessagesApi {
             @Query("newer_than") int newerThanMessageId);
 
     @POST("session/{sessionId}/messages")
-    public Call<JsonObject> postMessage(@Path("sessionId") int sessionId, @Body JsonObject body);
+    public Call<JsonObject> postMessage(
+            @Path("sessionId") int sessionId,
+            @Query("user_id") String userId,
+            @Body JsonObject body);
 }

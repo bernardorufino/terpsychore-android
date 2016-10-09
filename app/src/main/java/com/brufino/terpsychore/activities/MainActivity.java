@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.main_content, checkedGetMainFragment(menuResId))
                 .commit();
+
     }
 
     @Override

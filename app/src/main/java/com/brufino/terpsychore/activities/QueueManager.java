@@ -112,7 +112,7 @@ public class QueueManager {
     private void changeTrack(final int tries) {
         Log.d("VFY", "changeTrack(" + tries + " tries)");
         String userId = ActivityUtils.getUserId(mContext);
-        mSessionApi.getQueue(userId, mSessionId).enqueue(new Callback<JsonObject>() {
+        mSessionApi.getQueue(userId, mSessionId, true).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 JsonObject queue = response.body();
@@ -233,9 +233,13 @@ public class QueueManager {
     }
 
     public void refreshQueue() {
-        Log.d("VFY", "refreshQueue()");
+        refreshQueue(true);
+    }
+
+    public void refreshQueue(boolean includeTracks) {
+        Log.d("VFY", "refreshQueue(includeTracks = " + includeTracks + ")");
         String userId = ActivityUtils.getUserId(mContext);
-        mSessionApi.getQueue(userId, mSessionId).enqueue(new Callback<JsonObject>() {
+        mSessionApi.getQueue(userId, mSessionId, includeTracks).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 JsonObject queue = response.body();
@@ -252,7 +256,7 @@ public class QueueManager {
     }
 
     public void addTracks(List<String> trackUris) {
-        ApiUtils.postTracks(mSessionId, trackUris, new Callback<String>() {
+        ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 refreshQueue();
@@ -386,7 +390,8 @@ public class QueueManager {
 
         Log.d("VFY", "postQueueStatus(status = " + status + ", positionInMs = " + positionInMs + ", " +
                 "currentTrackOffset = " + currentTrackOffset + ", refreshAfterPost = " + refreshAfterPost + ")");
-        mSessionApi.postQueueStatus(mSessionId, body).enqueue(new Callback<JsonObject>() {
+        String userId = ActivityUtils.getUserId(mContext);
+        mSessionApi.postQueueStatus(mSessionId, userId, body).enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (refreshAfterPost) {

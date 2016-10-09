@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
+import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
 import com.google.common.base.Throwables;
 import com.google.gson.JsonArray;
@@ -80,17 +81,19 @@ public class ApiUtils {
     }
 
     public static <T> Call<JsonObject> postMessage(
+            Context context,
             int sessionId,
             String type,
             Map<String, T> attributes,
             Callback<JsonObject> callback) {
+        String userId = ActivityUtils.getUserId(context);
         MessagesApi api = createApi(MessagesApi.class);
         JsonObject body = new JsonObject();
         body.addProperty("type", type);
         JsonObject message = CoreUtils.mapToJsonObject(attributes);
         message.addProperty("session_id", sessionId);
         body.add("message", message);
-        Call<JsonObject> call = api.postMessage(sessionId, body);
+        Call<JsonObject> call = api.postMessage(sessionId, userId, body);
         call.enqueue(callback);
         return call;
 
@@ -109,6 +112,7 @@ public class ApiUtils {
     }
 
     public static Call<String> postTracks(
+            Context context,
             int sessionId,
             List<String> trackUris,
             Callback<String> callback) {
@@ -121,9 +125,10 @@ public class ApiUtils {
         }
 
         SessionApi api = createApi(SessionApi.class);
+        String userId = ActivityUtils.getUserId(context);
         JsonObject body = new JsonObject();
         body.add("track_ids", CoreUtils.stringListToJsonArray(trackIds));
-        Call<String> call = api.postTracks(sessionId, body);
+        Call<String> call = api.postTracks(sessionId, userId, body);
         call.enqueue(callback);
         return call;
     }

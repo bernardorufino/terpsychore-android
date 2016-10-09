@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
+import com.brufino.terpsychore.messaging.FirebaseInstanceIdServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
 import com.brufino.terpsychore.util.CoreUtils;
@@ -173,6 +174,9 @@ public class LoginActivity extends AppCompatActivity {
                     .putString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, imageUrl)
                     .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, expiresAt)
                     .apply();
+
+            // Force send token to server
+             FirebaseInstanceIdServiceImpl.tryRegisterDevice(LoginActivity.this);
 
             // TODO: Use string resource with placeholder
             vMessageText.setText("Welcome, " + displayName);
