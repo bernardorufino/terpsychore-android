@@ -45,7 +45,7 @@ public class FirebaseInstanceIdServiceImpl extends FirebaseInstanceIdService {
         Log.d("VFY", "  provided_id = " + providedId);
         Log.d("VFY", "  name = " + name);
 
-        AuthenticationApi api = ApiUtils.createApi(AuthenticationApi.class);
+        AuthenticationApi api = ApiUtils.createApi(context, AuthenticationApi.class);
         Call<JsonObject> call = api.registerDevice(
                 userId,
                 CoreUtils.mapToJsonObject(new ImmutableMap.Builder<String, String>()

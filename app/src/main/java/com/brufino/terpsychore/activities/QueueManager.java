@@ -42,7 +42,7 @@ public class QueueManager {
         mContext = context;
         mPlayerManager =  playerManager;
         mPlayerManager.setPlayerListener(mPlayerListener);
-        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mSessionApi = ApiUtils.createApi(mContext, SessionApi.class);
     }
 
     public void addQueueListener(QueueListener queueListener) {

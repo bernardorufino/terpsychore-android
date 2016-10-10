@@ -71,11 +71,11 @@ public class MainActivity extends AppCompatActivity
         vNavigationView.setNavigationItemSelectedListener(this);
         vMainCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_coordinator_layout);
 
+        // Set default preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_general, false);
+
         mSessionListFragment = new SessionsListFragment();
         mMusicInboxFragment = new MusicInboxFragment();
-
-        // TODO: Remove?
-        PreferenceManager.setDefaultValues(this, R.xml.preferences_general, false);
 
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {

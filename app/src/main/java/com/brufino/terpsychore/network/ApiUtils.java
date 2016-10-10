@@ -2,7 +2,9 @@ package com.brufino.terpsychore.network;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -29,15 +31,12 @@ import static com.google.common.base.Preconditions.*;
 /* TODO: Rewrite remote calls throughout the app and create a helper as a middle-man btw view requests and retrofit */
 public class ApiUtils {
 
-    //public static final String BASE_URL = "http:// vibefy.herokuapp.com";
-    public static final String BASE_URL = "http://192.168.0.106:5000";
-
     private static Retrofit sRetrofit;
 
-    public static <T> T createApi(Class<T> type) {
+    public static <T> T createApi(Context context, Class<T> type) {
         if (sRetrofit == null) {
             sRetrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(getBaseUrl(context))
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
@@ -57,8 +56,15 @@ public class ApiUtils {
         return new JsonParser().parse(getCheckedErrorBodyAsString(response));
     }
 
-    public static String getServerUrl(String endpoint) {
-        return BASE_URL + "/" + endpoint.replaceFirst("^/", "");
+    private static String getBaseUrl(Context context) {
+        String baseUrl = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(context.getString(R.string.preference_base_url), null);
+        checkNotNull(baseUrl, "Preference preference_base_url is null");
+        return baseUrl;
+    }
+
+    public static String getServerUrl(Context context, String endpoint) {
+        return getBaseUrl(context) + "/" + endpoint.replaceFirst("^/", "");
     }
 
     public static JsonObject getCurrentTrack(JsonObject queue) {
@@ -87,7 +93,7 @@ public class ApiUtils {
             Map<String, T> attributes,
             Callback<JsonObject> callback) {
         String userId = ActivityUtils.getUserId(context);
-        MessagesApi api = createApi(MessagesApi.class);
+        MessagesApi api = createApi(context, MessagesApi.class);
         JsonObject body = new JsonObject();
         body.addProperty("type", type);
         JsonObject message = CoreUtils.mapToJsonObject(attributes);
@@ -100,10 +106,11 @@ public class ApiUtils {
     }
 
     public static Call<JsonObject> joinSession(
+            Context context,
             int sessionId,
             List<String> userIds,
             Callback<JsonObject> callback) {
-        SessionApi api = createApi(SessionApi.class);
+        SessionApi api = createApi(context, SessionApi.class);
         JsonObject body = new JsonObject();
         body.add("user_ids", CoreUtils.stringListToJsonArray(userIds));
         Call<JsonObject> call = api.joinSession(sessionId, body);
@@ -124,7 +131,7 @@ public class ApiUtils {
             trackIds.add(pattern.matcher(trackUri).replaceFirst(""));
         }
 
-        SessionApi api = createApi(SessionApi.class);
+        SessionApi api = createApi(context, SessionApi.class);
         String userId = ActivityUtils.getUserId(context);
         JsonObject body = new JsonObject();
         body.add("track_ids", CoreUtils.stringListToJsonArray(trackIds));
@@ -134,7 +141,7 @@ public class ApiUtils {
     }
 
     public static Call<JsonObject> renewToken(Context context, final Callback<JsonObject> callback) {
-        AuthenticationApi api = createApi(AuthenticationApi.class);
+        AuthenticationApi api = createApi(context, AuthenticationApi.class);
         final SharedPreferences preferences =
                 context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE);
         String userId = preferences.getString(SharedPreferencesDefs.Main.KEY_USER_ID, null);

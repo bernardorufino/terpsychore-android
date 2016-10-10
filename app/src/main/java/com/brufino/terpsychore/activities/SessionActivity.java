@@ -93,7 +93,7 @@ public class SessionActivity extends AppCompatActivity {
         mTrackPlaybackFragment.setQueueViewManager(mQueueViewManager);
         mChatFragment = (ChatFragment) getSupportFragmentManager().findFragmentById(R.id.session_chat_fragment);
 
-        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mSessionApi = ApiUtils.createApi(this, SessionApi.class);
         mUserId = checkNotNull(ActivityUtils.getUserId(this), "User id can't be null");
         mSessionId = getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1);
         checkState(mSessionId != -1, "Can't start SessionActivity without a session id");
@@ -270,11 +270,13 @@ public class SessionActivity extends AppCompatActivity {
             case REQUEST_SELECT_USERS:
                 if (resultCode == Activity.RESULT_OK) {
                     final List<String> userIds = data.getStringArrayListExtra(UserPickerActivity.RESULT_USER_IDS);
-                    ApiUtils.joinSession(mSessionId, userIds, new ApiCallback<JsonObject>() {
+                    ApiUtils.joinSession(this, mSessionId, userIds, new ApiCallback<JsonObject>() {
                         @Override
                         public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
                             // A new session image may be formed with the new people just added
-                            String imageUrl = ApiUtils.getServerUrl(mSession.get("image_url").getAsString());
+                            String imageUrl = ApiUtils.getServerUrl(
+                                    SessionActivity.this,
+                                    mSession.get("image_url").getAsString());
                             ViewUtils.refreshImageInCaches(SessionActivity.this, imageUrl);
 
                             int nUsersAdded = response.body().get("nusers").getAsInt();

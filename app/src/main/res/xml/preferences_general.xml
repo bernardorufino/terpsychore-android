@@ -4,14 +4,14 @@
     >
 
         <EditTextPreference
-            android:key="preference_endpoint"
-            android:title="Backend Endpoint"
-            android:defaultValue="http://192.168.0.106"
+            android:key="@string/preference_base_url"
+            android:title="Backend Address"
+            android:defaultValue="http://192.168.0.106:5000"
             android:layout="@layout/layout_preference"
             />
 
         <CheckBoxPreference
-            android:key="preference_show_my_image_on_chat"
+            android:key="@string/preference_show_my_image_on_chat"
             android:title="Show my image on chat"
             android:defaultValue="false"
             android:layout="@layout/layout_preference"

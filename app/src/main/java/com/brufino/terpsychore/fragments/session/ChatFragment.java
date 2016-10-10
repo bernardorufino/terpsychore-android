@@ -79,7 +79,7 @@ public class ChatFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
         vMessagesList.setLayoutManager(layoutManager);
 
-        mMessagesApi = ApiUtils.createApi(MessagesApi.class);
+        mMessagesApi = ApiUtils.createApi(getContext(), MessagesApi.class);
         checkState(mSessionId != -1, "Provide session id with setSessionId()");
         mMessagesAdapter = new ChatMessagesAdapter(getContext(), mSessionId);
         vMessagesList.setAdapter(mMessagesAdapter);

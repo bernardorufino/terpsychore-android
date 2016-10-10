@@ -44,7 +44,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         super(20, 5);
         mContext = context;
         mSessionId = sessionId;
-        mMessagesApi =  ApiUtils.createApi(MessagesApi.class);
+        mMessagesApi =  ApiUtils.createApi(mContext, MessagesApi.class);
     }
 
     @Override

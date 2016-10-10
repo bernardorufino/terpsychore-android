@@ -86,7 +86,7 @@ public class UserPickerActivity extends Activity {
 
         mUsersLoader = new UsersLoader(this);
         mPendingLoadRequests = new AtomicInteger(0);
-        mSearchApi = ApiUtils.createApi(SearchApi.class);
+        mSearchApi = ApiUtils.createApi(this, SearchApi.class);
         mUserId = ActivityUtils.getUserId(this);
     }
 

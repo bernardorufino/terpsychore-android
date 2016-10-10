@@ -78,7 +78,10 @@ public class LoginActivity extends AppCompatActivity {
         vProgressBar.setProgress(0);
         vProgressBar.setMax(100);
 
-        mAuthenticationApi = ApiUtils.createApi(AuthenticationApi.class);
+        // Set default preferences
+        PreferenceManager.setDefaultValues(LoginActivity.this, R.xml.preferences_general, false);
+
+        mAuthenticationApi = ApiUtils.createApi(this, AuthenticationApi.class);
         Call<JsonObject> call = mAuthenticationApi.getScopes();
         call.enqueue(mGetScopesCallback);
     }
@@ -176,13 +179,8 @@ public class LoginActivity extends AppCompatActivity {
                     .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, expiresAt)
                     .apply();
 
-            // TODO: Extract below code into "initializers" pattern
-
             // Force send token to server
              FirebaseInstanceIdServiceImpl.tryRegisterDevice(LoginActivity.this);
-
-            // Set default preferences
-            PreferenceManager.setDefaultValues(LoginActivity.this, R.xml.preferences_general, false);
 
             // TODO: Use string resource with placeholder
             vMessageText.setText("Welcome, " + displayName);

@@ -71,7 +71,7 @@ public class SessionsListFragment extends MainFragment {
         vSessionList.setLayoutManager(mSessionListLayoutManager);
         vLoading = (ProgressBar) getView().findViewById(R.id.sessions_list_loading);
 
-        mSessionApi = ApiUtils.createApi(SessionApi.class);
+        mSessionApi = ApiUtils.createApi(getContext(), SessionApi.class);
         mUserId = ActivityUtils.getUserId(getContext());
         checkNotNull(mUserId, "mUserId shouldn't be null at SessionsListFragment.onActivityCreated()");
 
@@ -136,7 +136,7 @@ public class SessionsListFragment extends MainFragment {
             mSessionList.addAll(CoreUtils.jsonArrayToJsonObjectList(sessions));
             if (mInvalidateSessionImages) {
                 for (JsonObject session : mSessionList) {
-                    String imageUrl = ApiUtils.getServerUrl(session.get("image_url").getAsString());
+                    String imageUrl = ApiUtils.getServerUrl(getContext(), session.get("image_url").getAsString());
                     ViewUtils.refreshImageInCaches(getContext(), imageUrl);
                 }
                 mInvalidateSessionImages = false;
@@ -247,7 +247,7 @@ public class SessionsListFragment extends MainFragment {
             JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
             JsonObject nextTrack = ApiUtils.getNextTrack(queue);
             String status = queue.get("track_status").getAsString();
-            String imageUrl = ApiUtils.getServerUrl(session.get("image_url").getAsString());
+            String imageUrl = ApiUtils.getServerUrl(mContext, session.get("image_url").getAsString());
 
             Picasso.with(mContext)
                     .load(imageUrl)
