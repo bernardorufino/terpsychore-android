@@ -1,6 +1,7 @@
 package com.brufino.terpsychore.fragments.session;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -233,11 +234,15 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                         : null);
             }
         }
+
+        protected boolean displayOutgoingImage() {
+            return PreferenceManager.getDefaultSharedPreferences(mContext)
+                    .getBoolean(mContext.getString(R.string.preference_show_my_image_on_chat), false);
+        }
     }
 
     private static class OutgoingChatMessageViewHolder extends ChatMessageViewHolder {
         public static final int LAYOUT = R.layout.item_chat_outgoing_message;
-        public static final boolean HAS_IMAGE = false;
 
         public OutgoingChatMessageViewHolder(View itemView) {
             super(itemView);
@@ -250,7 +255,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             vBubble.setBackgroundResource((firstOfUser)
                     ? R.drawable.chat_outgoing_message_first_bg
                     : R.drawable.chat_outgoing_message_bg);
-            if (!HAS_IMAGE) {
+            if (!displayOutgoingImage()) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vImage.getLayoutParams();
                 layoutParams.width = 0;
             }
@@ -282,7 +287,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                     ? user.get("display_name").getAsString()
                     : user.get("username").getAsString();
             vTitle.setText(title);
-            if (!OutgoingChatMessageViewHolder.HAS_IMAGE) {
+            if (!displayOutgoingImage()) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vContainer.getLayoutParams();
                 int tickSize = mContext.getResources().getDimensionPixelSize(R.dimen.chat_message_tick_size);
                 layoutParams.rightMargin = 2 * tickSize - 5; // +n fine tune
