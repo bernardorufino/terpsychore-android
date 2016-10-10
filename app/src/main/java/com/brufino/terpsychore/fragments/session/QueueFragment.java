@@ -118,8 +118,9 @@ public class QueueFragment extends Fragment {
         @Override
         public void onQueueChange(QueueManager queueManager, JsonObject queue) {
             mTrackList.clear();
-            JsonArray tracks = queue.get("tracks").getAsJsonArray();
-            mTrackList.addAll(CoreUtils.jsonArrayToJsonObjectList(tracks));
+            JsonArray tracksJson = queue.get("tracks").getAsJsonArray();
+            List<JsonObject> tracks = CoreUtils.jsonArrayToJsonObjectList(tracksJson);
+            mTrackList.addAll(tracks);
             mTrackListAdapter.notifyDataSetChanged();
             vControlAdd.setVisibility(mQueueManager.isHost() ? View.VISIBLE : View.GONE);
 

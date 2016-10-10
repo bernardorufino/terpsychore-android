@@ -153,6 +153,12 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         }
     };
 
+    private void updatePlaybackControlStates() {
+        vPlayButton.setImageTintList(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vReplayButton.setImageTintList(mQueueManager.canReplay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vNextButton.setImageTintList(mQueueManager.canNext() ? mControlActivatedColor : mControlDeactivatedColor);
+    }
+
     private void trySetTrackImageBackground(JsonObject currentTrack) {
         if (vContainer == null) {
             return;
@@ -181,12 +187,6 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
             vContainer.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.trackPlaybackBg));
             mBgImageUrl = null;
         }
-    }
-
-    private void updatePlaybackControlStates() {
-        vPlayButton.setImageTintList(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
-        vReplayButton.setImageTintList(mQueueManager.canReplay() ? mControlActivatedColor : mControlDeactivatedColor);
-        vNextButton.setImageTintList(mQueueManager.canNext() ? mControlActivatedColor : mControlDeactivatedColor);
     }
 
     public void setQueueManager(QueueManager queueManager) {
