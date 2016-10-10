@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_chat_message_container"
+    style="@style/ChatMessageContainer"
+    >
+
+    <FrameLayout
+        android:id="@+id/item_chat_message_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:alpha="0.6"
+        >
+
+        <TextView
+            android:id="@+id/item_chat_message_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="3dp"
+            android:textSize="11sp"
+            android:textColor="@color/chatMessageTitleText"
+            style="@style/ChatMessageTitle"
+            />
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/item_chat_image"
+        style="@style/ChatMessageImage.Incoming"
+        />
+
+    <FrameLayout
+        android:id="@+id/item_chat_message_bubble"
+        android:background="@drawable/chat_message_bg"
+        style="@style/ChatMessageBubble"
+        >
+
+        <com.brufino.terpsychore.lib.CustomTextView
+            android:id="@+id/item_chat_message_content"
+            style="@style/ChatMessageText"
+            />
+
+    </FrameLayout>
+
+</RelativeLayout>

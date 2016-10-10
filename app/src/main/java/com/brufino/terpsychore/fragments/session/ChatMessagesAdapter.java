@@ -236,7 +236,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     }
 
     private static class OutgoingChatMessageViewHolder extends ChatMessageViewHolder {
-        public static final int LAYOUT = R.layout.item_chat_current_user_message;
+        public static final int LAYOUT = R.layout.item_chat_outgoing_message;
         public static final boolean HAS_IMAGE = false;
 
         public OutgoingChatMessageViewHolder(View itemView) {
@@ -258,10 +258,15 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     }
 
     private static class IncomingChatMessageViewHolder extends ChatMessageViewHolder {
-        public static final int LAYOUT = R.layout.item_chat_different_user_message;
+        public static final int LAYOUT = R.layout.item_chat_incoming_message;
+
+        private ViewGroup vTop;
+        private TextView vTitle;
 
         public IncomingChatMessageViewHolder(View itemView) {
             super(itemView);
+            vTop = (ViewGroup) itemView.findViewById(R.id.item_chat_message_top);
+            vTitle = (TextView) itemView.findViewById(R.id.item_chat_message_title);
         }
 
         @Override
@@ -271,6 +276,12 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             vBubble.setBackgroundResource((firstOfUser)
                     ? R.drawable.chat_message_first_bg
                     : R.drawable.chat_message_bg);
+            vTop.setVisibility((firstOfUser) ? View.VISIBLE : View.GONE);
+            JsonObject user = item.get("user").getAsJsonObject();
+            String title = !user.get("display_name").isJsonNull()
+                    ? user.get("display_name").getAsString()
+                    : user.get("username").getAsString();
+            vTitle.setText(title);
             if (!OutgoingChatMessageViewHolder.HAS_IMAGE) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vContainer.getLayoutParams();
                 int tickSize = mContext.getResources().getDimensionPixelSize(R.dimen.chat_message_tick_size);

@@ -98,38 +98,47 @@
         <item name="android:layout_marginRight">0dp</item>
     </style>
 
-    <style name="UserMessageContainer">
+    <style name="ChatMessageContainer">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">@dimen/chat_message_tick_size</item>
-        <item name="android:layout_marginRight">50dp</item> <!-- 32 (image) + 2 * 9 (tick)  -->
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">top</item>
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_marginLeft">@dimen/chat_message_tick_size</item>
+        <item name="android:layout_marginRight">50dp</item> <!-- 32 (image) + 2 * 9 (tick)  -->
     </style>
 
-    <style name="UserMessageContainer.Current">
+    <style name="ChatMessageContainer.Outgoing">
         <item name="android:layout_marginLeft">50dp</item>
         <item name="android:layout_marginRight">@dimen/chat_message_tick_size</item>
     </style>
 
-    <style name="UserMessageImage">
+    <style name="ChatMessageTitle">
+
+    </style>
+
+    <style name="ChatMessageImage">
         <item name="android:layout_width">@dimen/chat_message_image_size</item>
         <item name="android:layout_height">@dimen/chat_message_image_size</item>
-        <item name="android:layout_alignParentLeft">true</item>
         <item name="android:tint">@color/navImageTint</item>
         <item name="android:src">@drawable/ic_account_circle_no_padding_white_48dp</item>
     </style>
 
-    <style name="UserMessageImage.Current">
-        <item name="android:layout_alignParentLeft">false</item>
+    <style name="ChatMessageImage.Outgoing">
         <item name="android:layout_alignParentRight">true</item>
     </style>
 
-    <style name="UserMessageBubble">
+    <style name="ChatMessageImage.Incoming">
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_below">@id/item_chat_message_top</item>
+    </style>
+
+    <style name="ChatMessageBubble">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignTop">@id/item_chat_image</item>
+        <item name="android:layout_toLeftOf">@android:id/empty</item>
         <item name="android:layout_toRightOf">@id/item_chat_image</item>
         <item name="android:paddingTop">@dimen/chat_message_padding_top</item>
         <item name="android:paddingBottom">@dimen/chat_message_padding_bottom</item>
@@ -137,24 +146,24 @@
         <item name="android:paddingRight">@dimen/chat_message_opposite_tick_side_padding</item>
     </style>
 
-    <style name="UserMessageBubble.Current">
-        <item name="android:layout_toRightOf">@android:id/empty</item>
+    <style name="ChatMessageBubble.Outgoing">
         <item name="android:layout_toLeftOf">@id/item_chat_image</item>
+        <item name="android:layout_toRightOf">@android:id/empty</item>
         <item name="android:paddingLeft">@dimen/chat_message_opposite_tick_side_padding</item>
         <item name="android:paddingRight">@dimen/chat_message_tick_side_padding</item>
     </style>
 
-    <style name="UserMessageText">
+    <style name="ChatMessageText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/chatUserMessageText</item>
+        <item name="android:textColor">@color/chatMessageText</item>
         <!--<item name="android:singleLine">false</item>-->
     </style>
 
-    <style name="UserMessageText.Current">
+    <style name="ChatMessageText.Outgoing">
         <item name="android:gravity">right</item>
-        <item name="android:textColor">@color/chatCurrentUserMessageText</item>
+        <item name="android:textColor">@color/chatOutgoingMessageText</item>
     </style>
 
 </resources>

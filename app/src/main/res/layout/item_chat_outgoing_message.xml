@@ -2,23 +2,23 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_chat_message_container"
-    style="@style/UserMessageContainer"
+    style="@style/ChatMessageContainer.Outgoing"
     >
 
     <ImageView
         android:id="@+id/item_chat_image"
-        style="@style/UserMessageImage"
+        style="@style/ChatMessageImage.Outgoing"
         />
 
     <FrameLayout
         android:id="@+id/item_chat_message_bubble"
-        android:background="@drawable/chat_message_bg"
-        style="@style/UserMessageBubble"
+        android:background="@drawable/chat_outgoing_message_bg"
+        style="@style/ChatMessageBubble.Outgoing"
         >
 
         <com.brufino.terpsychore.lib.CustomTextView
             android:id="@+id/item_chat_message_content"
-            style="@style/UserMessageText"
+            style="@style/ChatMessageText.Outgoing"
             />
 
     </FrameLayout>
