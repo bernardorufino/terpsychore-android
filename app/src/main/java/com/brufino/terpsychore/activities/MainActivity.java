@@ -149,6 +149,9 @@ public class MainActivity extends AppCompatActivity
                     .commit();
         } else {
             switch (item.getItemId()) {
+                case R.id.main_drawer_settings:
+                    Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                    break;
                 case R.id.main_drawer_logout:
                     new AlertDialog.Builder(this)
                             .setMessage(R.string.logout_message)

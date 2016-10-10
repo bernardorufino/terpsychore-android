@@ -18,6 +18,10 @@
         android:id="@+id/main_drawer_group_actions"
         android:checkableBehavior="none">
         <item
+            android:id="@+id/main_drawer_settings"
+            android:icon="@drawable/ic_settings_white_24dp"
+            android:title="Settings" />
+        <item
             android:id="@+id/main_drawer_logout"
             android:icon="@drawable/ic_output_white_24dp"
             android:title="Logout" />
