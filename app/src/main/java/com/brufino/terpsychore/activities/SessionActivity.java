@@ -9,10 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -372,6 +369,15 @@ public class SessionActivity extends AppCompatActivity {
         @Override
         public void onQueueChange(QueueManager queueManager, JsonObject queue) {
             positionQueueFragmentIfOverlayVisible();
+            String trackStatus = queue.get("track_status").getAsString();
+            if (trackStatus.equals("playing")) {
+                Log.d("VFY", "SessionActivity: [1] turn ON WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON");
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else {
+                Log.d("VFY", "SessionActivity: [0] turn OFF WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON");
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+
         }
         @Override
         public void onQueueRefreshError(QueueManager queueManager, Throwable t) {

@@ -16,6 +16,7 @@ import retrofit2.Response;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
@@ -56,15 +57,19 @@ public class QueueManager {
         annotateQueueTracks(queue);
         mQueue = queue;
         mSessionId = mQueue.get("session_id").getAsInt();
-        for (QueueListener queueListener : mQueueListeners) {
-            queueListener.onQueueChange(this, mQueue);
-        }
+        notifyListeners();
 
         if (!mPlayerManager.canControl() && !mPlayerManager.isInitializing()) {
             // loadQueue() will be called in mPlayerListener.onPlayerInitialized()
             mPlayerManager.initialize();
         } else if (!mPlayerManager.isInitializing()) {
             loadQueue();
+        }
+    }
+
+    private void notifyListeners() {
+        for (QueueListener queueListener : mQueueListeners) {
+            queueListener.onQueueChange(this, mQueue);
         }
     }
 
@@ -373,19 +378,23 @@ public class QueueManager {
             int positionInMs,
             int currentTrackOffset,
             final boolean refreshAfterPost) {
-        int currentTrack = mQueue.get("current_track").getAsInt() + currentTrackOffset;
+        Log.d("VFY", "postQueueStatus(status = " + status + ", positionInMs = " + positionInMs + ", currentTrackOffset = " + currentTrackOffset + ", refreshAfterPost = " + refreshAfterPost + ")");
 
+        String oldStatus = mQueue.get("track_status").getAsString();
         mQueue.addProperty("track_status", status);
         mQueue.addProperty("track_position", positionInMs);
-        // TODO: Test if track_position update is working (We don't generally use it, that's why it's seemingly working)
+        if (!Objects.equals(oldStatus, status)) {
+            // Only notify queue listeners in case the status has changed, to listen for changes in track position
+            // subscribe to track progress using TrackProgressListener on the player manager
+            notifyListeners();
+        }
 
+
+        int currentTrack = mQueue.get("current_track").getAsInt() + currentTrackOffset;
         JsonObject body = new JsonObject();
         body.addProperty("track_status", status);
         body.addProperty("current_track", currentTrack);
         body.addProperty("track_position", positionInMs);
-
-        Log.d("VFY", "postQueueStatus(status = " + status + ", positionInMs = " + positionInMs + ", " +
-                "currentTrackOffset = " + currentTrackOffset + ", refreshAfterPost = " + refreshAfterPost + ")");
         String userId = ActivityUtils.getUserId(mContext);
         mSessionApi.postQueueStatus(mSessionId, userId, body).enqueue(new Callback<JsonObject>() {
             @Override
