@@ -26,6 +26,7 @@ import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,12 +34,13 @@ import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
 public class ChatFragment extends Fragment {
 
-    public static final java.lang.String ARG_SESSION_ID = "sessionId";
+    private static Set<String> SUPPORTED_MESSAGE_TYPES = Sets.newHashSet("chat_message", "session_message");
     private static int ACTION_BUTTON_OPEN_REACTIONS_ICON = R.drawable.ic_bubble_chart_white_40dp;
     private static int ACTION_BUTTON_CLOSE_REACTIONS_ICON = R.drawable.ic_close_white_40dp;
     private static int ACTION_BUTTON_SEND_MESSAGE_ICON = R.drawable.ic_send_white_40dp;
@@ -99,7 +101,10 @@ public class ChatFragment extends Fragment {
         super.onResume();
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(
                 mBroadcastReceiver,
-                new IntentFilter(FirebaseMessagingServiceImpl.CHAT_MESSAGE_RECEIVED));
+                new IntentFilter(FirebaseMessagingServiceImpl.MESSAGE_RECEIVED));
+        if (!mMessagesAdapter.isLoading()) {
+            mMessagesAdapter.loadNewMessages();
+        }
     }
 
     @Override
@@ -111,15 +116,10 @@ public class ChatFragment extends Fragment {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE_TYPE);
             int sessionId = intent.getIntExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_SESSION_ID, -1);
-            if (sessionId == -1) {
-                Log.e("VFY", "Error: received CHAT_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId);
-            } else {
-                Log.d("VFY", "Received CHAT_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId + " (mSessionId = " + mSessionId + ")");
-                if (mSessionId == sessionId) {
-                    Log.d("VFY", "  Updating...");
-                    mMessagesAdapter.loadNewItems();
-                }
+            if (SUPPORTED_MESSAGE_TYPES.contains(type) && mSessionId == sessionId && mSessionId != -1) {
+                mMessagesAdapter.loadNewMessages();
             }
         }
     };
@@ -174,7 +174,7 @@ public class ChatFragment extends Fragment {
     private Callback<JsonObject> mOnMessagePosted = new ApiCallback<JsonObject>() {
         @Override
         public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
-            mMessagesAdapter.loadNewItems();
+            mMessagesAdapter.loadNewMessages();
         }
         @Override
         public void onFailure(Call<JsonObject> call, Throwable t) {
@@ -205,7 +205,7 @@ public class ChatFragment extends Fragment {
                     vInput.setText("");
                     break;
                 case OPEN_REACTIONS:
-                    mMessagesAdapter.loadNewItems();
+                    mMessagesAdapter.loadNewMessages();
                     if (vReactionsContainer.isShown()) {
                         vReactionsContainer.setVisibility(View.INVISIBLE);
                         vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);

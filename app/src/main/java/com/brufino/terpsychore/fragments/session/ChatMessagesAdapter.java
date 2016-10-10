@@ -6,7 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.CircleTransformation;
@@ -23,13 +26,12 @@ import com.squareup.picasso.Picasso;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessagesAdapter.MessageViewHolder> {
 
     private static final List<String> TYPES = Lists.newArrayList(
-            "current_chat_message",
+            "outgoing_chat_message",
             "chat_message",
             "session_message");
 
@@ -58,7 +60,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             @Override
             public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
                 mLoadingIndicator.setLoading(false);
-                List<JsonObject> items = toMessageList(response.body());
+                List<JsonObject> items = CoreUtils.jsonArrayToJsonObjectList(response.body());
                 addItems(items);
                 annotateMessages();
             }
@@ -72,13 +74,13 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         });
     }
 
-    public void loadNewItems() {
-        int newerThanMessageId = mList.isEmpty() ? -1 : mList.get(0).get("id").getAsInt();
+    public void loadNewMessages() {
+        final int newerThanMessageId = mList.isEmpty() ? -1 : mList.get(0).get("id").getAsInt();
         mMessagesApi.getNewMessages(mSessionId, newerThanMessageId).enqueue(new ApiCallback<JsonArray>() {
             @Override
             public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
-                List<JsonObject> items = toMessageList(response.body());
-                mList.addAll(0, items);
+                List<JsonObject> messages = CoreUtils.jsonArrayToJsonObjectList(response.body());
+                addNewMessages(newerThanMessageId, messages);
                 notifyDataSetChanged();
                 annotateMessages();
             }
@@ -90,10 +92,34 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         });
     }
 
+    /**
+     * Add messages in list {@param messages} that are not already in mList.subList(0, K) where
+     * K is the position of the message with id {@param newerThanMessageId}. Keep in mind that
+     * mList is in reverse chronological order (i.e. mList.get(0) is the latest).
+     */
+    private void addNewMessages(int newerThanMessageId, List<JsonObject> messages) {
+        Set<Integer> mExistentIds = new HashSet<>();
+        for (JsonObject message : mList) {
+            int id = message.get("id").getAsInt();
+            if (id == newerThanMessageId) {
+                break;
+            }
+            mExistentIds.add(id);
+        }
+        List<JsonObject> allowedMessages = new ArrayList<>(messages.size());
+        for (JsonObject message : messages) {
+            int id = message.get("id").getAsInt();
+            if (!mExistentIds.contains(id)) {
+                allowedMessages.add(message);
+            }
+        }
+        mList.addAll(0, allowedMessages);
+    }
+
     private void annotateMessages() {
+        String currentUserId = ActivityUtils.getUserId(mContext);
         String lastUserId = null;
         for (JsonObject message : Lists.reverse(mList)) {
-            String type = message.get("type").getAsString();
             if (!message.get("user").isJsonNull()) {
                 String userId = message.get("user").getAsJsonObject().get("id").getAsString();
                 message.remove("first_of_user");
@@ -101,22 +127,13 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                     lastUserId = userId;
                     message.addProperty("first_of_user", true);
                 }
-            }
-        }
-    }
-
-    public List<JsonObject> toMessageList(JsonArray response) {
-        String currentUserId = ActivityUtils.getUserId(mContext);
-        List<JsonObject> items = CoreUtils.jsonArrayToJsonObjectList(response);
-        for (JsonObject item : items) {
-            if (item.get("type").getAsString().equals("chat_message")) {
-                String userId = item.get("user").getAsJsonObject().get("id").getAsString();
-                if (currentUserId.equals(userId)) {
-                    item.addProperty("type", "current_chat_message");
+                if (message.get("type").getAsString().equals("chat_message")) {
+                    if (Objects.equals(userId, currentUserId)) {
+                        message.addProperty("type", "outgoing_chat_message");
+                    }
                 }
             }
         }
-        return items;
     }
 
     @Override
@@ -142,8 +159,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public static MessageViewHolder create(ViewGroup parent, String type) {
             int layout;
             switch (type) {
-                case "current_chat_message": layout = CurrentUserMessageViewHolder.LAYOUT; break;
-                case "chat_message": layout = DifferentUserMessageViewHolder.LAYOUT; break;
+                case "outgoing_chat_message": layout = OutgoingChatMessageViewHolder.LAYOUT; break;
+                case "chat_message": layout = IncomingChatMessageViewHolder.LAYOUT; break;
                 case "session_message": layout = SessionMessageViewHolder.LAYOUT; break;
                 default: throw new AssertionError("Unknown view type");
             }
@@ -152,8 +169,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             ViewGroup content = (ViewGroup) container.findViewById(R.id.item_chat_content);
             inflater.inflate(layout, content, true);
             switch (type) {
-                case "current_chat_message": return new CurrentUserMessageViewHolder(container);
-                case "chat_message": return new DifferentUserMessageViewHolder(container);
+                case "outgoing_chat_message": return new OutgoingChatMessageViewHolder(container);
+                case "chat_message": return new IncomingChatMessageViewHolder(container);
                 case "session_message": return new SessionMessageViewHolder(container);
                 default: throw new AssertionError("Unknown view type");
             }
@@ -173,7 +190,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public abstract void bind(JsonObject item);
     }
 
-    private static class UserMessageViewHolder extends MessageViewHolder {
+    private static class ChatMessageViewHolder extends MessageViewHolder {
 
         protected final ViewGroup vContainer;
         protected final ViewGroup vBubble;
@@ -181,7 +198,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         protected final ImageView vImage;
         protected final Context mContext;
 
-        public UserMessageViewHolder(View itemView) {
+        public ChatMessageViewHolder(View itemView) {
             super(itemView);
             mContext = itemView.getContext();
             vContainer = (ViewGroup) itemView.findViewById(R.id.item_chat_message_container);
@@ -198,7 +215,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
 
             vContent.setText(content);
 
-            int topMarginRes = (firstOfUser) ? R.dimen.user_message_first_top_margin : R.dimen.user_message_top_margin;
+            int topMarginRes = (firstOfUser) ? R.dimen.chat_message_first_top_margin : R.dimen.chat_message_top_margin;
             int topMargin = vContainer.getResources().getDimensionPixelSize(topMarginRes);
             ((ViewGroup.MarginLayoutParams) vContainer.getLayoutParams()).topMargin = topMargin;
 
@@ -218,11 +235,11 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         }
     }
 
-    private static class CurrentUserMessageViewHolder extends UserMessageViewHolder {
+    private static class OutgoingChatMessageViewHolder extends ChatMessageViewHolder {
         public static final int LAYOUT = R.layout.item_chat_current_user_message;
         public static final boolean HAS_IMAGE = false;
 
-        public CurrentUserMessageViewHolder(View itemView) {
+        public OutgoingChatMessageViewHolder(View itemView) {
             super(itemView);
         }
 
@@ -231,8 +248,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             super.bind(item);
             boolean firstOfUser = item.has("first_of_user");
             vBubble.setBackgroundResource((firstOfUser)
-                    ? R.drawable.chat_current_user_message_first_bg
-                    : R.drawable.chat_current_user_message_bg);
+                    ? R.drawable.chat_outgoing_message_first_bg
+                    : R.drawable.chat_outgoing_message_bg);
             if (!HAS_IMAGE) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vImage.getLayoutParams();
                 layoutParams.width = 0;
@@ -240,10 +257,10 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         }
     }
 
-    private static class DifferentUserMessageViewHolder extends UserMessageViewHolder {
+    private static class IncomingChatMessageViewHolder extends ChatMessageViewHolder {
         public static final int LAYOUT = R.layout.item_chat_different_user_message;
 
-        public DifferentUserMessageViewHolder(View itemView) {
+        public IncomingChatMessageViewHolder(View itemView) {
             super(itemView);
         }
 
@@ -252,11 +269,11 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             super.bind(item);
             boolean firstOfUser = item.has("first_of_user");
             vBubble.setBackgroundResource((firstOfUser)
-                    ? R.drawable.chat_user_message_first_bg
-                    : R.drawable.chat_user_message_bg);
-            if (!CurrentUserMessageViewHolder.HAS_IMAGE) {
+                    ? R.drawable.chat_message_first_bg
+                    : R.drawable.chat_message_bg);
+            if (!OutgoingChatMessageViewHolder.HAS_IMAGE) {
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) vContainer.getLayoutParams();
-                int tickSize = mContext.getResources().getDimensionPixelSize(R.dimen.user_message_tick_size);
+                int tickSize = mContext.getResources().getDimensionPixelSize(R.dimen.chat_message_tick_size);
                 layoutParams.rightMargin = 2 * tickSize - 5; // +n fine tune
 
             }

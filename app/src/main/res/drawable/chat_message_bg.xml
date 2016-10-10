@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:left="@dimen/user_message_tick_size">
+    <item android:left="@dimen/chat_message_tick_size">
         <shape android:shape="rectangle" >
             <solid android:color="@color/chatUserMessageBg" />
-            <corners android:radius="@dimen/user_message_radius" />
+            <corners android:radius="@dimen/chat_message_radius" />
         </shape>
     </item>
 

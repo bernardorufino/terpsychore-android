@@ -114,9 +114,6 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
 
         Intent intent = new Intent(context, SessionActivity.class);
         intent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, "12");
-        intent.putExtra(SessionActivity.TRACK_ID_EXTRA_KEY, trackId);
-        intent.putExtra(SessionActivity.TRACK_NAME_EXTRA_KEY, trackName);
-        intent.putExtra(SessionActivity.TRACK_ARTIST_EXTRA_KEY, trackArtist);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);

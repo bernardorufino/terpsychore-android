@@ -232,10 +232,6 @@ public class QueueManager {
         });
     }
 
-    public void refreshQueue() {
-        refreshQueue(true);
-    }
-
     public void refreshQueue(boolean includeTracks) {
         Log.d("VFY", "refreshQueue(includeTracks = " + includeTracks + ")");
         String userId = ActivityUtils.getUserId(mContext);
@@ -259,7 +255,7 @@ public class QueueManager {
         ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
-                refreshQueue();
+                refreshQueue(true);
             }
             @Override
             public void onFailure(Call<String> call, Throwable t) {
@@ -395,7 +391,7 @@ public class QueueManager {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (refreshAfterPost) {
-                    refreshQueue();
+                    refreshQueue(false);
                 }
             }
             @Override

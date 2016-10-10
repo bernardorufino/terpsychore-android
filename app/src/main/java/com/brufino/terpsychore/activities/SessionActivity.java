@@ -27,6 +27,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.spotify.sdk.android.player.Player;
@@ -37,6 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -44,15 +46,9 @@ import static com.google.common.base.Preconditions.*;
 public class SessionActivity extends AppCompatActivity {
 
     public static final String SESSION_ID_EXTRA_KEY = "sessionId";
-    public static final String TRACK_ID_EXTRA_KEY = "trackId";
-    public static final String TRACK_NAME_EXTRA_KEY = "trackName";
-    public static final String TRACK_ARTIST_EXTRA_KEY = "trackArtist";
     public static final String SAVED_STATE_KEY_SESSION = "session";
-    private static final String GRAPH_TRACK_FRAGMENT_TAG = "graphTrackFragmentTag";
-    private static final String SPOTIFY_CLIENT_SECRET = "ad319f9d5e6d48dfa81974e3d9b2c831";
-    private static final String SPOTIFY_REDIRECT_URI = "vibefy://spotify/callback";
-    private static final int SPOTIFY_LOGIN_REQUEST_CODE = 36175;
     private static final int REQUEST_SELECT_USERS = 1;
+    private static Set<String> SUPPORTED_MESSAGE_TYPES = Sets.newHashSet("playback_message");
 
     private Toolbar vToolbar;
     private TextView vTrackTitleName;
@@ -160,7 +156,7 @@ public class SessionActivity extends AppCompatActivity {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mBroadcastReceiver,
-                new IntentFilter(FirebaseMessagingServiceImpl.PLAYBACK_MESSAGE_RECEIVED));
+                new IntentFilter(FirebaseMessagingServiceImpl.MESSAGE_RECEIVED));
     }
 
     @Override
@@ -172,23 +168,19 @@ public class SessionActivity extends AppCompatActivity {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE_TYPE);
             int sessionId = intent.getIntExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_SESSION_ID, -1);
-            if (sessionId == -1) {
-                Log.e("VFY", "Error: received PLAYBACK_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId);
-            } else {
-                Log.d("VFY", "Received PLAYBACK_MESSAGE_RECEIVED broadcast with sessionId = " + sessionId + "(mSessionId = " + mSessionId + ")");
-                if (mSessionId == sessionId) {
-                    String messageString = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE);
-                    boolean includeTracks = false;
-                    if (messageString != null) {
-                        JsonObject message = new JsonParser().parse(messageString).getAsJsonObject();
-                        String action = message.get("action").getAsString();
-                        if (action.equals("sync_tracks")) {
-                            includeTracks = true;
-                        }
+            if (SUPPORTED_MESSAGE_TYPES.contains(type) && mSessionId == sessionId) {
+                String messageString = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE);
+                boolean includeTracks = false;
+                if (messageString != null) {
+                    JsonObject message = new JsonParser().parse(messageString).getAsJsonObject();
+                    String action = message.get("action").getAsString();
+                    if (action.equals("sync_tracks")) {
+                        includeTracks = true;
                     }
-                    mQueueManager.refreshQueue(includeTracks);
                 }
+                mQueueManager.refreshQueue(includeTracks);
             }
         }
     };

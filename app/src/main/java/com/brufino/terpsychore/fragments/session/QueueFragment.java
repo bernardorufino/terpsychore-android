@@ -104,7 +104,7 @@ public class QueueFragment extends Fragment {
     private View.OnClickListener mOnControlRefreshClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mQueueManager.refreshQueue();
+            mQueueManager.refreshQueue(true);
         }
     };
 

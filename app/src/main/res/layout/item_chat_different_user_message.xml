@@ -12,7 +12,7 @@
 
     <FrameLayout
         android:id="@+id/item_chat_message_bubble"
-        android:background="@drawable/chat_user_message_bg"
+        android:background="@drawable/chat_message_bg"
         style="@style/UserMessageBubble"
         >
 

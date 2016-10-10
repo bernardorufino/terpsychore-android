@@ -10,10 +10,9 @@ import java.util.Map;
 
 public class FirebaseMessagingServiceImpl extends FirebaseMessagingService {
 
-    public static final String CHAT_MESSAGE_RECEIVED = FirebaseMessagingServiceImpl.class.getCanonicalName() + ".CHAT_MESSAGE_RECEIVED";
-    public static final String PLAYBACK_MESSAGE_RECEIVED = FirebaseMessagingServiceImpl.class.getCanonicalName() + ".PLAYBACK_MESSAGE_RECEIVED";
-    public static final String SESSION_MESSAGE_RECEIVED = FirebaseMessagingServiceImpl.class.getCanonicalName() + ".SESSION_MESSAGE_RECEIVED";
+    public static final String MESSAGE_RECEIVED =FirebaseMessagingServiceImpl.class.getCanonicalName() + ".MESSAGE_RECEIVED";
     public static final String EXTRA_KEY_SESSION_ID = "sessionId";
+    public static final String EXTRA_KEY_MESSAGE_TYPE = "messageType";
     public static final String EXTRA_KEY_MESSAGE = "message";
 
     @Override
@@ -37,25 +36,12 @@ public class FirebaseMessagingServiceImpl extends FirebaseMessagingService {
             return;
         }
 
-        String type = data.get("type");
-        int sessionId = Integer.parseInt(data.get("session_id"));
-        String intentType = type.equals("chat_message") ? CHAT_MESSAGE_RECEIVED :
-                            type.equals("playback_message") ? PLAYBACK_MESSAGE_RECEIVED :
-                            type.equals("session_message") ? SESSION_MESSAGE_RECEIVED
-                            : null;
-
-        if (intentType == null) {
-            Log.e("VFY", "Unknown message type received (type = " + intentType + ")");
-            return;
-        }
-
-        Intent intent = new Intent(intentType);
-        intent.putExtra(EXTRA_KEY_SESSION_ID, sessionId);
-
+        Intent intent = new Intent(MESSAGE_RECEIVED);
+        intent.putExtra(EXTRA_KEY_MESSAGE_TYPE, data.get("type"));
+        intent.putExtra(EXTRA_KEY_SESSION_ID, Integer.parseInt(data.get("session_id")));
         if (data.containsKey("message")) {
             intent.putExtra(EXTRA_KEY_MESSAGE, data.get("message"));
         }
-
 
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
