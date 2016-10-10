@@ -26,10 +26,10 @@ public class PlayerManager {
 
     private List<TrackProgressListener> mTrackProgressListeners = new LinkedList<>();
     private volatile boolean mAlive = true; /* TODO: Analyse concurrency issues */
+    private boolean mInitializing = false;
     private Player mPlayer;
     private Context mContext;
     private PlayerListener mPlayerListener;
-    private boolean mInitializing;
     private PlayerState mLastKnownPlayerState;
 
     public PlayerManager(Context context) {

@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -206,7 +205,7 @@ public class QueueFragment extends Fragment {
         @Override
         public void onBindViewHolder(TrackItemViewHolder holder, int position) {
             JsonObject item = mBackingList.get(position);
-            Log.v("VFY", position + " = " + item.get("name").getAsString());
+            //Log.v("VFY", position + " = " + item.get("name").getAsString());
             holder.bind(item);
         }
 

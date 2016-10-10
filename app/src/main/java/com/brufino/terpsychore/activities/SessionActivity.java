@@ -113,7 +113,6 @@ public class SessionActivity extends AppCompatActivity {
 
         KeyboardVisibilityEvent.setEventListener(this, mKeyboardVisibilityListener);
 
-        /* TODO: Don't fetch again if rotation etc. initializePlayer(); */
         if (savedInstanceState == null) {
             // mSession is assigned in mGetSessionCallback.onResponse()
             // loadSession() is called in same method
@@ -152,17 +151,45 @@ public class SessionActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        Log.d("VFY", "SessionActivity.onStart()");
+        super.onStart();
+    }
+
+    @Override
     protected void onResume() {
+        Log.d("VFY", "SessionActivity.onResume()");
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mBroadcastReceiver,
                 new IntentFilter(FirebaseMessagingServiceImpl.MESSAGE_RECEIVED));
+        if (mSession != null) {
+            // If it's null we are creating the activity, thus there's already a session request which will
+            // update the queue
+            mQueueManager.refreshQueue(true);
+        }
+
     }
 
     @Override
     protected void onPause() {
+        Log.d("VFY", "SessionActivity.onPause()");
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d("VFY", "SessionActivity.onStop()");
+        super.onStop();
+        mPlayerManager.getPlayer().pause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d("VFY", "SessionActivity.onDestroy()");
+        mPlayerManager.onDestroy();
+        super.onDestroy();
     }
 
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
@@ -340,12 +367,6 @@ public class SessionActivity extends AppCompatActivity {
             navigateUpTo(sessionsIntent);
         }
     };
-
-    @Override
-    protected void onDestroy() {
-        mPlayerManager.onDestroy();
-        super.onDestroy();
-    }
 
     private QueueManager.QueueListener mQueuePostListener = new QueueManager.QueueListener() {
         @Override
