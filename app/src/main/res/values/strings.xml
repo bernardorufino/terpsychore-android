@@ -13,4 +13,6 @@
         accounts in Spotify before launching Vibefy again.</string>
     <string name="chat_input_hint">Type a message</string>
     <string name="user_picker_search_hint">Search for name or username</string>
+
+    <string name="settings_activity_title">Settings</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -175,8 +176,13 @@ public class LoginActivity extends AppCompatActivity {
                     .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, expiresAt)
                     .apply();
 
+            // TODO: Extract below code into "initializers" pattern
+
             // Force send token to server
              FirebaseInstanceIdServiceImpl.tryRegisterDevice(LoginActivity.this);
+
+            // Set default preferences
+            PreferenceManager.setDefaultValues(LoginActivity.this, R.xml.preferences_general, false);
 
             // TODO: Use string resource with placeholder
             vMessageText.setText("Welcome, " + displayName);

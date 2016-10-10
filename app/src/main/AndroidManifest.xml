@@ -22,26 +22,37 @@
 
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            />
 
         <activity
             android:name=".activities.SessionActivity"
             android:parentActivityName=".activities.MainActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
 
         <activity
             android:name=".activities.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar"
             />
-        <!-- Remove theme above? -->
 
         <activity
             android:name=".activities.MusicPickerActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            />
 
         <activity
             android:name=".activities.UserPickerActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/settings_activity_title"
+            />
 
         <receiver
             android:name=".components.SpotifyBroadcastReceiver"
@@ -57,14 +68,14 @@
         <service
             android:name=".messaging.FirebaseMessagingServiceImpl">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
         <service
             android:name=".messaging.FirebaseInstanceIdServiceImpl">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 

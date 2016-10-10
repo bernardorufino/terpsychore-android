@@ -12,8 +12,8 @@
         android:id="@+id/session_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="@dimen/item_music_picker_half_padding"
-        android:paddingBottom="@dimen/item_music_picker_half_padding"
+        android:paddingTop="@dimen/item_half_padding"
+        android:paddingBottom="@dimen/item_half_padding"
         android:clipToPadding="false"
         />
 

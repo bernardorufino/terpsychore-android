@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+        <EditTextPreference
+            android:key="preference_endpoint"
+            android:title="Backend Endpoint"
+            android:defaultValue="http://192.168.0.106"
+            android:layout="@layout/layout_preference"
+            />
+
+        <CheckBoxPreference
+            android:key="preference_show_my_image_on_chat"
+            android:title="Show my image on chat"
+            android:defaultValue="false"
+            android:layout="@layout/layout_preference"
+            />
+
+</PreferenceScreen>

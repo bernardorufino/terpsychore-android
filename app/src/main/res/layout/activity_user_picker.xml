@@ -61,8 +61,8 @@
                 android:id="@+id/user_picker_user_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingTop="@dimen/item_music_picker_half_padding"
-                android:paddingBottom="@dimen/item_music_picker_half_padding"
+                android:paddingTop="@dimen/item_half_padding"
+                android:paddingBottom="@dimen/item_half_padding"
                 android:clipToPadding="false"
                 />
 
@@ -74,7 +74,7 @@
                 android:gravity="center"
                 android:textSize="15sp"
                 android:drawableTint="@color/textSecondary"
-                android:drawablePadding="@dimen/item_music_picker_half_padding"
+                android:drawablePadding="@dimen/item_half_padding"
                 android:textColor="@color/textSecondary"
                 android:visibility="gone"
                 />

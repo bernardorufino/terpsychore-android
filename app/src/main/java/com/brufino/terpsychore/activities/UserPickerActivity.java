@@ -286,7 +286,7 @@ public class UserPickerActivity extends Activity {
                 vContainer.setBackgroundColor(ContextCompat.getColor(mContext, R.color.selectedBg));
             } else {
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.text));
-                vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_music_picker_bg));
+                vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_bg));
             }
         }
     }

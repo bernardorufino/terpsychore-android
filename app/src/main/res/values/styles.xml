@@ -50,24 +50,24 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:paddingTop">@dimen/item_music_picker_half_padding</item>
-        <item name="android:paddingRight">@dimen/item_music_picker_padding</item>
-        <item name="android:paddingBottom">@dimen/item_music_picker_half_padding</item>
-        <item name="android:paddingLeft">@dimen/item_music_picker_padding</item>
-        <item name="android:background">@drawable/item_music_picker_bg</item>
+        <item name="android:paddingTop">@dimen/item_half_padding</item>
+        <item name="android:paddingRight">@dimen/item_padding</item>
+        <item name="android:paddingBottom">@dimen/item_half_padding</item>
+        <item name="android:paddingLeft">@dimen/item_padding</item>
+        <item name="android:background">@drawable/item_bg</item>
     </style>
 
     <style name="ListItemLeftImage">
-        <item name="android:layout_width">@dimen/item_music_picker_image_width</item>
-        <item name="android:layout_height">@dimen/item_music_picker_image_height</item>
-        <item name="android:layout_marginRight">@dimen/item_music_picker_padding</item>
+        <item name="android:layout_width">@dimen/item_image_width</item>
+        <item name="android:layout_height">@dimen/item_image_height</item>
+        <item name="android:layout_marginRight">@dimen/item_padding</item>
     </style>
 
     <style name="ListItemTextContainer">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:layout_marginRight">@dimen/item_music_picker_padding</item>
+        <item name="android:layout_marginRight">@dimen/item_padding</item>
         <item name="android:orientation">vertical</item>
     </style>
 
@@ -90,7 +90,7 @@
     <style name="ListItemRightImage">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginRight">@dimen/item_music_picker_padding</item>
+        <item name="android:layout_marginRight">@dimen/item_padding</item>
         <item name="android:tint">@color/textSecondary</item>
     </style>
 

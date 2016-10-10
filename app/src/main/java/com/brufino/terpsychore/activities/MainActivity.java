@@ -3,6 +3,7 @@ package com.brufino.terpsychore.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -73,6 +74,9 @@ public class MainActivity extends AppCompatActivity
         mSessionListFragment = new SessionsListFragment();
         mMusicInboxFragment = new MusicInboxFragment();
 
+        // TODO: Remove?
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_general, false);
+
         mUserId = ActivityUtils.getUserId(this);
         if (mUserId != null) {
             onCreateFinish();
@@ -99,7 +103,6 @@ public class MainActivity extends AppCompatActivity
                 .beginTransaction()
                 .replace(R.id.main_content, checkedGetMainFragment(menuResId))
                 .commit();
-
     }
 
     @Override
@@ -150,7 +153,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             switch (item.getItemId()) {
                 case R.id.main_drawer_settings:
-                    Toast.makeText(this, "TODO: Implement!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, SettingsActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.main_drawer_logout:
                     new AlertDialog.Builder(this)
