@@ -7,9 +7,14 @@ import android.preference.*;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.ListView;
 import com.brufino.terpsychore.R;
 
+/**
+ * Remember that this activity can also be accessed from the LoginActivity, so test for the presence of user id where
+ * need instead of assuming it always exist.
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar vToolbar;
@@ -26,9 +31,19 @@ public class SettingsActivity extends AppCompatActivity {
         getFragmentManager()
                 .beginTransaction()
                 .add(R.id.settings_general_container, new GeneralSettingsFragment())
-               .commit();
+                .commit();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // TODO: If previous activity does not belong to our app, go to MainActivity
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public static class GeneralSettingsFragment extends PreferenceFragmentImpl {
 

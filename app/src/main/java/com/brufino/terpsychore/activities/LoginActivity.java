@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -61,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                 .apply();
     }
 
+    private ImageView vSettingsIcon;
     private TextView vMessageText;
     private ImageView vProfileImage;
     private ProgressBar vProgressBar;
@@ -72,6 +74,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        vSettingsIcon = (ImageView) findViewById(R.id.login_settings_icon);
+        vSettingsIcon.setOnClickListener(mOnSettingsIconClickListener);
         vProfileImage = (ImageView) findViewById(R.id.login_profile_image);
         vMessageText = (TextView) findViewById(R.id.login_message);
         vProgressBar = (ProgressBar) findViewById(R.id.login_progress_bar);
@@ -85,6 +89,14 @@ public class LoginActivity extends AppCompatActivity {
         Call<JsonObject> call = mAuthenticationApi.getScopes();
         call.enqueue(mGetScopesCallback);
     }
+
+    private View.OnClickListener mOnSettingsIconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+            startActivity(intent);
+        }
+    };
 
     /* TODO: Think about activity life cycle */
     private Callback<JsonObject> mGetScopesCallback = new Callback<JsonObject>() {
