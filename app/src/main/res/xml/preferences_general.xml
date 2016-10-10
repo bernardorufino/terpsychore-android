@@ -6,7 +6,7 @@
         <EditTextPreference
             android:key="@string/preference_base_url"
             android:title="Backend Address"
-            android:defaultValue="http://192.168.0.106:5000"
+            android:defaultValue="http://vibefy.herokuapp.com"
             android:layout="@layout/layout_preference"
             />
 
