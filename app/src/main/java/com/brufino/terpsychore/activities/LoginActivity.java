@@ -142,6 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                     Call<JsonObject> call = mAuthenticationApi.postCode(body);
                     call.enqueue(mPostCodeCallback);
                 } else {
+                    Toast.makeText(this, "Error from Spotify", Toast.LENGTH_SHORT).show();
                     Log.e("VFY", "Error! returned response type was " + response.getType());
                     if (response.getType() == AuthenticationResponse.Type.ERROR) {
                         Log.e("VFY", "Error: " + response.getError());
@@ -158,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                 fail(call, null, null);
                 return;
             }
+
             Log.d("VFY", response.body().toString());
             if (response.body().get("error") != null) {
                 String message = response.body().get("message").getAsString();
