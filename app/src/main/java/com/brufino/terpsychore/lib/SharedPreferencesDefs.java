@@ -15,6 +15,12 @@ public class SharedPreferencesDefs {
         public static final String KEY_FIREBASE_TOKEN = "firebaseToken";
     }
 
+    public static class Messaging {
+        public static final String FILE = Messaging.class.getCanonicalName() + "_preference_file";
+
+        public static final String KEY_SESSION_PREFIX = "session_";
+    }
+
     // Prevents instantiation
     private SharedPreferencesDefs() {
         throw new AssertionError("Cannot instantiate object from " + this.getClass());

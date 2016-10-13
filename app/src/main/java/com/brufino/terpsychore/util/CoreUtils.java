@@ -49,28 +49,19 @@ public class CoreUtils {
         return jsonArray;
     }
 
+    public static <T> JsonArray listToJsonArray(List<T> list) {
+        JsonArray jsonArray = new JsonArray();
+        for (T object : list) {
+            jsonArray.add(toJsonElement(object));
+        }
+        return jsonArray;
+    }
+
     public static <T> void mergeIntoJsonObject(JsonObject jsonObject, Map<String, T> map) {
         for (Map.Entry<String, T> entry : map.entrySet()) {
             String property = entry.getKey();
             T value = entry.getValue();
-            JsonElement element;
-            if (value instanceof JsonElement) {
-                element = (JsonElement) value;
-            } else if (value instanceof Map) {
-                //noinspection unchecked
-                element = mapToJsonObject((Map<String, ?>) value);
-            } else if (value instanceof String) {
-                element = new JsonPrimitive((String) value);
-            } else if (value instanceof Number) {
-                element = new JsonPrimitive((Number) value);
-            } else if (value instanceof Boolean) {
-                element = new JsonPrimitive((Boolean) value);
-            } else if (value instanceof Character) {
-                element = new JsonPrimitive((Character) value);
-            } else {
-                throw new IllegalArgumentException("Illegal value type for map");
-            }
-            jsonObject.add(property, element);
+            jsonObject.add(property, toJsonElement(value));
         }
     }
 
@@ -78,6 +69,34 @@ public class CoreUtils {
         JsonObject jsonObject = new JsonObject();
         mergeIntoJsonObject(jsonObject, map);
         return jsonObject;
+    }
+
+    private static <T> JsonElement toJsonElement(T object) {
+        if (object instanceof JsonElement) {
+            return (JsonElement) object;
+        } else if (object instanceof Map) {
+            //noinspection unchecked
+            return mapToJsonObject((Map<String, ?>) object);
+        } else if (object instanceof List) {
+            return listToJsonArray((List<?>) object);
+        } else if (object instanceof String) {
+            return new JsonPrimitive((String) object);
+        } else if (object instanceof Number) {
+            return new JsonPrimitive((Number) object);
+        } else if (object instanceof Boolean) {
+            return new JsonPrimitive((Boolean) object);
+        } else if (object instanceof Character) {
+            return new JsonPrimitive((Character) object);
+        }
+        throw new IllegalArgumentException("Illegal value type for object");
+    }
+
+    public static String plural(int size, String singular, String plural) {
+        return (size == 1) ? singular : plural;
+    }
+
+    public static String pluralWithS(int size, String singular) {
+        return plural(size, singular, singular + "s");
     }
 
     // Prevents instantiation

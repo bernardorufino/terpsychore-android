@@ -17,6 +17,8 @@ import com.brufino.terpsychore.activities.MainActivity;
 import com.brufino.terpsychore.activities.SessionActivity;
 import com.google.common.base.Strings;
 
+
+/* TODO: Redo this */
 public class SpotifyBroadcastReceiver extends BroadcastReceiver {
 
     private static final String SHARED_PREFERENCES_FILE = MainActivity.class.getPackage().toString() + "_preferences";
@@ -124,6 +126,7 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
         Notification notification = getNotification(context, trackId, trackName, trackArtist);
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notification);
+        /* TODO: Uncomment this */
+        //notificationManager.notify(0, notification);
     }
 }

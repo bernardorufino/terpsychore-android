@@ -16,6 +16,7 @@ import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.DynamicAdapter;
 import com.brufino.terpsychore.lib.LoadingListIndicator;
+import com.brufino.terpsychore.messaging.LocalMessagesManager;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -40,12 +41,14 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     private final int mSessionId;
     private final Context mContext;
     private LoadingListIndicator<MessageViewHolder> mLoadingIndicator;
+    private LocalMessagesManager mMessagesManager;
 
     public ChatMessagesAdapter(Context context, int sessionId) {
         super(20, 5);
         mContext = context;
         mSessionId = sessionId;
         mMessagesApi =  ApiUtils.createApi(mContext, MessagesApi.class);
+        mMessagesManager = LocalMessagesManager.getInstance(mContext);
     }
 
     @Override
@@ -61,6 +64,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             @Override
             public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
                 mLoadingIndicator.setLoading(false);
+                clearNotifications();
                 List<JsonObject> items = CoreUtils.jsonArrayToJsonObjectList(response.body());
                 addItems(items);
                 annotateMessages();
@@ -80,6 +84,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         mMessagesApi.getNewMessages(mSessionId, newerThanMessageId).enqueue(new ApiCallback<JsonArray>() {
             @Override
             public void onSuccess(Call<JsonArray> call, Response<JsonArray> response) {
+                clearNotifications();
                 List<JsonObject> messages = CoreUtils.jsonArrayToJsonObjectList(response.body());
                 addNewMessages(newerThanMessageId, messages);
                 notifyDataSetChanged();
@@ -91,6 +96,11 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                 Toast.makeText(mContext, "Error loading new messages", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void clearNotifications() {
+        mMessagesManager.clearMessages(mSessionId);
+        mMessagesManager.updateNotification(mSessionId);
     }
 
     /**
