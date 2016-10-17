@@ -1,10 +1,13 @@
 package com.brufino.terpsychore.fragments.main;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -17,11 +20,14 @@ import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.SessionActivity;
 import com.brufino.terpsychore.fragments.EditSessionFragment;
 import com.brufino.terpsychore.lib.ApiCallback;
+import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
+import com.brufino.terpsychore.messaging.LocalMessagesManager;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
 import com.brufino.terpsychore.util.ViewUtils;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
@@ -31,11 +37,13 @@ import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
 public class SessionsListFragment extends MainFragment {
 
+    private static Set<String> SUPPORTED_MESSAGE_TYPES = Sets.newHashSet("chat_message", "session_message");
     private static final long REFRESH_LIMIT_TO_INVALIDATE_SESSION_IMAGES_IN_MS = 500;
 
     private RecyclerView vSessionList;
@@ -65,7 +73,7 @@ public class SessionsListFragment extends MainFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         vSessionList = (RecyclerView) getView().findViewById(R.id.session_list);
-        mSessionListAdapter = new SessionListAdapter(mSessionList);
+        mSessionListAdapter = new SessionListAdapter();
         mSessionListLayoutManager = new LinearLayoutManager(getContext());
         vSessionList.setAdapter(mSessionListAdapter);
         vSessionList.setLayoutManager(mSessionListLayoutManager);
@@ -89,7 +97,28 @@ public class SessionsListFragment extends MainFragment {
     public void onResume() {
         super.onResume();
         getActivity().setTitle("Sessions");
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
+                mBroadcastReceiver,
+                new IntentFilter(FirebaseMessagingServiceImpl.MESSAGE_RECEIVED));
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_MESSAGE_TYPE);
+            int sessionId = intent.getIntExtra(FirebaseMessagingServiceImpl.EXTRA_KEY_SESSION_ID, -1);
+            if (SUPPORTED_MESSAGE_TYPES.contains(type)) {
+                // TODO: Only reload the session with session   id
+                loadSessions(false);
+            }
+        }
+    };
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -184,13 +213,7 @@ public class SessionsListFragment extends MainFragment {
         dialog.show(getFragmentManager(), EditSessionFragment.class.getSimpleName());
     }
 
-    public static class SessionListAdapter extends RecyclerView.Adapter<SessionItemHolder> {
-
-        private List<JsonObject> mBackingList;
-
-        public SessionListAdapter(List<JsonObject> backingList) {
-            mBackingList = backingList;
-        }
+    public class SessionListAdapter extends RecyclerView.Adapter<SessionItemHolder> {
 
         @Override
         public SessionItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -200,13 +223,13 @@ public class SessionsListFragment extends MainFragment {
 
         @Override
         public void onBindViewHolder(SessionItemHolder holder, int position) {
-            JsonObject item = mBackingList.get(position);
+            JsonObject item = mSessionList.get(position);
             holder.bind(item);
         }
 
         @Override
         public int getItemCount() {
-            return mBackingList.size();
+            return mSessionList.size();
         }
     }
 
@@ -242,12 +265,15 @@ public class SessionsListFragment extends MainFragment {
         public void bind(JsonObject session) {
             mSessionId = session.get("id").getAsInt();
             String name = session.get("name").getAsString();
-            String description = session.get("nusers").getAsInt() + " Connected";
+            JsonObject lastMessage = CoreUtils.getAsJsonObjectOrNull(session.get("last_message"));
             JsonObject queue = session.get("queue").getAsJsonObject();
-            JsonObject currentTrack = ApiUtils.getCurrentTrack(queue);
-            JsonObject nextTrack = ApiUtils.getNextTrack(queue);
+            int tracksTotal = session.get("ntracks_total").getAsInt();
+            int tracksRemaining = session.get("ntracks_remaining").getAsInt();
             String status = queue.get("track_status").getAsString();
             String imageUrl = ApiUtils.getServerUrl(mContext, session.get("image_url").getAsString());
+            CharSequence description =  (lastMessage == null)
+                    ? "No messages yet"
+                    : LocalMessagesManager.getInstance(mContext).getDescriptionForMessage(lastMessage);
 
             Picasso.with(mContext)
                     .load(imageUrl)
@@ -256,7 +282,7 @@ public class SessionsListFragment extends MainFragment {
             vDescription.setText(description);
 
             vPlayingImage.setVisibility(View.GONE);
-            if (currentTrack != null) {
+            if (tracksRemaining > 0) {
                 vPlayingImage.setVisibility(View.VISIBLE);
                 if (status.equals("playing")) {
                     vPlayingImage.setImageResource(R.drawable.ic_play_arrow_white_24dp);

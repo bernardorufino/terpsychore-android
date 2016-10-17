@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.SessionActivity;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -139,7 +141,7 @@ public class LocalMessagesManager {
                     .setContentText(selectPresenterForMessage(lastMessage).getNotificationLine(lastMessage))
                     .build();
         }
-        String summary = nMessages + " unread " + CoreUtils.pluralWithS(nMessages, "message");
+        String summary = nMessages + " unread " + ViewUtils.pluralWithS(nMessages, "message");
         NotificationCompat.InboxStyle inboxStyle = getNotificationInboxStyle(messages, summary);
         return notificationBuilder
                 .setContentText(summary)
@@ -189,6 +191,10 @@ public class LocalMessagesManager {
         return null;
     }
 
+    public CharSequence getDescriptionForMessage(JsonObject message) {
+        return selectPresenterForMessage(message).getDescription(message);
+    }
+
     public static abstract class MessagePresenter {
 
         public abstract CharSequence getNotificationLine(JsonObject message);
@@ -198,6 +204,10 @@ public class LocalMessagesManager {
             return null;
         }
 
+        public CharSequence getDescription(JsonObject message) {
+            return getNotificationLine(message);
+        }
+
         public abstract Collection<String> getSupportedTypes();
     }
 
@@ -205,12 +215,24 @@ public class LocalMessagesManager {
 
         @Override
         public CharSequence getNotificationLine(JsonObject message) {
+            String[] splitMessage = splitMessage(message);
+            return splitMessage[0] + ": " + splitMessage[1];
+        }
+
+        @Override
+        public CharSequence getDescription(JsonObject message) {
+            String[] splitMessage = splitMessage(message);
+            return Html.fromHtml("<b>" + splitMessage[0] + "</b>: " + splitMessage[1]);
+        }
+
+        private String[] splitMessage(JsonObject message) {
             JsonObject user = message.get("user").getAsJsonObject();
             String displayName = !user.get("display_name").isJsonNull()
-                    ? user.get("display_name").getAsString()
-                    : user.get("username").getAsString();
+                                 ? user.get("display_name").getAsString()
+                                 : user.get("username").getAsString();
+            displayName = ViewUtils.getFirstName(displayName);
             String content = message.get("content").getAsString();
-            return displayName + ": " + content;
+            return new String[] {displayName, content};
         }
 
         @Override

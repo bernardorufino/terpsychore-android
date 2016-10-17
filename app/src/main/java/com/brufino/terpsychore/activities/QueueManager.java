@@ -260,6 +260,7 @@ public class QueueManager {
         ApiUtils.postTracks(mContext, mSessionId, trackUris, new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
+                /* TODO: Multiple call together with SessionActivity.onResume() call */
                 refreshQueue(true);
             }
             @Override

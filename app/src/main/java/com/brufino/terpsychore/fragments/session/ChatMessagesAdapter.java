@@ -222,7 +222,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public void bind(JsonObject item) {
             String content = item.get("content").getAsString();
             boolean firstOfUser = item.has("first_of_user");
-            String imageUrl = CoreUtils.getJsonAsStringOrNull(item.get("user").getAsJsonObject().get("image_url"));
+            String imageUrl = CoreUtils.getAsStringOrNull(item.get("user").getAsJsonObject().get("image_url"));
 
             vContent.setText(content);
 

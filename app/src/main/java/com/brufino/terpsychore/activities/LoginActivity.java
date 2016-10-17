@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
             String displayName = response.body().get("display_name").getAsString();
             String userId = response.body().get("id").getAsString();
             String email = response.body().get("email").getAsString();
-            String imageUrl = CoreUtils.getJsonAsStringOrNull(response.body().get("image_url"));
+            String imageUrl = CoreUtils.getAsStringOrNull(response.body().get("image_url"));
             String expiresAt = response.body().get("expires_at").getAsString(); // TODO: Transform into date
 
             Picasso.with(LoginActivity.this)

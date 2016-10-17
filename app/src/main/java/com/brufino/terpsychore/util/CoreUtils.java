@@ -11,8 +11,12 @@ import java.util.Map;
 
 public class CoreUtils {
 
-    public static String getJsonAsStringOrNull(JsonElement jsonElement) {
+    public static String getAsStringOrNull(JsonElement jsonElement) {
         return jsonElement.isJsonNull() ? null : jsonElement.getAsString();
+    }
+
+    public static JsonObject getAsJsonObjectOrNull(JsonElement jsonElement) {
+        return jsonElement.isJsonNull() ? null : jsonElement.getAsJsonObject();
     }
 
     /* TODO: Search for places where we can use the methods below */
@@ -89,14 +93,6 @@ public class CoreUtils {
             return new JsonPrimitive((Character) object);
         }
         throw new IllegalArgumentException("Illegal value type for object");
-    }
-
-    public static String plural(int size, String singular, String plural) {
-        return (size == 1) ? singular : plural;
-    }
-
-    public static String pluralWithS(int size, String singular) {
-        return plural(size, singular, singular + "s");
     }
 
     // Prevents instantiation

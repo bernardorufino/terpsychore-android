@@ -16,6 +16,19 @@ import java.util.Locale;
 
 public class ViewUtils {
 
+    public static String getFirstName(String fullName) {
+        return fullName.split("\\s+")[0];
+    }
+
+    public static String plural(int size, String singular, String plural) {
+        return (size == 1) ? singular : plural;
+    }
+
+    public static String pluralWithS(int size, String singular) {
+        return plural(size, singular, singular + "s");
+    }
+
+
     public static void refreshImageInCaches(Context context, String imageUrl) {
         // Invalidates memory cache
         Picasso.with(context)
