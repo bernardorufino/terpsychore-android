@@ -93,7 +93,7 @@ public class QueueFragment extends Fragment {
                     ArrayList<String> trackUris = data.getStringArrayListExtra(MusicPickerActivity.RESULT_TRACK_URIS);
                     mQueueManager.addTracks(trackUris);
                 } else {
-                    Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "No tracks selected", Toast.LENGTH_SHORT).show();
                 }
         }
     }

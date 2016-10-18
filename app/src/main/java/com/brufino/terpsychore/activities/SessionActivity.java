@@ -306,7 +306,7 @@ public class SessionActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    Toast.makeText(this, "No friends selected", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "No friends selected", Toast.LENGTH_SHORT).show();
                 }
         }
     }

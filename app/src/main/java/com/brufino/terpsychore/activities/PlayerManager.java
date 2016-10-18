@@ -66,6 +66,7 @@ public class PlayerManager {
     private Player.InitializationObserver mSpotifyPlayerInitializationObserver = new Player.InitializationObserver() {
         @Override
         public void onInitialized(Player player) {
+            Log.d("VFY", "onInitialized() [waiting for login]");
             mPlayer = player;
             mPlayer.addConnectionStateCallback(mConnectionStateCallback);
             mPlayer.addPlayerNotificationCallback(mPlayerNotificationCallback);
