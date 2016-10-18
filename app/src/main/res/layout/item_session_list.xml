@@ -19,6 +19,7 @@
         <TextView
             android:id="@+id/item_session_description"
             android:maxLines="1"
+            android:textSize="13sp"
             style="@style/ListItemTextDescription" />
 
     </LinearLayout>
