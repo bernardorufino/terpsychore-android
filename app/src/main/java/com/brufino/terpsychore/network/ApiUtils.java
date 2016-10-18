@@ -43,7 +43,7 @@ public class ApiUtils {
         return sRetrofit.create(type);
     }
 
-    public static <T> String getCheckedErrorBodyAsString(Response<T> response) {
+    public static <T> String getErrorBodyAsString(Response<T> response) {
         try {
             return response.errorBody().string();
         } catch (IOException e) {
@@ -52,8 +52,8 @@ public class ApiUtils {
         }
     }
 
-    public static <T> JsonElement getCheckedErrorBodyAsJsonElement(Response<T> response) {
-        return new JsonParser().parse(getCheckedErrorBodyAsString(response));
+    public static <T> JsonElement getErrorBodyAsJsonElement(Response<T> response) {
+        return new JsonParser().parse(getErrorBodyAsString(response));
     }
 
     private static String getBaseUrl(Context context) {

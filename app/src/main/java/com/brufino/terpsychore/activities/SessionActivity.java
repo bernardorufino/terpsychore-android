@@ -23,6 +23,7 @@ import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
@@ -35,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
@@ -229,15 +231,27 @@ public class SessionActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onFailure(Call<JsonObject> call, Throwable t, Response<JsonObject> response) {
+                    boolean shouldLog = true;
+                    String message = "Error leaving session";
+
                     if (response != null) {
-                        JsonObject body = ApiUtils.getCheckedErrorBodyAsJsonElement(response).getAsJsonObject();
-                        if (body.get("error").getAsString().equals("last_admin")) {
-                            Toast.makeText(SessionActivity.this, "Can't leave session, you're the last host", Toast.LENGTH_SHORT).show();
-                            return;
+                        JsonObject body = CoreUtils.getAsJsonObjectOrNull(ApiUtils.getErrorBodyAsJsonElement(response));
+                        if (body != null) {
+                            String error = CoreUtils.getAsStringOrNull(body.get("error"));
+                            if (Objects.equals("last_admin", error)) {
+                                shouldLog = false;
+                                String returnMessage = CoreUtils.getAsStringOrNull(body.get("message"));
+                                if (returnMessage != null) {
+                                    message = returnMessage;
+                                }
+                            }
                         }
                     }
-                    Log.e("VFY", "Error leaving/unjoining session", t);
-                    Toast.makeText(SessionActivity.this, "Error leaving session", Toast.LENGTH_SHORT).show();
+
+                    if (shouldLog) {
+                        Log.e("VFY", "Error leaving/unjoining session", t);
+                    }
+                    Toast.makeText(SessionActivity.this, message, Toast.LENGTH_SHORT).show();
                 }
             });
         }
