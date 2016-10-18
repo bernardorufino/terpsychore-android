@@ -3,6 +3,7 @@ package com.brufino.terpsychore.util;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.*;
@@ -15,6 +16,34 @@ import java.util.List;
 import java.util.Locale;
 
 public class ViewUtils {
+
+    /**
+     * http://stackoverflow.com/questions/10095196/whered-padding-go-when-setting-background-drawable
+     * TODO: Does not work with 9-patch!
+     */
+    public static void setBackground(View view, Drawable drawable) {
+        int paddingLeft = view.getPaddingLeft();
+        int paddingTop = view.getPaddingTop();
+        int paddingRight = view.getPaddingRight();
+        int paddingBottom = view.getPaddingBottom();
+        view.setBackground(drawable);
+        view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    }
+
+    // http://stackoverflow.com/questions/10095196/whered-padding-go-when-setting-background-drawable
+
+    /**
+     * http://stackoverflow.com/questions/10095196/whered-padding-go-when-setting-background-drawable
+     * TODO: Does not work with 9-patch!
+     */
+    public static void setBackgroundResource(View view, int resId) {
+        int paddingLeft = view.getPaddingLeft();
+        int paddingTop = view.getPaddingTop();
+        int paddingRight = view.getPaddingRight();
+        int paddingBottom = view.getPaddingBottom();
+        view.setBackgroundResource(resId);
+        view.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    }
 
     public static String getFirstName(String fullName) {
         return fullName.split("\\s+")[0];

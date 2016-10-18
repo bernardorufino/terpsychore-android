@@ -19,15 +19,15 @@ import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.CircleTransformation;
+import com.brufino.terpsychore.lib.SimpleTextWatcher;
 import com.brufino.terpsychore.lib.TrialScheduler;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SearchApi;
 import com.brufino.terpsychore.util.ActivityUtils;
-import com.brufino.terpsychore.lib.SimpleTextWatcher;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.squareup.picasso.Picasso;
 import retrofit2.Call;
@@ -261,20 +261,20 @@ public class UserPickerActivity extends Activity {
             String username = item.get("username").getAsString();
             String spotifyId = item.get("spotify_id").getAsString();
             String displayName = item.get("display_name").getAsString();
-            JsonElement imageUrlElement = item.get("image_url");
+            String imageUrl = CoreUtils.getAsStringOrNull(item.get("image_url"));
 
-            if (!imageUrlElement.isJsonNull()) {
+            if (imageUrl != null) {
                 Picasso.with(mContext)
-                        .load(imageUrlElement.getAsString())
+                        .load(imageUrl)
                         .placeholder(R.drawable.ic_account_circle_no_padding_gray_48dp)
                         .transform(new CircleTransformation())
                         .into(vImage);
-                vImage.setImageTintList(null);
+                vImage.setColorFilter(null);
             } else {
                 Picasso.with(mContext)
                         .load(R.drawable.ic_account_circle_no_padding_gray_48dp)
                         .into(vImage);
-                vImage.setImageTintList(ActivityUtils.getColorList(mContext, R.color.textSecondary));
+                vImage.setColorFilter(ContextCompat.getColor(mContext, R.color.textSecondary));
             }
 
             vTitle.setText(displayName);
@@ -282,11 +282,11 @@ public class UserPickerActivity extends Activity {
 
             if (mSelectedUserIds.containsKey(userId)) {
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-                vContainer.setBackground(null);
+                ViewUtils.setBackground(vContainer, null);
                 vContainer.setBackgroundColor(ContextCompat.getColor(mContext, R.color.selectedBg));
             } else {
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.text));
-                vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_bg));
+                ViewUtils.setBackgroundResource(vContainer, R.drawable.item_bg);
             }
         }
     }

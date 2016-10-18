@@ -1,6 +1,5 @@
 package com.brufino.terpsychore.fragments.session;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,7 +15,6 @@ import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.PlayerManager;
 import com.brufino.terpsychore.activities.QueueManager;
 import com.brufino.terpsychore.lib.BackgroundTarget;
-import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.brufino.terpsychore.view.trackview.TrackProgressBar;
 import com.brufino.terpsychore.view.trackview.graph.GraphTrackView;
@@ -54,8 +52,8 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     private TrackCurve mTrackCurve;
     private int mCurrentPosition;
     private int mDuration;
-    private ColorStateList mControlActivatedColor;
-    private ColorStateList mControlDeactivatedColor;
+    private int mControlActivatedColor;
+    private int mControlDeactivatedColor;
     private QueueViewManager mQueueViewManager;
     private RelativeLayout vContainer;
 
@@ -90,8 +88,8 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         vNextButton = (ImageButton) getView().findViewById(R.id.playback_control_next);
         vNextButton.setOnClickListener(mOnNextButtonClickListener);
 
-        mControlActivatedColor = ActivityUtils.getColorList(getContext(), R.color.trackPlaybackIconActivated);
-        mControlDeactivatedColor = ActivityUtils.getColorList(getContext(), R.color.trackPlaybackIconDeactivated);
+        mControlActivatedColor = ContextCompat.getColor(getContext(), R.color.trackPlaybackIconActivated);
+        mControlDeactivatedColor = ContextCompat.getColor(getContext(), R.color.trackPlaybackIconDeactivated);
 
         TrackCurve.Style trackCurveStyle = new TrackCurve.Style()
                 .setFillColor(ContextCompat.getColor(getContext(), R.color.graphForeground))
@@ -154,9 +152,9 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
     };
 
     private void updatePlaybackControlStates() {
-        vPlayButton.setImageTintList(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
-        vReplayButton.setImageTintList(mQueueManager.canReplay() ? mControlActivatedColor : mControlDeactivatedColor);
-        vNextButton.setImageTintList(mQueueManager.canNext() ? mControlActivatedColor : mControlDeactivatedColor);
+        vPlayButton.setColorFilter(mQueueManager.canPlay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vReplayButton.setColorFilter(mQueueManager.canReplay() ? mControlActivatedColor : mControlDeactivatedColor);
+        vNextButton.setColorFilter(mQueueManager.canNext() ? mControlActivatedColor : mControlDeactivatedColor);
     }
 
     private void trySetTrackImageBackground(JsonObject currentTrack) {
@@ -183,7 +181,7 @@ public class TrackPlaybackFragment extends Fragment implements PlayerManager.Tra
         }
 
         if (!bgSet) {
-            vContainer.setBackground(null);
+            ViewUtils.setBackground(vContainer, null);
             vContainer.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.trackPlaybackBg));
             mBgImageUrl = null;
         }

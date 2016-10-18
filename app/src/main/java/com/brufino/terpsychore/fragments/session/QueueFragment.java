@@ -3,7 +3,6 @@ package com.brufino.terpsychore.fragments.session;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.activities.MusicPickerActivity;
 import com.brufino.terpsychore.activities.QueueManager;
-import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -252,8 +250,7 @@ public class QueueFragment extends Fragment {
             vTrackArtist.setTextColor(secondaryText);
             if (played) {
                 vStatusIcon.setImageResource(R.drawable.ic_history_white_24dp);
-                ColorStateList colorList = ActivityUtils.getColorList(mContext, R.color.queueTrackPlayedIconTint);
-                vStatusIcon.setImageTintList(colorList);
+                vStatusIcon.setColorFilter(ContextCompat.getColor(mContext, R.color.queueTrackPlayedIconTint));
                 vStatusIcon.setVisibility(View.VISIBLE);
                 vRemoveIcon.setVisibility(View.GONE);
                 int playedForeground = ContextCompat.getColor(mContext, R.color.queueTrackPlayedText);
@@ -263,7 +260,7 @@ public class QueueFragment extends Fragment {
             }
             if (current) {
                 vStatusIcon.setImageResource(R.drawable.ic_play_arrow_white_24dp);
-                vStatusIcon.setImageTintList(null);
+                vStatusIcon.setColorFilter(null);
                 vStatusIcon.setVisibility(View.VISIBLE);
                 vRemoveIcon.setVisibility(View.GONE);
                 int currentColor = ContextCompat.getColor(mContext, R.color.queueTrackCurrentItemBg);

@@ -2,6 +2,7 @@ package com.brufino.terpsychore.fragments.session;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -239,9 +241,11 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
                         .transform(new CircleTransformation())
                         .placeholder(R.drawable.ic_account_circle_no_padding_white_48dp)
                         .into(vImage);
-                vImage.setImageTintList((imageUrl == null)
-                        ? ActivityUtils.getColorList(mContext, R.color.navImageTint)
-                        : null);
+                if (imageUrl == null) {
+                    vImage.setColorFilter(ContextCompat.getColor(mContext, R.color.navImageTint));
+                } else {
+                    vImage.setColorFilter(null);
+                }
             }
         }
 
@@ -262,7 +266,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public void bind(JsonObject item) {
             super.bind(item);
             boolean firstOfUser = item.has("first_of_user");
-            vBubble.setBackgroundResource((firstOfUser)
+            ViewUtils.setBackgroundResource(vBubble, (firstOfUser)
                     ? R.drawable.chat_outgoing_message_first_bg
                     : R.drawable.chat_outgoing_message_bg);
             if (!displayOutgoingImage()) {
@@ -288,7 +292,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         public void bind(JsonObject item) {
             super.bind(item);
             boolean firstOfUser = item.has("first_of_user");
-            vBubble.setBackgroundResource((firstOfUser)
+            ViewUtils.setBackgroundResource(vBubble, (firstOfUser)
                     ? R.drawable.chat_message_first_bg
                     : R.drawable.chat_message_bg);
             vTop.setVisibility((firstOfUser) ? View.VISIBLE : View.GONE);

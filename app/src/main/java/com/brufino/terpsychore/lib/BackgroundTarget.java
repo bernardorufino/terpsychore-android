@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -26,20 +27,20 @@ public class BackgroundTarget implements Target {
     @Override
     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
         BitmapDrawable bitmapDrawable = new BitmapDrawable(mTarget.getResources(), bitmap);
-        mTarget.setBackground(bitmapDrawable);
+        ViewUtils.setBackground(mTarget, bitmapDrawable);
     }
 
     @Override
     public void onBitmapFailed(Drawable errorDrawable) {
         if (errorDrawable != null) {
-            mTarget.setBackground(errorDrawable);
+            ViewUtils.setBackground(mTarget, errorDrawable);
         }
     }
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
         if (placeHolderDrawable != null) {
-            mTarget.setBackground(placeHolderDrawable);
+            ViewUtils.setBackground(mTarget, placeHolderDrawable);
         }
     }
 }

@@ -121,7 +121,8 @@
     <style name="ChatMessageImage">
         <item name="android:layout_width">@dimen/chat_message_image_size</item>
         <item name="android:layout_height">@dimen/chat_message_image_size</item>
-        <item name="android:tint">@color/navImageTint</item>
+        <!-- Tint is set programatically -->
+        <!--<item name="android:tint">@color/navImageTint</item>-->
         <item name="android:src">@drawable/ic_account_circle_no_padding_white_48dp</item>
     </style>
 

@@ -1,7 +1,6 @@
 package com.brufino.terpsychore.view.trackview;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +16,13 @@ import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.fragments.musicpicker.MusicPickerListFragment;
 import com.brufino.terpsychore.lib.DynamicAdapter;
 import com.brufino.terpsychore.lib.LoadingListIndicator;
-import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.ViewUtils;
 import com.squareup.picasso.Picasso;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MusicPickerList extends RelativeLayout {
 
@@ -172,19 +174,17 @@ public class MusicPickerList extends RelativeLayout {
 
         public void setSelected(boolean selected) {
             if (selected) {
-                ColorStateList colorList = ActivityUtils.getColorList(mContext, R.color.colorPrimary);
-                vTypeIcon.setImageTintList(colorList);
+                vTypeIcon.setColorFilter(ContextCompat.getColor(mContext, R.color.colorPrimary));
                 vRemoveIcon.setVisibility(View.GONE);
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-                vContainer.setBackground(null);
+                ViewUtils.setBackground(vContainer, null);
                 vContainer.setBackgroundColor(
                         ContextCompat.getColor(mContext, R.color.selectedBg));
             } else {
-                ColorStateList colorList = ActivityUtils.getColorList(mContext, R.color.textSecondary);
-                vTypeIcon.setImageTintList(colorList);
+                vTypeIcon.setColorFilter(ContextCompat.getColor(mContext, R.color.textSecondary));
                 vRemoveIcon.setVisibility(View.GONE);
                 vTitle.setTextColor(ContextCompat.getColor(mContext, R.color.text));
-                vContainer.setBackground(ContextCompat.getDrawable(mContext, R.drawable.item_bg));
+                ViewUtils.setBackgroundResource(vContainer, R.drawable.item_bg);
             }
         }
 
