@@ -272,7 +272,7 @@ public class SessionsListFragment extends MainFragment {
             String status = queue.get("track_status").getAsString();
             String imageUrl = ApiUtils.getServerUrl(mContext, session.get("image_url").getAsString());
             CharSequence description =  (lastMessage == null)
-                    ? "No messages yet"
+                    ? mContext.getString(R.string.no_messages_session_description)
                     : LocalMessagesManager.getInstance(mContext).getDescriptionForMessage(lastMessage);
 
             Picasso.with(mContext)
