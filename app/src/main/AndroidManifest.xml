@@ -13,7 +13,8 @@
 
         <activity
             android:name=".activities.MainActivity"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -30,7 +31,12 @@
             android:parentActivityName=".activities.MainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:theme="@style/AppTheme.NoActionBar"
-            />
+            >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity"
+                />
+        </activity>
 
         <activity
             android:name=".activities.LoginActivity"

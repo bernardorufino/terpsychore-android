@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import com.brufino.terpsychore.R;
@@ -159,7 +160,10 @@ public class LocalMessagesManager {
                 .setShowWhen(true);
         Intent actionIntent = new Intent(mContext, SessionActivity.class);
         actionIntent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, sessionId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = TaskStackBuilder.create(mContext)
+                .addParentStack(SessionActivity.class)
+                .addNextIntent(actionIntent)
+                .getPendingIntent(sessionId, PendingIntent.FLAG_UPDATE_CURRENT);
         notificationBuilder.setContentIntent(pendingIntent);
         return notificationBuilder;
     }

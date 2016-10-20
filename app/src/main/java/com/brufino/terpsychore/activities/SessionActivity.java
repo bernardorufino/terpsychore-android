@@ -71,7 +71,7 @@ public class SessionActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("VFY", "SessionActivity.onCreate()");
+        Log.d("VFY", "SessionActivity.onCreate(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
@@ -123,7 +123,7 @@ public class SessionActivity extends AppCompatActivity {
     // Use onRestoreInstanceState instead of doing so in the onCreate() method because this happens after the
     // fragments' onActivityCreated() method is called
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.d("VFY", "SessionActivity.onRestoreInstanceState()");
+        Log.d("VFY", "SessionActivity.onRestoreInstanceState(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         checkNotNull(savedInstanceState);
         String sessionJson = savedInstanceState.getString(SAVED_STATE_KEY_SESSION);
         mSession = new JsonParser().parse(sessionJson).getAsJsonObject();
@@ -151,13 +151,13 @@ public class SessionActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        Log.d("VFY", "SessionActivity.onStart()");
+        Log.d("VFY", "SessionActivity.onStart(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " +getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         super.onStart();
     }
 
     @Override
     protected void onResume() {
-        Log.d("VFY", "SessionActivity.onResume()");
+        Log.d("VFY", "SessionActivity.onResume(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mBroadcastReceiver,
@@ -172,21 +172,21 @@ public class SessionActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        Log.d("VFY", "SessionActivity.onPause()");
+        Log.d("VFY", "SessionActivity.onPause(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
     protected void onStop() {
-        Log.d("VFY", "SessionActivity.onStop()");
+        Log.d("VFY", "SessionActivity.onStop(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         super.onStop();
         mPlayerManager.getPlayer().pause();
     }
 
     @Override
     protected void onDestroy() {
-        Log.d("VFY", "SessionActivity.onDestroy()");
+        Log.d("VFY", "SessionActivity.onDestroy(): mSessionId = " + mSessionId + ", intent.get(sessionId) = " + getIntent().getIntExtra(SESSION_ID_EXTRA_KEY, -1));
         mPlayerManager.onDestroy();
         super.onDestroy();
     }
