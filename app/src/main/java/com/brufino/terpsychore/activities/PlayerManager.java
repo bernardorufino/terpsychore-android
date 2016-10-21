@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.google.common.base.Throwables;
@@ -137,7 +138,7 @@ public class PlayerManager {
                     Log.e("VFY", "- Renew error", t);
                     Log.e("VFY", "- Login error", throwable);
                     mInitializing = false;
-                    throw Throwables.propagate(t);
+                    Toast.makeText(mContext, "Error contacting Spotify, please try againP", Toast.LENGTH_SHORT).show();
                 }
             });
         }
