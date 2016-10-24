@@ -1,15 +1,19 @@
 package com.brufino.terpsychore.activities;
 
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.*;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.lib.EmoticonsHitCounter;
 
 /**
  * Remember that this activity can also be accessed from the LoginActivity, so test for the presence of user id where
@@ -18,6 +22,7 @@ import com.brufino.terpsychore.R;
 public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar vToolbar;
+    private View vResetEmoticonHistoryButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -27,6 +32,24 @@ public class SettingsActivity extends AppCompatActivity {
         vToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(vToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        vResetEmoticonHistoryButton = findViewById(R.id.settings_reset_emoticon_history);
+        vResetEmoticonHistoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setMessage("Reset emoticon history?")
+                        .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                EmoticonsHitCounter.load(SettingsActivity.this)
+                                        .reset()
+                                        .saveInBackground();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
 
         getFragmentManager()
                 .beginTransaction()

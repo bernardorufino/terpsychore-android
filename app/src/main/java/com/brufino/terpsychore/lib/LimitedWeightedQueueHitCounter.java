@@ -1,9 +1,6 @@
 package com.brufino.terpsychore.lib;
 
 import com.google.common.base.Function;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 
 import java.util.*;
 
@@ -12,29 +9,36 @@ public class LimitedWeightedQueueHitCounter<T> {
     private Function<Integer, Double> mIndexToWeightFunction;
     private Queue<T> mQueue;
 
-    public LimitedWeightedQueueHitCounter(Queue<T> queue, Function<Integer, Double> indexToWeightFunction) {
-        mQueue = queue;
-        mIndexToWeightFunction = indexToWeightFunction;
-    }
-
-    public LimitedWeightedQueueHitCounter(int queueLength, Function<Integer, Double> indexToWeightFunction) {
+    public LimitedWeightedQueueHitCounter(int queueSize, Function<Integer, Double> indexToWeightFunction) {
         mQueue =  new LinkedList<>();
-        for (int i = 0; i < queueLength; i++) {
+        for (int i = 0; i < queueSize; i++) {
             mQueue.add(null);
         }
         mIndexToWeightFunction = indexToWeightFunction;
     }
 
-    public void hit(T object) {
+    public LimitedWeightedQueueHitCounter reset() {
+        for (int i = 0; i < mQueue.size(); i++) {
+            hit(null);
+        }
+        return this;
+    }
+
+    public LimitedWeightedQueueHitCounter hit(T object) {
         mQueue.add(object);
         mQueue.remove();
+        return this;
     }
 
     public List<T> getTop(int k) {
         final Map<T, Double> mHitCount = new HashMap<>();
         PriorityQueue<T> mHeap = new PriorityQueue<>(11, new MapValueComparator<>(mHitCount));
         int i = 1;
-        for (T object : Iterables.filter(mQueue, Predicates.<T>notNull())) {
+        for (T object : mQueue) {
+            if (object == null) {
+                i++;
+                continue;
+            }
             double value = mHitCount.containsKey(object) ? -mHitCount.get(object) : 0;
             double add = mIndexToWeightFunction.apply(mQueue.size() - i);
             mHitCount.put(object, -(value + add));
@@ -42,7 +46,11 @@ public class LimitedWeightedQueueHitCounter<T> {
             mHeap.add(object);
             i++;
         }
-        return Lists.newArrayList(Iterables.limit(mHeap, k));
+        List<T> top = new ArrayList<>(k);
+        for (i = 0; i < k; i++) {
+            top.add(mHeap.poll());
+        }
+        return top;
     }
 
     public Queue<T> getQueue() {

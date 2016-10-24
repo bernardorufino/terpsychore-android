@@ -2,6 +2,7 @@ package com.brufino.terpsychore.lib;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import com.brufino.terpsychore.util.CoreUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -62,18 +63,29 @@ public class EmoticonsHitCounter extends LimitedWeightedQueueHitCounter<String> 
         }
     }
 
+    @Override
+    public EmoticonsHitCounter reset() {
+        super.reset();
+        for (String emoticon : INITIAL_EMOTICONS) {
+            hit(emoticon);
+        }
+        return this;
+    }
+
     public List<String> getTopDefaultSize() {
         return super.getTop(INITIAL_EMOTICONS.size());
     }
 
-    public void save() {
+    public EmoticonsHitCounter save() {
+        // dumpQueue();
         mContext.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
                 .edit()
                 .putString(SharedPreferencesDefs.Main.KEY_EMOTICON_HISTORY, toSerializedString())
                 .commit();
+        return this;
     }
 
-    public void saveInBackground() {
+    public EmoticonsHitCounter saveInBackground() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -81,9 +93,23 @@ public class EmoticonsHitCounter extends LimitedWeightedQueueHitCounter<String> 
                 return null;
             }
         }.execute();
+        return this;
     }
 
     private String toSerializedString() {
         return CoreUtils.nullableStringListToJsonArray(Lists.newArrayList(getQueue())).toString();
+    }
+
+    private void dumpQueue() {
+        StringBuilder string = new StringBuilder();
+        for (String emoticon : getQueue()) {
+            string.append(emoticon == null ? "-" : emoticon.codePointAt(0) % 100).append(", ");
+        }
+        Log.d("VFY", "EMOTICON QUEUE DUMP: " + string.toString());
+        string = new StringBuilder();
+        for (String emoticon : getTop(getQueue().size())) {
+            string.append(emoticon == null ? "-" : emoticon.codePointAt(0) % 100).append(", ");
+        }
+        Log.d("VFY", "EMOTICON QUEUE TOP: " + string.toString());
     }
 }
