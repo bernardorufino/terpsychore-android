@@ -18,14 +18,16 @@ import android.view.*;
 import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
+import com.brufino.terpsychore.lib.EmojisIndex;
+import com.brufino.terpsychore.lib.EmoticonsHitCounter;
 import com.brufino.terpsychore.lib.SimpleTextWatcher;
 import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.CoreUtils;
 import com.brufino.terpsychore.util.FontUtils;
 import com.brufino.terpsychore.util.ViewUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
@@ -34,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,6 +58,7 @@ public class ChatFragment extends Fragment {
     private RecyclerView vMessagesList;
 
     private int mSessionId = -1;
+    private List<TextView> mReactionTextViews = new ArrayList<>();
     private ChatButtonAction mButtonAction;
     private ChatMessagesAdapter mMessagesAdapter;
     private MessagesApi mMessagesApi;
@@ -128,19 +132,16 @@ public class ChatFragment extends Fragment {
         }
     };
 
-    private static final List<String> EMOTICONS = ImmutableList.of(
-            String.valueOf(Character.toChars(0x2764)),
-            String.valueOf(Character.toChars(0x1F62E)),
-            String.valueOf(Character.toChars(0x1F630)),
-            String.valueOf(Character.toChars(0x1F621)));
-
     private void initializeReactions() {
-        List<View> views = new ArrayList<>(EMOTICONS.size());
+        EmoticonsHitCounter emoticonsHitCounter = EmoticonsHitCounter.load(getContext());
+        List<String> emoticons = emoticonsHitCounter.getTopDefaultSize();
+        List<View> views = new ArrayList<>(emoticons.size());
         int size = -1;
-        for (String emoticon : EMOTICONS) {
+        for (String emoticon : emoticons) {
             ViewGroup reactionWrapper = (ViewGroup) LayoutInflater.from(getContext())
                     .inflate(R.layout.chat_reaction, vReactionsContainer, false);
             TextView reactionTextView = (TextView) reactionWrapper.findViewById(R.id.chat_reaction_icon);
+            mReactionTextViews.add(reactionTextView);
             FontUtils.setTextWithEmojis(reactionTextView, emoticon);
             size = reactionWrapper.getLayoutParams().width;
             views.add(reactionWrapper);
@@ -158,6 +159,15 @@ public class ChatFragment extends Fragment {
                 centerX, centerY, radius,
                 Math.PI / 2 - offset, Math.PI + offset,
                 views);
+    }
+
+    private void updateReactions() {
+        EmoticonsHitCounter emoticonsHitCounter = EmoticonsHitCounter.load(getContext());
+        int i = 0;
+        for (String emoticon : emoticonsHitCounter.getTopDefaultSize()){
+            FontUtils.setTextWithEmojis(mReactionTextViews.get(i), emoticon);
+            i++;
+        }
     }
 
     private volatile View mReactionButtonDown = null;
@@ -244,6 +254,7 @@ public class ChatFragment extends Fragment {
                     if (content.isEmpty()) {
                         return;
                     }
+                    updateEmoticonHitCounter(content);
                     String userId = ActivityUtils.getUserId(getContext());
                     ApiUtils.postMessage(
                             getContext(),
@@ -261,6 +272,7 @@ public class ChatFragment extends Fragment {
                         vReactionsContainer.setVisibility(View.INVISIBLE);
                         vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);
                     } else {
+                        updateReactions();
                         vReactionsContainer.setVisibility(View.VISIBLE);
                         vActionButton.setImageResource(ACTION_BUTTON_CLOSE_REACTIONS_ICON);
                     }
@@ -268,6 +280,19 @@ public class ChatFragment extends Fragment {
             }
         }
     };
+
+    private void updateEmoticonHitCounter(String message) {
+        EmoticonsHitCounter counter = EmoticonsHitCounter.load(getContext());
+        Set<Integer> emoticons = new HashSet<>(); // 1 instance per message
+        for (int codePoint : CoreUtils.codePoints(message)) {
+            if (EmojisIndex.isEmoji(codePoint) && !emoticons.contains(codePoint)) {
+                String emoticon = String.valueOf(Character.toChars(codePoint));
+                counter.hit(emoticon);
+                emoticons.add(codePoint);
+            }
+        }
+        counter.saveInBackground();
+    }
 
     private static enum ChatButtonAction {
         SEND_MESSAGE, OPEN_REACTIONS

@@ -1,10 +1,7 @@
 package com.brufino.terpsychore.util;
 
 import com.brufino.terpsychore.lib.CodePointsIterable;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +47,26 @@ public class CoreUtils {
         return list;
     }
 
+    public static List<String> jsonArrayToNullableStringList(JsonArray jsonArray) {
+        List<String> list = new ArrayList<>(jsonArray.size());
+        for (JsonElement jsonElement : jsonArray) {
+            list.add(getAsStringOrNull(jsonElement));
+        }
+        return list;
+    }
+
     public static JsonArray stringListToJsonArray(List<String> stringList) {
         JsonArray jsonArray = new JsonArray();
         for (String string : stringList) {
             jsonArray.add(string);
+        }
+        return jsonArray;
+    }
+
+    public static JsonArray nullableStringListToJsonArray(List<String> stringList) {
+        JsonArray jsonArray = new JsonArray();
+        for (String string : stringList) {
+            jsonArray.add(string != null ? new JsonPrimitive(string) : JsonNull.INSTANCE);
         }
         return jsonArray;
     }
