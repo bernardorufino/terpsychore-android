@@ -20,12 +20,12 @@ public class EmoticonsHitCounter extends LimitedWeightedQueueHitCounter<String> 
             String.valueOf(Character.toChars(0x1F62E)),
             String.valueOf(Character.toChars(0x2764)));
 
-    public static final int QUEUE_LENGTH = 20;
+    public static final int QUEUE_LENGTH = 10;
 
     public static final Function<Integer, Double> INDEX_TO_WEIGHT_FUNCTION = new Function<Integer, Double>() {
         @Override
         public Double apply(Integer i) {
-            return (double) (QUEUE_LENGTH - i);
+            return Math.pow(QUEUE_LENGTH - i, 2);
         }
     };
 
