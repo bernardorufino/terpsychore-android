@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.lib.EmojiFontTextWatcher;
 
 public class EditSessionFragment extends DialogFragment {
 
@@ -20,14 +21,15 @@ public class EditSessionFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         EditText name = (EditText) view.findViewById(R.id.session_name);
+        /* TODO: EmojiFontTextWatcher not working */
+        name.addTextChangedListener(new EmojiFontTextWatcher(getContext()));
         name.requestFocus();
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setPositiveButton("Create", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -46,7 +48,6 @@ public class EditSessionFragment extends DialogFragment {
                 .setTitle("Session Name")
                 .setView(R.layout.dialog_edit_session)
                 .create();
-        AlertDialog dialog = builder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         return dialog;
     }

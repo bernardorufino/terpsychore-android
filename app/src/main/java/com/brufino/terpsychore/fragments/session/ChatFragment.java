@@ -11,16 +11,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
+import com.brufino.terpsychore.lib.EmojiFontTextWatcher;
 import com.brufino.terpsychore.lib.EmojisIndex;
 import com.brufino.terpsychore.lib.EmoticonsHitCounter;
-import com.brufino.terpsychore.lib.SimpleTextWatcher;
 import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
@@ -198,23 +197,16 @@ public class ChatFragment extends Fragment {
         }
     };
 
-    private TextWatcher mInputTextWatcher = new SimpleTextWatcher() {
+    private TextWatcher mInputTextWatcher = new EmojiFontTextWatcher() {
 
-        private boolean mCanChangeInput = true;
+        @Override
+        protected Context getContext() {
+            return ChatFragment.this.getContext();
+        }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             updateActionButtonStateBasedOnInput();
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (mCanChangeInput) {
-                mCanChangeInput = false;
-                FontUtils.applyFontToEmojis(getContext(), s, FontUtils.DEFAULT_EMOJI_FONT);
-                mCanChangeInput = true;
-            }
-
         }
     };
 
