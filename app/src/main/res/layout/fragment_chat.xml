@@ -38,9 +38,8 @@
                 android:layout_weight="1"
                 android:layout_margin="12dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="2dp"
                 android:paddingRight="10dp"
-                android:paddingBottom="2dp"
+                android:gravity="center_vertical"
                 android:textColor="@color/chatInputText"
                 android:textColorHint="@color/chatInputHintText"
                 android:background="@drawable/chat_input_bg"
@@ -69,7 +68,9 @@
         android:layout_marginBottom="-105dp"
         android:clipChildren="false"
         android:background="@drawable/chat_reactions_bg"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        android:clickable="true"
+        >
 
     </RelativeLayout>
 

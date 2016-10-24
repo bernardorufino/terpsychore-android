@@ -26,6 +26,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.FontUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
@@ -278,8 +279,8 @@ public class SessionsListFragment extends MainFragment {
             Picasso.with(mContext)
                     .load(imageUrl)
                     .into(vImage);
-            vTitle.setText(name);
-            vDescription.setText(description);
+            FontUtils.setTextWithEmojis(vTitle, name);
+            FontUtils.setTextWithEmojis(vDescription, description);
 
             vPlayingImage.setVisibility(View.GONE);
             if (tracksRemaining > 0) {

@@ -24,6 +24,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.SessionApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.FontUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
@@ -344,7 +345,7 @@ public class SessionActivity extends AppCompatActivity {
         mHost = session.get("host").getAsBoolean();
         mQueueManager.setHost(mHost);
         mQueueManager.setQueue(queue);
-        setTitle(session.get("name").getAsString());
+        setTitle(FontUtils.getTextWithDefaultFontForEmojis(this, session.get("name").getAsString()));
         invalidateOptionsMenu();
     }
 

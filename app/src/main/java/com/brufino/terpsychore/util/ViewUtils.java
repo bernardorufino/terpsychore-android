@@ -57,7 +57,6 @@ public class ViewUtils {
         return plural(size, singular, singular + "s");
     }
 
-
     public static void refreshImageInCaches(Context context, String imageUrl) {
         // Invalidates memory cache
         Picasso.with(context)
@@ -102,7 +101,7 @@ public class ViewUtils {
 
     /**
      * Will dispose views given in {@param views} with their centers around a circle centered in {@param centerX},
-     * {@param centerY} with radius {@params radius}. They will start at {@param arcStart} and end at {@param arcEnd}
+     * {@param centerY} with radius {@param radius}. They will start at {@param arcStart} and end at {@param arcEnd}
      * according to the trigonometric circle (e.g. 0 radians = 3 hours on the clock, pi radians = 9 hours).
      * The width / height of each view is retrieved from its LayoutParams, thus the LayoutParams must explicitly
      * specify the size of the view, instead of using wrap_content / match_parent.

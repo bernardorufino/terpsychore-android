@@ -22,6 +22,7 @@ import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
+import com.brufino.terpsychore.util.FontUtils;
 import com.brufino.terpsychore.util.ViewUtils;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -226,7 +227,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
             boolean firstOfUser = item.has("first_of_user");
             String imageUrl = CoreUtils.getAsStringOrNull(item.get("user").getAsJsonObject().get("image_url"));
 
-            vContent.setText(content);
+            FontUtils.setTextWithEmojis(vContent, content);
 
             int topMarginRes = (firstOfUser) ? R.dimen.chat_message_first_top_margin : R.dimen.chat_message_top_margin;
             int topMargin = vContainer.getResources().getDimensionPixelSize(topMarginRes);

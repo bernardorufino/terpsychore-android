@@ -5,17 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+import android.view.*;
 import android.widget.*;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.ApiCallback;
@@ -24,7 +23,9 @@ import com.brufino.terpsychore.messaging.FirebaseMessagingServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.MessagesApi;
 import com.brufino.terpsychore.util.ActivityUtils;
+import com.brufino.terpsychore.util.FontUtils;
 import com.brufino.terpsychore.util.ViewUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
@@ -39,6 +40,9 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.*;
 
 public class ChatFragment extends Fragment {
+
+    private static final long REPEAT_EMOTICON_DELAY_IN_MS = 350;
+    private static final long REPEAT_EMOTICON_INTERVAL_IN_MS = 120;
 
     private static Set<String> SUPPORTED_MESSAGE_TYPES = Sets.newHashSet("chat_message", "session_message");
     private static int ACTION_BUTTON_OPEN_REACTIONS_ICON = R.drawable.ic_bubble_chart_white_40dp;
@@ -124,52 +128,100 @@ public class ChatFragment extends Fragment {
         }
     };
 
-    private int[] reactionResIds = {
-            R.drawable.reaction_love,
-            R.drawable.reaction_wow,
-            R.drawable.reaction_sad,
-            R.drawable.reaction_angry
-    };
+    private static final List<String> EMOTICONS = ImmutableList.of(
+            String.valueOf(Character.toChars(0x2764)),
+            String.valueOf(Character.toChars(0x1F62E)),
+            String.valueOf(Character.toChars(0x1F630)),
+            String.valueOf(Character.toChars(0x1F621)));
 
     private void initializeReactions() {
-        List<View> views = new ArrayList<>(reactionResIds.length);
+        List<View> views = new ArrayList<>(EMOTICONS.size());
         int size = -1;
-        for (int resId : reactionResIds) {
-            // TODO: Inflater for this, really?
-            ImageView view = (ImageView) LayoutInflater
-                    .from(getContext())
-                    .inflate(R.layout.chat_reaction_icon, vReactionsContainer, false);
-            view.setImageResource(resId);
-            size = view.getLayoutParams().width;
-            views.add(view);
+        for (String emoticon : EMOTICONS) {
+            ViewGroup reactionWrapper = (ViewGroup) LayoutInflater.from(getContext())
+                    .inflate(R.layout.chat_reaction, vReactionsContainer, false);
+            TextView reactionTextView = (TextView) reactionWrapper.findViewById(R.id.chat_reaction_icon);
+            FontUtils.setTextWithEmojis(reactionTextView, emoticon);
+            size = reactionWrapper.getLayoutParams().width;
+            views.add(reactionWrapper);
+            reactionTextView.setOnTouchListener(mOnReactionTouchListener);
         }
         checkState(size > 0);
 
         int centerX = vReactionsContainer.getMeasuredWidth() / 2;
         int centerY = vReactionsContainer.getMeasuredHeight() / 2;
-        int padding = ViewUtils.dpToPx(getResources(), 20);
-        int radius = (int) (vActionButton.getWidth() / 2.0 + size / 2.0 + padding + 0.5);
+        int padding = ViewUtils.dpToPx(getResources(), 0);
+        int radius = (int) (0.5 + vActionButton.getWidth() / 2.0 + size / 2.0 + padding);
+        double offset = 3 * Math.PI / 180;
         ViewUtils.disposeViewsInArc(
                 vReactionsContainer,
                 centerX, centerY, radius,
-                Math.PI / 2, Math.PI,
+                Math.PI / 2 - offset, Math.PI + offset,
                 views);
     }
 
-    private TextWatcher mInputTextWatcher = new SimpleTextWatcher() {
+    private volatile View mReactionButtonDown = null;
+
+    private View.OnTouchListener mOnReactionTouchListener = new View.OnTouchListener() {
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (vInput.getText().toString().isEmpty()) {
-                mButtonAction = ChatButtonAction.OPEN_REACTIONS;
-                vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);
-                vReactionsContainer.setVisibility(View.INVISIBLE);
-            } else {
-                mButtonAction = ChatButtonAction.SEND_MESSAGE;
-                vActionButton.setImageResource(ACTION_BUTTON_SEND_MESSAGE_ICON);
-                vReactionsContainer.setVisibility(View.INVISIBLE);
+        public boolean onTouch(View v, MotionEvent event) {
+            final TextView reactionView = (TextView) v;
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                mReactionButtonDown = reactionView;
+                vInput.getText().append(reactionView.getText());
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mReactionButtonDown == reactionView) {
+                            vInput.getText().append(reactionView.getText());
+                            new Handler().postDelayed(this, REPEAT_EMOTICON_INTERVAL_IN_MS);
+                        }
+                    }
+                }, REPEAT_EMOTICON_DELAY_IN_MS);
+                return true;
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                mReactionButtonDown = null;
+                updateActionButtonStateBasedOnInput();
+                return true;
             }
+            return false;
         }
     };
+
+    private TextWatcher mInputTextWatcher = new SimpleTextWatcher() {
+
+        private boolean mCanChangeInput = true;
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            updateActionButtonStateBasedOnInput();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (mCanChangeInput) {
+                mCanChangeInput = false;
+                FontUtils.applyFontToEmojis(getContext(), s, FontUtils.DEFAULT_EMOJI_FONT);
+                mCanChangeInput = true;
+            }
+
+        }
+    };
+
+    private void updateActionButtonStateBasedOnInput() {
+        if (mReactionButtonDown != null) {
+            return;
+        }
+        if (vInput.getText().toString().isEmpty()) {
+            mButtonAction = ChatButtonAction.OPEN_REACTIONS;
+            vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);
+            vReactionsContainer.setVisibility(View.INVISIBLE);
+        } else {
+            mButtonAction = ChatButtonAction.SEND_MESSAGE;
+            vActionButton.setImageResource(ACTION_BUTTON_SEND_MESSAGE_ICON);
+            vReactionsContainer.setVisibility(View.INVISIBLE);
+        }
+    }
 
     private Callback<JsonObject> mOnMessagePosted = new ApiCallback<JsonObject>() {
         @Override
@@ -205,7 +257,6 @@ public class ChatFragment extends Fragment {
                     vInput.setText("");
                     break;
                 case OPEN_REACTIONS:
-                    mMessagesAdapter.loadNewMessages();
                     if (vReactionsContainer.isShown()) {
                         vReactionsContainer.setVisibility(View.INVISIBLE);
                         vActionButton.setImageResource(ACTION_BUTTON_OPEN_REACTIONS_ICON);

@@ -1,6 +1,8 @@
 package com.brufino.terpsychore.lib;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.widget.TextView;
@@ -19,6 +21,7 @@ public class CustomTextView extends TextView {
         super(context, attrs, defStyleAttr);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CustomTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }

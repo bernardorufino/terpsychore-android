@@ -1,5 +1,6 @@
 package com.brufino.terpsychore.util;
 
+import com.brufino.terpsychore.lib.CodePointsIterable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CoreUtils {
+
+    public static Iterable<Integer> codePoints(String string) {
+        return new CodePointsIterable(string);
+    }
 
     public static String getAsStringOrNull(JsonElement jsonElement) {
         return jsonElement.isJsonNull() ? null : jsonElement.getAsString();
