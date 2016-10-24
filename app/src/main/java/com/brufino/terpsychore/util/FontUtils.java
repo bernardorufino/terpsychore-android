@@ -65,9 +65,9 @@ public class FontUtils {
     }
 
     public static enum Font {
-        ANDROID_N("fonts/androidn.ttf", 1.0f, 0.0f),
-        EMOJIONE("fonts/emojione.ttf", 1.0f, 0.0f),
-        IOS("fonts/ios4.ttf", 1.1f, -0.08f),
+        //ANDROID_N("fonts/androidn.ttf", 1.0f, 0.0f),
+        //EMOJIONE("fonts/emojione.ttf", 1.0f, 0.0f),
+        //IOS("fonts/ios4.ttf", 1.1f, -0.08f),
         TWITTER("fonts/twitter2.ttf", 1.1f, -0.1f);
 
 
