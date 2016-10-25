@@ -24,7 +24,7 @@ public class EmojiFontTextWatcher extends SimpleTextWatcher {
     public void afterTextChanged(Editable s) {
         if (mCanChangeInput) {
             mCanChangeInput = false;
-            FontUtils.applyFontToEmojis(getContext(), s, FontUtils.DEFAULT_EMOJI_FONT);
+            FontUtils.applyFontToEmojis(getContext(), s, FontUtils.DEFAULT_EMOJI_FONT, true);
             mCanChangeInput = true;
         }
     }

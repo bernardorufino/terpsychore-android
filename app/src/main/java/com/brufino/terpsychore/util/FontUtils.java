@@ -19,6 +19,10 @@ public class FontUtils {
     public static final Font DEFAULT_EMOJI_FONT = Font.TWITTER;
 
     public static void applyFontToEmojis(Context context, Spannable spannable, Font font) {
+        applyFontToEmojis(context, spannable, font, false);
+    }
+
+    public static void applyFontToEmojis(Context context, Spannable spannable, Font font, boolean adjustBaseline) {
         for (ExternalTypefaceSpan span : spannable.getSpans(0, spannable.length(), ExternalTypefaceSpan.class)) {
             spannable.removeSpan(span);
         }
@@ -29,7 +33,7 @@ public class FontUtils {
             int codePoint = Character.codePointAt(spannable, i);
             int di = Character.charCount(codePoint);
             if (EmojisIndex.isEmoji(codePoint)) {
-                ExternalTypefaceSpan span = font.getExternalTypefaceSpan(context);
+                ExternalTypefaceSpan span = font.getExternalTypefaceSpan(context, adjustBaseline);
                 spannable.setSpan(span, i, i + di, 0);
             }
             i += di;
@@ -82,10 +86,11 @@ public class FontUtils {
             this.baselineShiftProportion = baselineShiftProportion;
         }
 
-        public ExternalTypefaceSpan getExternalTypefaceSpan(Context context) {
+        public ExternalTypefaceSpan getExternalTypefaceSpan(Context context, boolean adjustBaseline) {
             if (mTypeface == null) {
                 mTypeface = TypefaceUtils.load(context.getAssets(), filename);
             }
+            float baselineShiftProportion = (adjustBaseline) ? this.baselineShiftProportion : 0f;
             return new ExternalTypefaceSpan(mTypeface, relativeSize, baselineShiftProportion);
         }
     }

@@ -44,6 +44,7 @@
                 android:textColorHint="@color/chatInputHintText"
                 android:background="@drawable/chat_input_bg"
                 android:inputType="textCapSentences|textMultiLine"
+                android:includeFontPadding="false"
                 android:hint="@string/chat_input_hint"
                 />
 
