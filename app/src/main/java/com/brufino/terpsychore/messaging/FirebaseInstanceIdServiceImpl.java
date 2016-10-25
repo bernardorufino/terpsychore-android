@@ -19,16 +19,14 @@ import retrofit2.Response;
 
 public class FirebaseInstanceIdServiceImpl extends FirebaseInstanceIdService {
 
-    public static Call<JsonObject> tryRegisterDevice(Context context) {
+    public static Call<JsonObject> tryRegisterDevice(final Context context) {
         String userId = ActivityUtils.getUserId(context);
         String token = FirebaseInstanceId.getInstance().getToken();
         if (token == null) {
             Log.d("VFY", "Firebase: token returned by FirebaseInstanceId.getToken() is null, trying from shared prefs...");
             token = ActivityUtils.getFirebaseToken(context);
         }
-        String providedId = Settings.Secure.getString(
-                context.getContentResolver(),
-                Settings.Secure.ANDROID_ID);
+        String providedId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         String name = DeviceName.getDeviceName();
 
         if (userId == null || token == null) {
@@ -59,6 +57,12 @@ public class FirebaseInstanceIdServiceImpl extends FirebaseInstanceIdService {
             public void onSuccess(Call<JsonObject> call, Response<JsonObject> response) {
                 Log.d("VFY", "Device registered");
                 Log.d("VFY", "  body = " + response.body());
+                int deviceId = response.body().get("id").getAsInt();
+                context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
+                        .edit()
+                        .putInt(SharedPreferencesDefs.Main.KEY_DEVICE_ID, deviceId)
+                        .apply();
+                Log.d("VFY", "  saved deviceId in shared preferences");
             }
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t, Response<JsonObject> response) {

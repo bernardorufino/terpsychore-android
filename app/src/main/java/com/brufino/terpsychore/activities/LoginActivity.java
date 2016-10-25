@@ -16,11 +16,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.brufino.terpsychore.R;
+import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.messaging.FirebaseInstanceIdServiceImpl;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
+import com.brufino.terpsychore.util.ActivityUtils;
 import com.brufino.terpsychore.util.CoreUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -49,7 +51,10 @@ public class LoginActivity extends AppCompatActivity {
     private static final int DELIVER_RESULT_DELAY_MS = 1500;
     private static final int RESULT_SUCCESS_LOGIN = 1;
 
-    public static void logout(Context context) {
+    public static void logout(final Context context) {
+        String userId = ActivityUtils.getUserId(context);
+        int deviceId = ActivityUtils.getDeviceId(context);
+
         context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
                 .edit()
                 .putString(SharedPreferencesDefs.Main.KEY_USER_SPOTIFY_ID, null)
@@ -59,7 +64,25 @@ public class LoginActivity extends AppCompatActivity {
                 .putString(SharedPreferencesDefs.Main.KEY_EMAIL, null)
                 .putString(SharedPreferencesDefs.Main.KEY_IMAGE_URL, null)
                 .putString(SharedPreferencesDefs.Main.KEY_EXPIRES_AT, null)
+                .putString(SharedPreferencesDefs.Main.KEY_FIREBASE_TOKEN, null)
+                .putString(SharedPreferencesDefs.Main.KEY_DEVICE_ID, null)
                 .apply();
+
+        if (deviceId != -1) {
+            AuthenticationApi api = ApiUtils.createApi(context, AuthenticationApi.class);
+            api.unregisterDevice(userId, deviceId).enqueue(new ApiCallback<String>() {
+                @Override
+                public void onSuccess(Call<String> call, Response<String> response) {
+                    Toast.makeText(context.getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
+                }
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.v("VFY", "Error logging out", t);
+                }
+            });
+        } else {
+            Toast.makeText(context.getApplicationContext(), "Logged out", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private ImageView vSettingsIcon;

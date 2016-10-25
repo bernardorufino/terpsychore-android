@@ -13,6 +13,7 @@ public class SharedPreferencesDefs {
         public static final String KEY_EMAIL = "email";
         public static final String KEY_FIREBASE_TOKEN = "firebaseToken";
         public static final String KEY_EMOTICON_HISTORY = "emoticonHistory";
+        public static final String KEY_DEVICE_ID = "deviceId";
     }
 
     public static class Messaging {

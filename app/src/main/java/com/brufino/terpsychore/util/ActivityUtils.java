@@ -9,6 +9,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ActivityUtils {
 
+    public static int getDeviceId(Context context) {
+        return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
+                .getInt(SharedPreferencesDefs.Main.KEY_DEVICE_ID, -1);
+    }
+
     public static String getFirebaseToken(Context context) {
         return context.getSharedPreferences(SharedPreferencesDefs.Main.FILE, Context.MODE_PRIVATE)
                 .getString(SharedPreferencesDefs.Main.KEY_FIREBASE_TOKEN, null);

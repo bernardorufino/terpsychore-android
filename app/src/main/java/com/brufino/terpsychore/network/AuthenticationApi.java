@@ -20,4 +20,7 @@ public interface AuthenticationApi {
 
     @POST("user/{userId}/devices")
     public Call<JsonObject> registerDevice(@Path("userId") String userId, @Body JsonObject body);
+
+    @DELETE("user/{userId}/device/{deviceId}")
+    public Call<String> unregisterDevice(@Path("userId") String userId, @Path("deviceId") int deviceId);
 }
