@@ -58,7 +58,7 @@ public class ApiUtils {
 
     private static String getBaseUrl(Context context) {
         String baseUrl = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(context.getString(R.string.preference_base_url), null);
+                .getString(context.getString(R.string.preference_backend_address), null);
         checkNotNull(baseUrl, "Preference preference_base_url is null");
         return baseUrl;
     }

@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 import com.brufino.terpsychore.R;
 import com.brufino.terpsychore.lib.EmoticonsHitCounter;
 
@@ -74,7 +75,18 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences_general);
+            findPreference(getString(R.string.preference_backend_address))
+                    .setOnPreferenceChangeListener(mOnBackendAddressChangeListener);
         }
+
+        private Preference.OnPreferenceChangeListener mOnBackendAddressChangeListener =
+                new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Toast.makeText(getActivity(), "Remember to logout, kill the app and then reopen", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        };
     }
 
     public static class PreferenceFragmentImpl extends PreferenceFragment {
