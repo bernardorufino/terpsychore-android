@@ -1,7 +1,7 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
 
-
+    <dimen name="playback_button_width">58dp</dimen>
     <dimen name="playback_controls_height">64dp</dimen>
     <dimen name="track_graph_height">64dp</dimen>
     <dimen name="queue_track_item_height">54dp</dimen>

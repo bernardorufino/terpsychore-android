@@ -48,7 +48,7 @@
     <color name="graphStroke">#00FFFFFF</color>
     <color name="graphStrokeTop">#00FFFFFF</color>
     <color name="graphForeground">#08FFFFFF</color>
-    <color name="graphForegroundTop">#0CFFFFFF</color>
+    <color name="graphForegroundTop">#0EFFFFFF</color>
 
     <color name="trackPlaybackTimelineProgress">#28FFFFFF</color>
     <color name="trackPlaybackTimelineBg">#00FFFFFF</color>
