@@ -96,6 +96,14 @@ public class LocalMessagesManager {
         return messages;
     }
 
+    public synchronized Collection<Integer> getSessionIds() {
+        List<Integer> sessionIds = new ArrayList<>();
+        for (String sessionKey : mMessages.keySet()) {
+            sessionIds.add(getSessionId(sessionKey));
+        }
+        return sessionIds;
+    }
+
     public synchronized void clearMessages(int sessionId) {
         String sessionKey = getSessionKey(sessionId);
         mMessages.put(sessionKey, new ArrayList<JsonObject>());
@@ -117,6 +125,10 @@ public class LocalMessagesManager {
 
     private String getSessionKey(int sessionId) {
         return SharedPreferencesDefs.Messaging.KEY_SESSION_PREFIX + sessionId;
+    }
+
+    private int getSessionId(String sessionKey) {
+        return Integer.parseInt(sessionKey.replace(SharedPreferencesDefs.Messaging.KEY_SESSION_PREFIX, ""));
     }
 
     public synchronized void updateNotification(int sessionId) {

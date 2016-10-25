@@ -20,6 +20,7 @@ import com.brufino.terpsychore.lib.ApiCallback;
 import com.brufino.terpsychore.lib.CircleTransformation;
 import com.brufino.terpsychore.lib.SharedPreferencesDefs;
 import com.brufino.terpsychore.messaging.FirebaseInstanceIdServiceImpl;
+import com.brufino.terpsychore.messaging.LocalMessagesManager;
 import com.brufino.terpsychore.network.ApiUtils;
 import com.brufino.terpsychore.network.AuthenticationApi;
 import com.brufino.terpsychore.util.ActivityUtils;
@@ -67,6 +68,12 @@ public class LoginActivity extends AppCompatActivity {
                 .putString(SharedPreferencesDefs.Main.KEY_FIREBASE_TOKEN, null)
                 .putString(SharedPreferencesDefs.Main.KEY_DEVICE_ID, null)
                 .apply();
+
+        LocalMessagesManager messagesManager = LocalMessagesManager.getInstance(context);
+        for (int sessionId : messagesManager.getSessionIds()) {
+            messagesManager.clearMessages(sessionId);
+            messagesManager.updateNotification(sessionId);
+        }
 
         if (deviceId != -1) {
             AuthenticationApi api = ApiUtils.createApi(context, AuthenticationApi.class);
