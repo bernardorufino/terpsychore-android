@@ -15,7 +15,9 @@
     <string name="user_picker_search_hint">Search for name or username</string>
 
     <string name="settings_activity_title">Settings</string>
+    <string name="no_messages_session_description">No messages</string>
+
     <string name="preference_backend_address">preference_backend_address</string>
     <string name="preference_show_my_image_on_chat">preference_show_my_image_on_chat</string>
-    <string name="no_messages_session_description">No messages</string>
+    <string name="preference_base_timeout">preference_base_timeout</string>
 </resources>

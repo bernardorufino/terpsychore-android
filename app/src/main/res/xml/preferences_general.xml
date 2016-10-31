@@ -17,4 +17,13 @@
             android:layout="@layout/layout_preference"
             />
 
+        <EditTextPreference
+            android:key="@string/preference_base_timeout"
+            android:title="Base Timeout (Seconds)"
+            android:defaultValue="20"
+            android:inputType="number"
+            android:numeric="integer"
+            android:layout="@layout/layout_preference"
+            />
+
 </PreferenceScreen>

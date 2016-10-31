@@ -14,6 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.*;
@@ -35,12 +37,35 @@ public class ApiUtils {
 
     public static <T> T createApi(Context context, Class<T> type) {
         if (sRetrofit == null) {
+            long timeout = getBaseTimeout(context);
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+                    .connectTimeout(timeout, TimeUnit.SECONDS)
+                    .build();
             sRetrofit = new Retrofit.Builder()
                     .baseUrl(getBaseUrl(context))
                     .addConverterFactory(GsonConverterFactory.create())
+                    .client(okHttpClient)
                     .build();
         }
         return sRetrofit.create(type);
+    }
+
+    public static <T> T createApi(Context context, Class<T> type, int baseTimeoutMultiplier) {
+        long timeout = getBaseTimeout(context) * baseTimeoutMultiplier;
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(timeout, TimeUnit.SECONDS)
+                .writeTimeout(timeout, TimeUnit.SECONDS)
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .build();
+        Log.v("VFY", "Creating API for " + type.getSimpleName() + " with timeout = " + timeout + " seconds");
+        return new Retrofit.Builder()
+                .baseUrl(getBaseUrl(context))
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build()
+                .create(type);
     }
 
     public static <T> String getErrorBodyAsString(Response<T> response) {
@@ -55,6 +80,12 @@ public class ApiUtils {
     public static <T> JsonElement getErrorBodyAsJsonElement(Response<T> response) {
         return new JsonParser().parse(getErrorBodyAsString(response));
     }
+
+    private static long getBaseTimeout(Context context) {
+        return Long.parseLong(PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(context.getString(R.string.preference_base_timeout), "20"));
+    }
+
 
     private static String getBaseUrl(Context context) {
         String baseUrl = PreferenceManager.getDefaultSharedPreferences(context)
@@ -131,7 +162,8 @@ public class ApiUtils {
             trackIds.add(pattern.matcher(trackUri).replaceFirst(""));
         }
 
-        SessionApi api = createApi(context, SessionApi.class);
+        int baseTimeoutMultiplier = (int) (0.5 + Math.max(1, trackUris.size() * 0.5));
+        SessionApi api = createApi(context, SessionApi.class, baseTimeoutMultiplier);
         String userId = ActivityUtils.getUserId(context);
         JsonObject body = new JsonObject();
         body.add("track_ids", CoreUtils.stringListToJsonArray(trackIds));
