@@ -33,27 +33,18 @@ public class LocalMessagesManager {
     private static final List<MessagePresenter> MESSAGE_PRESENTERS = ImmutableList.<MessagePresenter>of(
             new ChatMessagePresenter());
 
-    private static LocalMessagesManager sInstance = null;
-
-    public static LocalMessagesManager getInstance(Context context) {
-        if (sInstance == null) {
-            synchronized (LocalMessagesManager.class) {
-                if (sInstance == null) {
-                    sInstance = new LocalMessagesManager(context);
-                }
-            }
-        }
-        return sInstance;
+    private static class InstanceHolder {
+        private static final LocalMessagesManager INSTANCE = new LocalMessagesManager();
     }
 
-    private Context mContext;
-    private NotificationManager mNotificationManager;
+    public static LocalMessagesManager getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
+
     private Map<String, List<JsonObject>> mMessages = new HashMap<>();
 
-    // Prevents outside instantiation
-    private LocalMessagesManager(Context context) {
-        mContext = context.getApplicationContext();
-        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+    private LocalMessagesManager() {
+        /* Prevents outside instantiation */
     }
 
     /* TODO: Order by date! */
@@ -66,7 +57,7 @@ public class LocalMessagesManager {
                 }
             });
 
-    public synchronized void addMessage(int sessionId, JsonObject message) {
+    public synchronized void addMessage(Context context, int sessionId, JsonObject message) {
         if (selectPresenterForMessage(message) == null) {
             return;
         }
@@ -74,17 +65,17 @@ public class LocalMessagesManager {
         messages.add(message);
         Collections.sort(messages, mMessageComparator);
         JsonArray messagesJson = CoreUtils.jsonObjectListToJsonArray(messages);
-        mContext.getSharedPreferences(SharedPreferencesDefs.Messaging.FILE, Context.MODE_PRIVATE)
+        context.getSharedPreferences(SharedPreferencesDefs.Messaging.FILE, Context.MODE_PRIVATE)
                 .edit()
                 .putString(getSessionKey(sessionId), messagesJson.toString())
                 .apply();
     }
 
-    public synchronized List<JsonObject> getMessages(int sessionId) {
+    public synchronized List<JsonObject> getMessages(Context context, int sessionId) {
         String sessionKey = getSessionKey(sessionId);
         List<JsonObject> messages = mMessages.get(sessionKey);
         if (messages == null) {
-            SharedPreferences sharedPreferences = mContext.getSharedPreferences(
+            SharedPreferences sharedPreferences = context.getSharedPreferences(
                     SharedPreferencesDefs.Messaging.FILE,
                     Context.MODE_PRIVATE);
             String messagesString = sharedPreferences.getString(sessionKey, null);
@@ -104,10 +95,10 @@ public class LocalMessagesManager {
         return sessionIds;
     }
 
-    public synchronized void clearMessages(int sessionId) {
+    public synchronized void clearMessages(Context context, int sessionId) {
         String sessionKey = getSessionKey(sessionId);
         mMessages.put(sessionKey, new ArrayList<JsonObject>());
-        mContext.getSharedPreferences(SharedPreferencesDefs.Messaging.FILE, Context.MODE_PRIVATE)
+        context.getSharedPreferences(SharedPreferencesDefs.Messaging.FILE, Context.MODE_PRIVATE)
                 .edit()
                 .putString(sessionKey, null)
                 .apply();
@@ -131,24 +122,25 @@ public class LocalMessagesManager {
         return Integer.parseInt(sessionKey.replace(SharedPreferencesDefs.Messaging.KEY_SESSION_PREFIX, ""));
     }
 
-    public synchronized void updateNotification(int sessionId) {
-        Notification notification = getNotificationForSession(sessionId);
+    public synchronized void updateNotification(Context context, int sessionId) {
+        Notification notification = getNotificationForSession(context, sessionId);
         if (notification == null) {
-            mNotificationManager.cancel(sessionId);
+            getNotificationManager(context).cancel(sessionId);
         } else {
-            mNotificationManager.notify(sessionId, notification);
+            getNotificationManager(context).notify(sessionId, notification);
         }
     }
 
-    private Notification getNotificationForSession(int sessionId) {
-        List<JsonObject> messages = getMessages(sessionId);
+    private Notification getNotificationForSession(Context context, int sessionId) {
+        List<JsonObject> messages = getMessages(context, sessionId);
         if (messages.isEmpty()) {
             return null;
         }
         int nMessages = messages.size();
         JsonObject lastMessage = messages.get(nMessages - 1);
         String sessionName = lastMessage.get("session").getAsJsonObject().get("name").getAsString();
-        NotificationCompat.Builder notificationBuilder = getNotificationBuilderScaffold(sessionId, sessionName);
+        NotificationCompat.Builder notificationBuilder =
+                getNotificationBuilderScaffold(context, sessionId, sessionName);
         if (nMessages == 1) {
             return notificationBuilder
                     .setContentText(selectPresenterForMessage(lastMessage).getNotificationLine(lastMessage))
@@ -163,16 +155,19 @@ public class LocalMessagesManager {
                 .build();
     }
 
-    private NotificationCompat.Builder getNotificationBuilderScaffold(int sessionId, String sessionName) {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(mContext)
+    private NotificationCompat.Builder getNotificationBuilderScaffold(
+            Context context,
+            int sessionId,
+            String sessionName) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_logo)
-                .setColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
+                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                 .setContentTitle(sessionName)
                 .setAutoCancel(false)
                 .setShowWhen(true);
-        Intent actionIntent = new Intent(mContext, SessionActivity.class);
+        Intent actionIntent = new Intent(context, SessionActivity.class);
         actionIntent.putExtra(SessionActivity.SESSION_ID_EXTRA_KEY, sessionId);
-        PendingIntent pendingIntent = TaskStackBuilder.create(mContext)
+        PendingIntent pendingIntent = TaskStackBuilder.create(context)
                 .addParentStack(SessionActivity.class)
                 .addNextIntent(actionIntent)
                 .getPendingIntent(sessionId, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -209,6 +204,10 @@ public class LocalMessagesManager {
 
     public CharSequence getDescriptionForMessage(JsonObject message) {
         return selectPresenterForMessage(message).getDescription(message);
+    }
+
+    private NotificationManager getNotificationManager(Context context) {
+        return (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public static abstract class MessagePresenter {

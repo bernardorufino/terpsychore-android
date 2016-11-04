@@ -60,9 +60,9 @@ public class FirebaseMessagingServiceImpl extends FirebaseMessagingService {
         // Create notification
         if (messageString != null) {
             JsonObject message = JSON_PARSER.parse(messageString).getAsJsonObject();
-            LocalMessagesManager messagesManager = LocalMessagesManager.getInstance(context);
-            messagesManager.addMessage(sessionId, message);
-            messagesManager.updateNotification(sessionId);
+            LocalMessagesManager messagesManager = LocalMessagesManager.getInstance();
+            messagesManager.addMessage(context, sessionId, message);
+            messagesManager.updateNotification(context, sessionId);
         }
     }
 }

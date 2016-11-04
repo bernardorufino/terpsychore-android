@@ -69,10 +69,10 @@ public class LoginActivity extends AppCompatActivity {
                 .putString(SharedPreferencesDefs.Main.KEY_DEVICE_ID, null)
                 .apply();
 
-        LocalMessagesManager messagesManager = LocalMessagesManager.getInstance(context);
+        LocalMessagesManager messagesManager = LocalMessagesManager.getInstance();
         for (int sessionId : messagesManager.getSessionIds()) {
-            messagesManager.clearMessages(sessionId);
-            messagesManager.updateNotification(sessionId);
+            messagesManager.clearMessages(context, sessionId);
+            messagesManager.updateNotification(context, sessionId);
         }
 
         if (deviceId != -1) {

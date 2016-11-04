@@ -51,7 +51,7 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
         mContext = context;
         mSessionId = sessionId;
         mMessagesApi =  ApiUtils.createApi(mContext, MessagesApi.class);
-        mMessagesManager = LocalMessagesManager.getInstance(mContext);
+        mMessagesManager = LocalMessagesManager.getInstance();
     }
 
     @Override
@@ -102,8 +102,8 @@ public class ChatMessagesAdapter extends DynamicAdapter<JsonObject, ChatMessages
     }
 
     private void clearNotifications() {
-        mMessagesManager.clearMessages(mSessionId);
-        mMessagesManager.updateNotification(mSessionId);
+        mMessagesManager.clearMessages(mContext, mSessionId);
+        mMessagesManager.updateNotification(mContext, mSessionId);
     }
 
     /**

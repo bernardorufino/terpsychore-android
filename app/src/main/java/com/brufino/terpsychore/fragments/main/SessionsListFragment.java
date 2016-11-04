@@ -274,7 +274,7 @@ public class SessionsListFragment extends MainFragment {
             String imageUrl = ApiUtils.getServerUrl(mContext, session.get("image_url").getAsString());
             CharSequence description =  (lastMessage == null)
                     ? mContext.getString(R.string.no_messages_session_description)
-                    : LocalMessagesManager.getInstance(mContext).getDescriptionForMessage(lastMessage);
+                    : LocalMessagesManager.getInstance().getDescriptionForMessage(lastMessage);
 
             Picasso.with(mContext)
                     .load(imageUrl)
