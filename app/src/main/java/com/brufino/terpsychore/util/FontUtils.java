@@ -16,7 +16,7 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils;
 
 public class FontUtils {
 
-    public static final Font DEFAULT_EMOJI_FONT = Font.TWITTER;
+    public static final Font DEFAULT_EMOJI_FONT = null;
 
     public static void applyFontToEmojis(Context context, Spannable spannable, Font font) {
         applyFontToEmojis(context, spannable, font, false);
