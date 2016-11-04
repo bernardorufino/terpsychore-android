@@ -116,7 +116,8 @@
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
         <item name="android:layout_marginLeft">@dimen/chat_message_tick_size</item>
-        <item name="android:layout_marginRight">50dp</item> <!-- 32 (image) + 2 * 9 (tick)  -->
+        <!-- CHANGE_(@dimen/chat_message_image_size)_HERE -->
+        <item name="android:layout_marginRight">51dp</item> <!-- 33 (image) + 2 * 9 (tick)  -->
     </style>
 
     <style name="ChatMessageContainer.Outgoing">

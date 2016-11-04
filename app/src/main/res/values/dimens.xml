@@ -34,7 +34,8 @@
     <dimen name="chat_message_top_margin">0dp</dimen>
     <dimen name="chat_message_first_top_margin">8dp</dimen>
 
-    <dimen name="chat_message_image_size">32dp</dimen>
+    <!-- Look for CHANGE_(@dimen/chat_message_image_size)_HERE -->
+    <dimen name="chat_message_image_size">33dp</dimen>
 
     <dimen name="dialog_horizontal_space">20dp</dimen>
     <dimen name="dialog_top_space">5dp</dimen>
