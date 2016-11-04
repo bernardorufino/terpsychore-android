@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                     break;
                 case R.id.main_drawer_logout:
-                    new AlertDialog.Builder(this)
+                    new AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                             .setMessage(R.string.logout_message)
                             .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
                                 @Override

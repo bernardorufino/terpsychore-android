@@ -316,16 +316,16 @@ public class SessionActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_unjoin_session:
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                         .setMessage("Leave session?")
                         .setPositiveButton("Leave", mOnUnjoinSessionListener)
                         .setNegativeButton("Cancel", null)
                         .show();
                 return true;
             case R.id.action_delete:
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(this, R.style.AppTheme_AlertDialog)
                         .setMessage("Delete session?")
-                        .setPositiveButton("Remove", mOnDeleteSessionListener)
+                        .setPositiveButton("Delete", mOnDeleteSessionListener)
                         .setNegativeButton("Cancel", null)
                         .show();
                 return true;

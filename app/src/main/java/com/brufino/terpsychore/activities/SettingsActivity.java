@@ -37,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
         vResetEmoticonHistoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new AlertDialog.Builder(SettingsActivity.this)
+                new AlertDialog.Builder(SettingsActivity.this, R.style.AppTheme_AlertDialog)
                         .setMessage("Reset emoticon history?")
                         .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                             @Override
