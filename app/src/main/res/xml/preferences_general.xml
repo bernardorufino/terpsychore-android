@@ -10,10 +10,12 @@
             android:layout="@layout/layout_preference"
             />
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="@string/preference_show_my_image_on_chat"
             android:title="Show my image on chat"
             android:defaultValue="false"
+            android:summaryOn="Show"
+            android:summaryOff="Hide"
             android:layout="@layout/layout_preference"
             />
 

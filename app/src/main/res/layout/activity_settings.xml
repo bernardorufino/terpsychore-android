@@ -44,7 +44,7 @@
             android:id="@+id/settings_reset_emoticon_history"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/item_padding"
+            android:layout_marginStart="14dp"
             android:layout_marginEnd="@dimen/item_padding"
             android:layout_marginTop="@dimen/item_half_padding"
             android:layout_marginBottom="@dimen/item_half_padding"

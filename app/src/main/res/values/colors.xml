@@ -9,7 +9,9 @@
     <color name="colorPrimary">#4CAF50</color>
     <color name="colorPrimaryDark">#2E7D32</color>
     <color name="colorPrimaryExtraDark">#2C722D</color>
-    <color name="colorAccent">#D63737</color>
+    <!-- Fuck it, will use the same -->
+    <color name="colorAccent">#4CAF50</color>
+    <!--<color name="colorAccent">#D63737</color>-->
 
     <color name="dark3">#000102</color>
     <color name="dark2">#060708</color>

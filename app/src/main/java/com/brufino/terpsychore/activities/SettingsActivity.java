@@ -121,9 +121,9 @@ public class SettingsActivity extends AppCompatActivity {
             } else if (preference instanceof EditTextPreference) {
                 EditTextPreference editTextPreference = (EditTextPreference) preference;
                 preference.setSummary(editTextPreference.getText());
-            } else if (preference instanceof CheckBoxPreference) {
-                // There's the checkbox already
-                preference.setSummary(null);
+            } else if (preference instanceof CheckBoxPreference ||
+                    preference instanceof SwitchPreference) {
+                /* No-op */
             } else {
                 preference.setSummary(stringValue);
             }
